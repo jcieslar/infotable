@@ -5,6 +5,17 @@ class TablesHelperTest < ActionView::TestCase
 
   def col(**o) = { name: :name, type: :string, formatter: nil, formatter_options: nil }.merge(o)
 
+  test "data columns are clipped to their width, action columns only have a minimum" do
+    data = infotable_cell_width_style(col(width: "200px"), ellipsis: true)
+    assert_match(/width: 200px; max-width: 200px; overflow: hidden; text-overflow: ellipsis/, data)
+
+    %i[action actions].each do |type|
+      style = infotable_cell_width_style(col(type: type, width: "150px"))
+      assert_match(/min-width: 150px/, style)
+      assert_no_match(/max-width|overflow/, style)
+    end
+  end
+
   test "plain values render as-is, nil and empty use table placeholders" do
     t = build_table { nil_value "n/a"; empty_value "(empty)" }
     assert_equal "n/a", format_cell_value(User.new(name: nil), col, t)

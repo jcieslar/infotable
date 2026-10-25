@@ -28,6 +28,17 @@ module Infotable
       render partial: "infotable/tables/table", locals: locals
     end
 
+    # Inline width style for a header/body cell. Data columns are clipped to their width (ellipsis);
+    # action columns hold buttons, so their width is only a minimum and the column grows to fit all
+    # of them (a clipped "Delete" button is worse than a wider column).
+    def infotable_cell_width_style(column, ellipsis: false)
+      if %w[action actions].include?(column[:type].to_s)
+        "width: 1%; min-width: #{column[:width]}; white-space: nowrap;"
+      else
+        "width: #{column[:width]}; max-width: #{column[:width]}; overflow: hidden;#{' text-overflow: ellipsis;' if ellipsis}"
+      end
+    end
+
     # Format cell value based on column definition
     def format_cell_value(record, column, table_class = nil)
       value = (table_class || Infotable::Base).cell_value(record, column)
