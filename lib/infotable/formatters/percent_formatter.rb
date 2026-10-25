@@ -19,7 +19,7 @@ module Infotable
 
         width = number.clamp(0, 100).round
         bar = content_tag(:div, content_tag(:div, "", class: "h-full rounded-full bg-indigo-500", style: "width: #{width}%"),
-                          class: "h-1.5 w-16 rounded-full bg-gray-200 flex-none", role: "presentation")
+                          class: "h-1.5 w-16 rounded-full bg-gray-200 dark:bg-gray-700 flex-none", role: "presentation")
         content_tag(:div, safe_join([ content_tag(:span, text, class: "tabular-nums"), bar ]), class: "flex items-center gap-2")
       end
     end

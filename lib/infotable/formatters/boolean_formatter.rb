@@ -20,9 +20,9 @@ module Infotable
 
       def format_as_badge(value, true_text, false_text)
         if value
-          content_tag(:span, true_text, class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800")
+          content_tag(:span, true_text, class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300")
         else
-          content_tag(:span, false_text, class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800")
+          content_tag(:span, false_text, class: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200")
         end
       end
 

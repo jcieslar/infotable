@@ -258,7 +258,7 @@ module Infotable
 
       {
         style: "#{side}: 0; width: #{width}; max-width: 90%; transform: translateX(#{hidden});",
-        class: "absolute top-0 bottom-0 bg-white #{side == 'left' ? 'border-r rounded-l-xl' : 'border-l rounded-r-xl'} border-indigo-200 shadow-2xl transition-all duration-300 ease-in-out z-50",
+        class: "absolute top-0 bottom-0 bg-white dark:bg-gray-900 #{side == 'left' ? 'border-r rounded-l-xl' : 'border-l rounded-r-xl'} border-indigo-200 dark:border-indigo-800 shadow-2xl transition-all duration-300 ease-in-out z-50",
         role: "dialog",
         inert: true, # closed drawer is off-screen: keep it out of the tab order (JS toggles it)
         aria: { label: I18n.t("infotable.drawer.label"), hidden: true },
@@ -267,7 +267,7 @@ module Infotable
     end
 
     BATCH_BUTTON_COLORS = {
-      default: "border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
+      default: "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800",
       primary: "border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700",
       success: "border-green-600 bg-green-600 text-white hover:bg-green-700",
       warning: "border-yellow-500 bg-yellow-500 text-white hover:bg-yellow-600",

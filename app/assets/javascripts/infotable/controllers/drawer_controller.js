@@ -461,11 +461,11 @@ export default class extends Controller {
     this.tabButtonTargets.forEach(button => {
       const isActive = button.dataset.tab === tab
       if (isActive) {
-        button.classList.add("text-indigo-600", "border-indigo-600")
-        button.classList.remove("text-gray-500", "border-transparent")
+        button.classList.add("text-indigo-600", "dark:text-indigo-400", "border-indigo-600")
+        button.classList.remove("text-gray-500", "dark:text-gray-400", "border-transparent")
       } else {
-        button.classList.remove("text-indigo-600", "border-indigo-600")
-        button.classList.add("text-gray-500", "border-transparent")
+        button.classList.remove("text-indigo-600", "dark:text-indigo-400", "border-indigo-600")
+        button.classList.add("text-gray-500", "dark:text-gray-400", "border-transparent")
       }
     })
 
@@ -904,21 +904,21 @@ export default class extends Controller {
 
     if (leftBtn) {
       if (pinned === 'left') {
-        leftBtn.classList.add('bg-indigo-100', 'text-indigo-600')
-        leftBtn.classList.remove('text-gray-400', 'hover:bg-gray-100', 'hover:text-gray-600')
+        leftBtn.classList.add('bg-indigo-100', 'dark:bg-indigo-900/40', 'text-indigo-600')
+        leftBtn.classList.remove('text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'hover:text-gray-600')
       } else {
-        leftBtn.classList.remove('bg-indigo-100', 'text-indigo-600')
-        leftBtn.classList.add('text-gray-400', 'hover:bg-gray-100', 'hover:text-gray-600')
+        leftBtn.classList.remove('bg-indigo-100', 'dark:bg-indigo-900/40', 'text-indigo-600')
+        leftBtn.classList.add('text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'hover:text-gray-600')
       }
     }
 
     if (rightBtn) {
       if (pinned === 'right') {
-        rightBtn.classList.add('bg-indigo-100', 'text-indigo-600')
-        rightBtn.classList.remove('text-gray-400', 'hover:bg-gray-100', 'hover:text-gray-600')
+        rightBtn.classList.add('bg-indigo-100', 'dark:bg-indigo-900/40', 'text-indigo-600')
+        rightBtn.classList.remove('text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'hover:text-gray-600')
       } else {
-        rightBtn.classList.remove('bg-indigo-100', 'text-indigo-600')
-        rightBtn.classList.add('text-gray-400', 'hover:bg-gray-100', 'hover:text-gray-600')
+        rightBtn.classList.remove('bg-indigo-100', 'dark:bg-indigo-900/40', 'text-indigo-600')
+        rightBtn.classList.add('text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'hover:text-gray-600')
       }
     }
   }
@@ -991,7 +991,7 @@ export default class extends Controller {
       header.style.removeProperty('background-color')
       header.style.removeProperty('background-image')
       header.style.removeProperty('opacity')
-      header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
+      header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
     })
 
     rows.forEach(row => {
@@ -1004,7 +1004,7 @@ export default class extends Controller {
         cell.style.removeProperty('background-color')
         cell.style.removeProperty('background-image')
         cell.style.removeProperty('opacity')
-        cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
+        cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
       })
     })
 
@@ -1050,7 +1050,7 @@ export default class extends Controller {
 
         // Set all styles at once via setAttribute
         header.setAttribute('style', newStyles)
-        header.classList.add('infotable-pinned-left', '!bg-gray-50')
+        header.classList.add('infotable-pinned-left', '!bg-gray-50', 'dark:!bg-gray-800')
 
         // Mark last left-pinned column
         if (columnName === lastLeftPinned) {
@@ -1081,7 +1081,7 @@ export default class extends Controller {
             `.replace(/\s+/g, ' ').trim()
 
             cell.setAttribute('style', newStyles)
-            cell.classList.add('infotable-pinned-left', '!bg-white')
+            cell.classList.add('infotable-pinned-left', '!bg-white', 'dark:!bg-gray-900')
 
             if (columnName === lastLeftPinned) {
               cell.classList.add("after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]")
@@ -1111,7 +1111,7 @@ export default class extends Controller {
         `.replace(/\s+/g, ' ').trim()
 
         header.setAttribute('style', newStyles)
-        header.classList.add('infotable-pinned-right', '!bg-gray-50')
+        header.classList.add('infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
 
         // Mark first right-pinned column
         if (columnName === firstRightPinned) {
@@ -1142,7 +1142,7 @@ export default class extends Controller {
             `.replace(/\s+/g, ' ').trim()
 
             cell.setAttribute('style', newStyles)
-            cell.classList.add('infotable-pinned-right', '!bg-white')
+            cell.classList.add('infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900')
 
             if (columnName === firstRightPinned) {
               cell.classList.add("before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
