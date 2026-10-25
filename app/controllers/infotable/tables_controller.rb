@@ -63,13 +63,10 @@ module Infotable
       # Process the same query as show/data but without pagination
       @query = build_query
 
-      # Get visible columns from params or use all visible columns
-      visible_column_names = if params[:visible_columns].present?
-        params[:visible_columns].split(",").map(&:strip)
-      else
-        @table_class.visible_columns.map { |c| c[:name].to_s }
-      end
-      visible_columns = @table_class.columns.select { |col| visible_column_names.include?(col[:name].to_s) }
+      # The browser sends the user's visible columns in their on-screen order; the table decides
+      # what may be exported (see Base.columns_for_export)
+      requested = scalar_param(:visible_columns).to_s.split(",").map(&:strip)
+      visible_columns = @table_class.columns_for_export(requested)
 
       # Set CSV headers for streaming download
       headers["Content-Type"] = "text/csv; charset=utf-8"
