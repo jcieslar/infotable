@@ -1,6 +1,6 @@
 {
   "name": "infotable",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "description": "Modern, flexible datatable engine for Rails 8+ with Hotwire",
   "main": "app/assets/javascripts/infotable/index.js",
   "module": "app/assets/javascripts/infotable/index.js",
