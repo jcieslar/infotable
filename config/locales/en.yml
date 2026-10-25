@@ -5,6 +5,8 @@ en:
         export_csv: "Export CSV"
         filters: "Filters"
         exporting: "Exporting..."
+        refresh: "Refresh"
+        columns: "Columns"
       sort_hint: "Click to sort, Shift+click to add a column to the sort"
       loading:
         initial: "Loading data..."

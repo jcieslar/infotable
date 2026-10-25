@@ -338,6 +338,26 @@ module Infotable
         @filters_button_settings[:visible] = visible
       end
 
+      # Where the controls live. :header (default) is the bar above the table with title, search,
+      # export and filters buttons. :rail hides that bar and puts filters, columns, export and
+      # refresh on a slim vertical rail at the table's right edge; search moves into the drawer.
+      # @example
+      #   toolbar :rail
+      def toolbar(mode)
+        unless [ :header, :rail ].include?(mode)
+          raise ArgumentError, "Invalid toolbar: #{mode}. Must be one of header, rail"
+        end
+        @toolbar_setting = mode
+      end
+
+      def toolbar_mode
+        @toolbar_setting || :header
+      end
+
+      def rail_toolbar?
+        toolbar_mode == :rail
+      end
+
       # Check if filters button is visible
       def filters_button_visible?
         @filters_button_settings ||= { visible: true }

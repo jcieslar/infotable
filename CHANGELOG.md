@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.2.0
 
 ### Added
 - CSV export follows the user's on-screen column order, never exports action columns, and has `export_columns :a, :b` (default list and pool) and `exportable: false` per column.
@@ -8,6 +8,11 @@
 - Active filter chips above the rows (each removable, "Clear all filters" from two on) and a filtered empty state with a clear button.
 - Dark mode (`prefers-color-scheme`; for a `.dark` class add `@custom-variant dark (&:where(.dark, .dark *));` to your Tailwind CSS).
 - Number and date filters in the drawer have an operator select: Between (from/to, the default), Equals, Greater than, Before, After, Is empty, ... Single-value operators show one input; the choice is kept in shared links (`url_state`).
+
+## 1.1.0
+
+### Added
+- `toolbar :rail`: hides the header bar and puts the controls on a slim vertical rail at the table's right edge: filters (with a badge counting the columns that have an active filter), columns, CSV export and refresh. Global search moves to the top of the drawer. The default stays `toolbar :header`.
 
 ## 1.0.1
 

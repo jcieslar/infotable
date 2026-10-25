@@ -19,6 +19,18 @@
     </button>
   </div>
 
+  <%# With `toolbar :rail` the header (and its search box) is hidden: search lives here %>
+  <% if table_class.rail_toolbar? && table_class.searchable_columns.any? %>
+    <div class="px-4 py-3 border-b border-gray-100 dark:border-gray-800">
+      <input type="search"
+             name="search"
+             placeholder="<%= t('infotable.search.placeholder') %>"
+             aria-label="<%= t('infotable.search.label') %>"
+             data-action="input->infotable--table#search"
+             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+    </div>
+  <% end %>
+
   <%# Tabs Navigation %>
   <div class="flex border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 px-4">
     <% if table_class.filterable_columns.any? %>
