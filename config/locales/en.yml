@@ -1,0 +1,87 @@
+en:
+  infotable:
+    table:
+      buttons:
+        export_csv: "Export CSV"
+        filters: "Filters"
+        exporting: "Exporting..."
+      sort_hint: "Click to sort, Shift+click to add a column to the sort"
+      loading:
+        initial: "Loading data..."
+        more_items: "Loading more items..."
+        all_loaded: "All items loaded"
+      empty_state:
+        title: "No data found"
+        description: "Get started by adding some records to see them here."
+
+    drawer:
+      label: "Filters and columns"
+      panel_title:
+        customize_columns: "Customize Columns"
+        filters: "Filters"
+        columns: "Columns"
+      tabs:
+        filters: "Filters"
+        columns: "Columns"
+
+    columns:
+      instructions: "Drag to reorder, pin columns, and show/hide:"
+      pin:
+        left: "Pin to left"
+        right: "Pin to right"
+      actions:
+        select_all: "Select All"
+        deselect_all: "Deselect All"
+        reset_to_defaults: "🔄 Reset to Defaults"
+
+    filters:
+      actions:
+        clear_all: "Clear All"
+        apply_filters: "Apply Filters"
+      clear_filter: "Clear this filter"
+      from: "From"
+      to: "To"
+      min: "Min"
+      max: "Max"
+      enter_value: "Enter value..."
+      all: "All"
+      multi_select_hint: "Hold Ctrl/Cmd to select multiple"
+      boolean:
+        "true": "True"
+        "false": "False"
+        empty: "Empty"
+        not_empty: "Not empty"
+      text_ops:
+        contains: "Contains"
+        exact: "Exact match"
+        not_contain: "Does not contain"
+        starts_with: "Starts with"
+        ends_with: "Ends with"
+        is_empty: "Is empty"
+        is_not_empty: "Is not empty"
+
+    formatters:
+      ago: "%{time} ago"
+      action: "Action"
+      boolean:
+        "true": "Yes"
+        "false": "No"
+
+    batch:
+      selected: "%{count} selected"
+      clear: "Clear selection"
+      select_all: "Select all rows"
+      select_row: "Select row"
+
+    search:
+      placeholder: "Search..."
+      label: "Search table"
+
+    pagination:
+      showing: "Showing"
+      to: "to"
+      of: "of"
+      results: "results"
+      rows_per_page: "Rows per page:"
+      previous: "Previous"
+      next: "Next"

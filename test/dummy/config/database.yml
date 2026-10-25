@@ -1,0 +1,21 @@
+# PostgreSQL only.
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV["PGHOST"] %>
+  username: <%= ENV["PGUSER"] %>
+  password: <%= ENV["PGPASSWORD"] %>
+
+development:
+  <<: *default
+  database: infotable_dummy_development
+
+# Database "test" is erased and re-generated when running tests.
+test:
+  <<: *default
+  database: infotable_dummy_test
+
+production:
+  <<: *default
+  database: infotable_dummy_production

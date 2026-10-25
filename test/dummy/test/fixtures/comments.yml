@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  body: MyText
+  post: one
+  author: one
+  status: MyString
+  likes_count: 1
+  flagged: false
+  created_at: 2026-01-24 18:20:40
+
+two:
+  body: MyText
+  post: two
+  author: two
+  status: MyString
+  likes_count: 1
+  flagged: false
+  created_at: 2026-01-24 18:20:40

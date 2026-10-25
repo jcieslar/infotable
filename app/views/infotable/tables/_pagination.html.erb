@@ -1,0 +1,101 @@
+<%# Modern pagination using Pagy %>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+  <%# Results info and per-page selector %>
+  <div class="flex-1 flex items-center gap-4">
+    <p class="text-sm text-gray-700">
+      <%= t('infotable.pagination.showing') %>
+      <span class="font-semibold text-gray-900"><%= pagy.from %></span>
+      <%= t('infotable.pagination.to') %>
+      <span class="font-semibold text-gray-900"><%= pagy.to %></span>
+      <% if pagy.count %>
+        <%= t('infotable.pagination.of') %>
+        <span class="font-semibold text-gray-900"><%= pagy.count %></span>
+        <%= t('infotable.pagination.results') %>
+      <% end %>
+    </p>
+
+    <%# Per-page selector %>
+    <div class="flex items-center gap-2">
+      <label for="per_page_<%= table_name %>" class="text-sm text-gray-700">
+        <%= t('infotable.pagination.rows_per_page') %>
+      </label>
+      <select id="per_page_<%= table_name %>"
+              class="text-sm border border-gray-300 rounded-lg px-2 py-1 bg-white hover:border-gray-400 transition-colors cursor-pointer"
+              data-action="change->infotable--table#changePerPage"
+              data-table-name="<%= table_name %>"
+              data-current-query="<%= table_url_params.except(:table_name).to_query %>">
+        <% per_page_choices(@table_class, pagy.limit).each do |size| %>
+          <option value="<%= size %>" <%= 'selected' if pagy.limit == size %>>
+            <%= size %>
+          </option>
+        <% end %>
+      </select>
+    </div>
+  </div>
+
+  <%# Pagination controls %>
+  <div class="flex items-center gap-2">
+    <%# Previous button %>
+    <% if pagy.previous %>
+      <%= link_to infotable_table_data_path(table_url_params(page: pagy.previous, per_page: pagy.limit)),
+          class: "inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all",
+          data: { turbo_frame: "#{table_name}_content" } do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span class="hidden sm:inline"><%= t('infotable.pagination.previous') %></span>
+      <% end %>
+    <% else %>
+      <span class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span class="hidden sm:inline"><%= t('infotable.pagination.previous') %></span>
+      </span>
+    <% end %>
+
+    <%# Page numbers - Show in ascending order with current page gray/disabled %>
+    <div class="flex items-center gap-1">
+      <% 
+        # Get all pages from series, ensure current page is included, and sort numerically
+        pages = pagy.count ? infotable_page_window(pagy) : []
+        pages << pagy.page unless pages.include?(pagy.page)
+        pages = pages.uniq.sort
+      %>
+      
+      <% pages.each do |page_num| %>
+        <% if page_num == pagy.page %>
+          <%# Current page - disabled/not clickable (gray) %>
+          <span class="inline-flex items-center justify-center w-10 h-10 text-sm font-semibold rounded-lg bg-gray-200 text-gray-600 border border-gray-300 cursor-not-allowed">
+            <%= page_num %>
+          </span>
+        <% else %>
+          <%# Other pages - clickable %>
+          <%= link_to page_num,
+              infotable_table_data_path(table_url_params(page: page_num, per_page: pagy.limit)),
+              class: "inline-flex items-center justify-center w-10 h-10 text-sm font-medium rounded-lg transition-all text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400",
+              data: { turbo_frame: "#{table_name}_content" } %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <%# Next button %>
+    <% if pagy.next %>
+      <%= link_to infotable_table_data_path(table_url_params(page: pagy.next, per_page: pagy.limit)),
+          class: "inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all",
+          data: { turbo_frame: "#{table_name}_content" } do %>
+        <span class="hidden sm:inline"><%= t('infotable.pagination.next') %></span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      <% end %>
+    <% else %>
+      <span class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+        <span class="hidden sm:inline"><%= t('infotable.pagination.next') %></span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </span>
+    <% end %>
+  </div>
+</div>

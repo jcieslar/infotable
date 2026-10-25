@@ -1,0 +1,63 @@
+<%# Side Panel with Tabs for Filters and Columns %>
+<div class="flex flex-col h-full bg-white">
+  <%# Panel Header %>
+  <div class="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
+    <div class="flex items-center gap-2.5">
+      <div class="p-2 bg-indigo-50 rounded-lg">
+        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+        </svg>
+      </div>
+      <h3 class="text-base font-semibold text-gray-900" data-infotable--drawer-target="panelTitle" data-columns-title="<%= t('infotable.drawer.panel_title.customize_columns') %>" data-filters-title="<%= t('infotable.drawer.panel_title.filters') %>"><%= table_class.filterable_columns.any? ? t('infotable.drawer.panel_title.filters') : t('infotable.drawer.panel_title.customize_columns') %></h3>
+    </div>
+    <button type="button"
+            data-action="click->infotable--drawer#close"
+            class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-md transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <%# Tabs Navigation %>
+  <div class="flex border-b border-gray-100 bg-white px-4">
+    <% if table_class.filterable_columns.any? %>
+      <button type="button"
+              data-action="click->infotable--drawer#switchTab"
+              data-tab="filters"
+              data-infotable--drawer-target="tabButton"
+              class="flex-1 px-3 py-2.5 text-sm font-medium text-indigo-600 border-b-2 border-indigo-600 transition-colors">
+        <%= t('infotable.drawer.tabs.filters') %>
+      </button>
+    <% end %>
+    <button type="button"
+            data-action="click->infotable--drawer#switchTab"
+            data-tab="columns"
+            data-infotable--drawer-target="tabButton"
+            data-table-name="<%= table_name %>"
+            class="flex-1 px-3 py-2.5 text-sm font-medium <%= table_class.filterable_columns.any? ? 'text-gray-500 border-b-2 border-transparent hover:text-gray-700' : 'text-indigo-600 border-b-2 border-indigo-600' %> transition-colors flex items-center justify-center gap-2">
+      <span><%= t('infotable.drawer.tabs.columns') %></span>
+      <span data-infotable--drawer-target="columnBadge"
+            data-badge-table-name="<%= table_name %>"
+            class="px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 rounded-full">
+        <%= table_class.columns.count { |c| c[:visible] } %> / <%= table_class.columns.count %>
+      </span>
+    </button>
+  </div>
+
+  <%# Tab Content - Filters (shown by default when available) %>
+  <% if table_class.filterable_columns.any? %>
+    <div data-infotable--drawer-target="tabContent"
+         data-tab="filters"
+         class="flex-1 overflow-y-auto">
+      <%= render "infotable/tables/filter_drawer", table_name: table_name, table_class: table_class, config: config %>
+    </div>
+  <% end %>
+
+  <%# Tab Content - Columns (shown by default when filters are not available) %>
+  <div data-infotable--drawer-target="tabContent"
+       data-tab="columns"
+       class="<%= table_class.filterable_columns.any? ? 'hidden' : '' %> flex-1 overflow-y-auto">
+    <%= render "infotable/tables/column_visibility", table_name: table_name, table_class: table_class %>
+  </div>
+</div>

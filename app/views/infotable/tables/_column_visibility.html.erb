@@ -1,0 +1,100 @@
+<%# Column Visibility Panel %>
+<div class="px-4 py-4">
+  <div class="mb-3">
+    <p class="text-sm text-gray-600"><%= t('infotable.columns.instructions') %></p>
+  </div>
+
+  <form id="column-visibility-form-<%= table_name %>"
+        data-table-name="<%= table_name %>"
+        data-infotable--drawer-target="columnList"
+        data-columns-schema="<%= table_class.columns.map { |c| { name: c[:name], pinned: c[:pinned] } }.to_json %>"
+        class="space-y-2">
+
+    <% table_class.columns.each do |column| %>
+      <div class="column-item group p-3 bg-white rounded-lg border border-gray-100 hover:border-indigo-200 transition-all duration-150"
+           data-column-name="<%= column[:name] %>"
+           data-default-visible="<%= column[:visible] %>"
+           data-default-pinned="<%= column[:pinned] %>">
+        <div class="flex items-center gap-3">
+          <%# Drag Handle %>
+          <div class="drag-handle cursor-move flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"></path>
+            </svg>
+          </div>
+
+          <%# Checkbox and Label %>
+          <label class="flex items-center gap-3 cursor-pointer flex-1">
+            <input type="checkbox"
+                   name="visible_columns[]"
+                   value="<%= column[:name] %>"
+                   data-column-name="<%= column[:name] %>"
+                   data-default-visible="<%= column[:visible] %>"
+                   data-action="change->infotable--drawer#updateColumnVisibility"
+                   <%= 'checked' if column[:visible] %>
+                   class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 focus:ring-1 transition-colors">
+            <div class="flex-1">
+              <span class="text-sm font-medium text-gray-700"><%= column[:label] %></span>
+              <% if column[:type] %>
+                <span class="ml-2 text-xs text-gray-400">(<%= column[:type] %>)</span>
+              <% end %>
+            </div>
+          </label>
+
+          <%# Pin Controls %>
+          <div class="flex gap-1 flex-shrink-0">
+            <%# Pin Left %>
+            <button type="button"
+                    data-action="click->infotable--drawer#pinColumn"
+                    data-column-name="<%= column[:name] %>"
+                    data-pin-direction="left"
+                    title="<%= t('infotable.columns.pin.left') %>"
+                    class="pin-btn pin-left w-7 h-7 rounded flex items-center justify-center <%= column[:pinned] == :left ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600' %> transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+            <%# Pin Right %>
+            <button type="button"
+                    data-action="click->infotable--drawer#pinColumn"
+                    data-column-name="<%= column[:name] %>"
+                    data-pin-direction="right"
+                    title="<%= t('infotable.columns.pin.right') %>"
+                    class="pin-btn pin-right w-7 h-7 rounded flex items-center justify-center <%= column[:pinned] == :right ? 'bg-indigo-100 text-indigo-600' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600' %> transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+  </form>
+
+  <%# Footer Actions %>
+  <div class="mt-4 pt-4 border-t border-gray-100 space-y-2">
+    <div class="flex gap-2">
+      <button type="button"
+              data-action="click->infotable--drawer#selectAllColumns"
+              data-table-name="<%= table_name %>"
+              class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transition-all">
+        <%= t('infotable.columns.actions.select_all') %>
+      </button>
+      <button type="button"
+              data-action="click->infotable--drawer#deselectAllColumns"
+              data-table-name="<%= table_name %>"
+              class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transition-all">
+        <%= t('infotable.columns.actions.deselect_all') %>
+      </button>
+    </div>
+
+    <%# Reset to Defaults Button %>
+    <button type="button"
+            data-action="click->infotable--drawer#resetToDefaults"
+            data-table-name="<%= table_name %>"
+            class="w-full px-3 py-2 border border-red-200 rounded-lg text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition-all">
+      <%= t('infotable.columns.actions.reset_to_defaults') %>
+    </button>
+  </div>
+</div>

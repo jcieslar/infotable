@@ -1,0 +1,38 @@
+<% records.each do |record| %>
+  <%
+    row_link_enabled = table_class.row_link_enabled?
+    row_url = row_link_enabled ? table_class.row_link_url(record) : nil
+    row_size = table_class.row_size_value
+    cell_padding = case row_size
+      when :slim then "px-2 py-1"
+      when :mid then "px-4 py-2.5"
+      else "px-6 py-4" # default
+    end
+    text_size = case row_size
+      when :slim then "text-xs"
+      when :mid then "text-sm"
+      else "text-sm" # default
+    end
+  %>
+  <tr class="infotable-row relative border-t border-gray-50 first:border-t-0 hover:shadow-sm hover:translate-x-px transition-all duration-200 ease-out <%= 'cursor-pointer' if row_link_enabled %>"
+      <%= tag.attributes(data: { row_link: row_url, action: "click->infotable--table#handleRowClick" }) if row_link_enabled && row_url %>>
+    <% if table_class.checkbox_enabled? %>
+      <td class="<%= cell_padding %> w-10">
+        <input type="checkbox"
+               value="<%= table_class.checkbox_value(record) %>"
+               aria-label="<%= t('infotable.batch.select_row') %>"
+               data-infotable--table-target="rowCheckbox"
+               data-action="change->infotable--table#toggleRow"
+               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+      </td>
+    <% end %>
+    <% table_class.columns.each do |column| %>
+      <td data-column-name="<%= column[:name] %>"
+          data-default-visible="<%= column[:visible] %>"
+          style="width: <%= column[:width] %>; max-width: <%= column[:width] %>; overflow: hidden; text-overflow: ellipsis;"
+          class="<%= cell_padding %> whitespace-nowrap <%= text_size %> text-gray-700">
+        <%= format_cell_value(record, column, table_class) %>
+      </td>
+    <% end %>
+  </tr>
+<% end %>

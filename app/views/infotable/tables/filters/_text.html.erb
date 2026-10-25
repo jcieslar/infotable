@@ -1,0 +1,38 @@
+<%# Text/String filter with operation dropdown %>
+<div class="grid grid-cols-[1fr_2fr] gap-2" data-filter-container id="<%= infotable_filter_id(table_name, column, 'container') %>">
+  <div class="relative">
+    <%# Operation selector %>
+    <select name="filters[<%= column[:name] %>][op]"
+            data-filter-op
+            data-action="change->infotable--drawer#syncFilterOps"
+            id="<%= infotable_filter_id(table_name, column, 'op') %>"
+            class="block w-full appearance-none rounded-lg border-0 bg-white pr-10 pl-3 py-2 text-base sm:text-sm text-neutral-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-offset-0 transition-all [box-shadow:inset_0_0_0_1px_rgb(212_212_212)] focus:[box-shadow:inset_0_0_0_2px_rgb(82_82_82)] cursor-pointer disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:opacity-75 bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%23737373%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27M6%208l4%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.25em_1.25em]">
+      <option value="contains"><%= t('infotable.filters.text_ops.contains') %></option>
+      <option value="exact"><%= t('infotable.filters.text_ops.exact') %></option>
+      <option value="not_contain"><%= t('infotable.filters.text_ops.not_contain') %></option>
+      <option value="starts_with"><%= t('infotable.filters.text_ops.starts_with') %></option>
+      <option value="ends_with"><%= t('infotable.filters.text_ops.ends_with') %></option>
+      <option value="is_empty"><%= t('infotable.filters.text_ops.is_empty') %></option>
+      <option value="is_not_empty"><%= t('infotable.filters.text_ops.is_not_empty') %></option>
+    </select>
+  </div>
+
+  <%# Value input - hidden for is_empty/is_not_empty %>
+  <div data-filter-value-wrapper id="<%= infotable_filter_id(table_name, column, 'value_wrapper') %>" class="relative">
+    <input type="text"
+           name="filters[<%= column[:name] %>][value]"
+           id="<%= infotable_filter_id(table_name, column, 'value') %>"
+           placeholder="<%= t('infotable.filters.enter_value') %>"
+           class="block w-full rounded-lg border-0 bg-white pr-8 pl-3 py-2 text-base sm:text-sm text-neutral-900 placeholder:text-neutral-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-offset-0 transition-all [box-shadow:inset_0_0_0_1px_rgb(212_212_212)] focus:[box-shadow:inset_0_0_0_2px_rgb(82_82_82)] disabled:cursor-not-allowed disabled:bg-neutral-100">
+    <button type="button"
+            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            data-action="click->infotable--drawer#clearSingleFilter"
+            data-filter-name="<%= column[:name] %>"
+            data-filter-type="text"
+            title="<%= t('infotable.filters.clear_filter') %>">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+</div>
