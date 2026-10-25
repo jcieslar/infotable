@@ -39,11 +39,17 @@ class BatchActionsRenderTest < ActionDispatch::IntegrationTest
 
   test "dummy endpoint receives ids[] with the verbs the JS uses" do
     get "/posts/batch", params: { ids: [ "1", "2" ] }
-    assert_equal "GET ids=1,2", response.body
+    assert_select "#batch-result", "GET ids=1,2"
+
+    # non-GET submissions are answered with a redirect, as Turbo expects
     delete "/posts/batch", params: { ids: [ "3" ] }
-    assert_equal "DELETE ids=3", response.body
+    assert_redirected_to "/posts/batch?ids%5B%5D=3&via=DELETE"
+    follow_redirect!
+    assert_select "#batch-result", "DELETE ids=3"
+
     post "/posts/batch", params: { ids: [ "4" ], _method: "patch" }
-    assert_equal "PATCH ids=4", response.body
+    follow_redirect!
+    assert_select "#batch-result", "PATCH ids=4"
   end
 
   test "pl and en have the batch strings" do
