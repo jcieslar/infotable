@@ -90,6 +90,21 @@ class BaseTest < ActiveSupport::TestCase
     assert_raises(ArgumentError) { build_table { toolbar :sidebar } }
   end
 
+  test "table_height :fill stores the offset, :fixed clears it" do
+    assert_not build_table.fill_height?
+    t = build_table { table_height :fill }
+    assert t.fill_height?
+    assert_equal 16, t.fill_offset
+    assert_equal 32, build_table { table_height :fill, offset: 32 }.fill_offset
+    assert_not build_table { table_height :fill; table_height :fixed }.fill_height?
+  end
+
+  test "table_height rejects bad arguments" do
+    assert_raises(ArgumentError) { build_table { table_height :auto } }
+    assert_raises(ArgumentError) { build_table { table_height :fill, offset: -1 } }
+    assert_raises(ArgumentError) { build_table { table_height :fill, offset: "8px" } }
+  end
+
   test "row_link with proc and string" do
     user = User.new(id: 3)
     t = build_table { row_link ->(r) { "/u/#{r.id}" } }

@@ -124,6 +124,9 @@ class AuthorsTable < Infotable::Base
   # Controls on a slim vertical rail instead of the header bar
   toolbar :rail
 
+  # Rows area fills the window
+  table_height :fill
+
   per_page 25
   per_page_options [ 10, 25, 50, 100 ]
   default_sort :created_at, :desc
