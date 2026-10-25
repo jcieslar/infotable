@@ -1,8 +1,7 @@
 <%# Select filter - dropdown with options (single or multi-select) %>
 <%
-  # Get filter options - can be array or proc
-  options = column[:filter_options]
-  options = options.is_a?(Proc) ? instance_exec(&options) : options || []
+  # Options: array or Proc (optionally cached and always capped, see Infotable::TablesHelper#infotable_filter_options)
+  options, total_options = infotable_filter_options(local_assigns[:table_class], column)
 
   # Check if multi-select is enabled
   is_multi = column[:filter_multi_select] || false
@@ -63,4 +62,7 @@
       </svg>
     </button>
   </div>
+<% end %>
+<% if total_options > options.size %>
+  <p class="mt-1.5 text-xs text-amber-600" data-filter-options-truncated><%= t('infotable.filters.options_truncated', shown: options.size, total: total_options) %></p>
 <% end %>

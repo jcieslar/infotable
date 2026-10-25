@@ -12,7 +12,8 @@ module Infotable
                   :autofilter,
                   :nil_value,
                   :empty_value,
-                  :parent_controller
+                  :parent_controller,
+                  :max_filter_options
 
     def initialize
       @default_per_page = 25
@@ -27,6 +28,7 @@ module Infotable
       @autofilter = true # true = auto-apply filters (debounced), false = manual apply button
       @nil_value = "-" # Default placeholder for nil values
       @empty_value = "-" # Default placeholder for empty strings
+      @max_filter_options = 500 # select filters render at most this many <option>s (nil = no limit)
       @parent_controller = "ActionController::Base" # Set to "ApplicationController" to inherit host auth/filters
     end
   end

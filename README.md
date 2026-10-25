@@ -139,6 +139,7 @@ end
 | `table_min_height` | String | `"400px"` | Minimum table height |
 | `table_max_height` | String | `"600px"` | Maximum table height (enables scrolling) |
 | `autofilter` | Boolean | `true` | Auto-apply filters on change (debounced) vs manual apply |
+| `max_filter_options` | Integer | `500` | Cap on `<option>`s in a select filter (`nil` = no cap) |
 
 `theme`, `turbo_enabled` and `pagination_gem` are still accepted so old initializers keep loading, but they do nothing.
 
@@ -292,7 +293,9 @@ column :products_count,
 | `width` | String | Auto (see defaults) | Column width (e.g., `"200px"`) |
 | `formatter` | Symbol/Proc/Hash | `nil` | Custom formatter (see Formatters) |
 | `filter_type` | Symbol | Auto-detected | Filter UI type (`:text`, `:number`, `:date`, `:select`, `:boolean`) |
-| `filter_options` | Array/Proc | `nil` | Options for select filters |
+| `filter_options` | Array/Proc | `nil` | Options for select filters (`["a", "b"]`, `[["Label", value]]` or a Proc) |
+| `filter_options_cache` | Duration | `nil` | Cache a Proc's result with `Rails.cache`, e.g. `5.minutes`. Keyed per table and column, so do not use it for options that depend on the current user |
+| `filter_options_limit` | Integer | `max_filter_options` | Most `<option>`s rendered for this filter; the drawer says when the list was cut. For big lists use a text filter instead |
 | `virtual` | Boolean | `false` | Mark column as virtual/computed (aggregates, subqueries) - uses HAVING for filters |
 | `virtual_sql` | String | `nil` | SQL expression for virtual columns (used in HAVING and ORDER BY clauses, without AS alias) |
 | `sql` | String | `nil` | Row-level SQL expression to filter and search on instead of the column (e.g. `"comments.post_id"`). Not an aggregate, so it goes in `WHERE` |

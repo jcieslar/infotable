@@ -279,6 +279,28 @@ module Infotable
       "filter_#{table_name}_#{column[:name]}_#{suffix}"
     end
 
+    # [options, total] for a select filter. The Proc runs in the view (so it can use helpers),
+    # the result is cut to the column's `filter_options_limit` (default
+    # Infotable.configuration.max_filter_options) and, with `filter_options_cache: 5.minutes`,
+    # cached per table and column. Do not cache options that depend on the current user.
+    def infotable_filter_options(table_class, column)
+      source = column[:filter_options]
+      options = if source.is_a?(Proc)
+        ttl = column[:filter_options_cache]
+        if ttl
+          key = [ "infotable", "filter_options", table_class&.name || table_class.object_id, column[:name].to_s ]
+          Rails.cache.fetch(key, expires_in: ttl) { instance_exec(&source).to_a }
+        else
+          instance_exec(&source).to_a
+        end
+      else
+        source.to_a
+      end
+
+      limit = column[:filter_options_limit] || Infotable.configuration.max_filter_options
+      [ limit ? options.first(limit) : options, options.size ]
+    end
+
     # Per-page choices for the selector: the table's own options plus the current limit
     def per_page_choices(table_class, current)
       (table_class.pagination_settings[:per_page_options].to_a + [ current ]).compact.map(&:to_i).uniq.sort

@@ -156,6 +156,8 @@ module Infotable
           actions: options[:actions], # For action columns (deprecated - use formatter_options)
           filter_type: options[:filter_type],
           filter_options: options[:filter_options],
+          filter_options_cache: options[:filter_options_cache], # e.g. 5.minutes: cache a Proc's result (not for per-user options)
+          filter_options_limit: options[:filter_options_limit], # max <option>s rendered; default Infotable.configuration.max_filter_options
           filter_multi_select: options.fetch(:filter_multi_select, false),
           width: width
         }
