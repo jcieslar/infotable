@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+- `row_class ->(record) { }`, `row_data ->(record) { { key: value } }` (data-* on the `<tr>`) and `id="<dom_id>"` on every row (a base for Turbo Streams).
+- `row_click`: rows fire a cancelable `infotable:row-click` event (`detail: { id, url, data, originalEvent }`); without `preventDefault()` the click falls back to the table's `row_link`. Rows are clickable with `row_click` alone, `row_link` keeps working as before.
+
+## Unreleased
+
 ### Changed
 - Fresher table look: quieter header (medium weight, grey), flat row hover instead of the lifted row, lighter row dividers.
 - Pinned columns show a pushpin in their header, tilted to the side they are pinned to; the pin buttons in the column list use the same icon instead of chevrons.

@@ -448,6 +448,30 @@ Features:
 - Cmd/Ctrl+Click to open in new tab
 - Ignores clicks on buttons, links, and inputs
 
+#### Row click, classes and data attributes
+
+```ruby
+# Style rows by their data (write the Tailwind classes out in full so they are generated)
+row_class ->(order) { "bg-red-50" if order.overdue? }
+
+# data-* attributes on the <tr>, e.g. for your own Stimulus controller
+row_data ->(post) { { post_id: post.id, status: post.status } }   # data-post-id, data-status
+
+# Rows fire a cancelable `infotable:row-click` event (needs no row_link)
+row_click
+```
+
+Every row also gets `id="<dom_id>"` (`order_42`), so Turbo Streams can target it (`turbo_stream.replace dom_id(order)`, `broadcasts_to`). Rows without a record id are left without one.
+
+Clicking a row (not a link, button or input inside it) first dispatches `infotable:row-click` on the `<tr>`, with `detail: { id, url, data, originalEvent }`. If nothing calls `preventDefault()` and the table has a `row_link`, the click then falls back to following it, so the two compose:
+
+```js
+document.addEventListener("infotable:row-click", event => {
+  if (event.detail.data.status === "locked") event.preventDefault()   // no navigation for locked rows
+  else openPreview(event.detail.data.postId)                          // ...or handle it yourself
+})
+```
+
 #### Row Size
 
 Control table row padding and text size with three options:
