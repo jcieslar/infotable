@@ -1,7 +1,7 @@
 <%# This view renders inside the turbo frame %>
 <%# Turbo requires the frame element to be present in the response %>
 <turbo-frame id="<%= params[:table_name] %>_content">
-  <div class="relative overflow-y-auto overflow-x-auto scroll-smooth [scrollbar-width:thin] [scrollbar-color:#cbd5e1_#f1f5f9] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-slate-400"
+  <div<% if @pagy && !@table_class.countless? %> data-total-count="<%= @pagy.count %>"<% end %> class="relative overflow-y-auto overflow-x-auto scroll-smooth [scrollbar-width:thin] [scrollbar-color:#cbd5e1_#f1f5f9] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-slate-400"
        style="min-height: <%= @table_class.min_height %>; max-height: <%= @table_class.max_height %>;">
 
     <% if @records.any? %>

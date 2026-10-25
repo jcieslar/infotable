@@ -86,6 +86,8 @@ en:
       clear: "Clear selection"
       select_all: "Select all rows"
       select_row: "Select row"
+      select_all_matching: "Select all %{count} matching"
+      truncated: "Only the first %{max} rows are selected"
 
     search:
       placeholder: "Search..."

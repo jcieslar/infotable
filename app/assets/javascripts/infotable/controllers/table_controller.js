@@ -4,15 +4,17 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static values = {
     name: String,
-    urlState: Boolean
+    urlState: Boolean,
+    idsUrl: String
   }
 
-  static targets = ["exportButton", "exportButtonText", "selectAll", "rowCheckbox", "batchBar", "batchCount"]
+  static targets = ["exportButton", "exportButtonText", "selectAll", "rowCheckbox", "batchBar", "batchCount", "selectAllMatching", "batchNote"]
 
   // Target callbacks (rowCheckboxTargetConnected) can fire before connect(), so state lives here
   initialize() {
     this.selected = new Set()
     this.selectionScope = null
+    this.totalCount = null
   }
 
   connect() {
@@ -66,6 +68,9 @@ export default class extends Controller {
 
   // Handle turbo frame load
   handleFrameLoad(event) {
+    // rows matching the current filters, when the server knows it (not with countless pagination)
+    const total = parseInt(event.target.querySelector("[data-total-count]")?.dataset.totalCount, 10)
+    this.totalCount = Number.isFinite(total) ? total : null
     this.syncSelectionScope(event.target)
     if (this.urlStateValue && event.target.id === `${this.nameValue}_content`) this.syncUrl(event.target)
   }
@@ -202,6 +207,7 @@ export default class extends Controller {
 
   clearSelection() {
     this.selected.clear()
+    this.hideBatchNote()
     this.rowCheckboxTargets.forEach(checkbox => { checkbox.checked = false })
     this.renderSelection()
   }
@@ -216,17 +222,65 @@ export default class extends Controller {
     if (this.hasBatchCountTarget) {
       this.batchCountTarget.textContent = this.batchCountTarget.dataset.template.replace("__COUNT__", count)
     }
+    let allOnPageChecked = false
     if (this.hasSelectAllTarget) {
       const boxes = this.rowCheckboxTargets
       const checkedOnPage = boxes.filter(box => box.checked).length
-      this.selectAllTarget.checked = boxes.length > 0 && checkedOnPage === boxes.length
+      allOnPageChecked = boxes.length > 0 && checkedOnPage === boxes.length
+      this.selectAllTarget.checked = allOnPageChecked
       this.selectAllTarget.indeterminate = checkedOnPage > 0 && checkedOnPage < boxes.length
+    }
+
+    // Offer "select all N matching" once every loaded row is ticked and more rows match
+    if (this.hasSelectAllMatchingTarget) {
+      const offer = this.idsUrlValue !== "" && allOnPageChecked && this.totalCount !== null && this.totalCount > count
+      this.selectAllMatchingTarget.hidden = !offer
+      if (offer) {
+        this.selectAllMatchingTarget.textContent = this.selectAllMatchingTarget.dataset.template.replace("__COUNT__", this.totalCount)
+      }
     }
 
     this.element.dispatchEvent(new CustomEvent("infotable:selection-changed", {
       bubbles: true,
       detail: { table: this.nameValue, ids: Array.from(this.selected) }
     }))
+  }
+
+  // Fetches the ids of every row matching the current filters and search (not just the loaded
+  // pages) and adds them to the selection. The server caps the list (max_select_all).
+  async selectAllMatching(event) {
+    const button = event.currentTarget
+    const frame = document.getElementById(`${this.nameValue}_content`)
+    if (!frame || !this.idsUrlValue) return
+
+    const params = new URL(frame.src || frame.getAttribute("src"), window.location.href).searchParams
+    ;["page", "per_page", "sort", "sort_column", "sort_direction", "format"].forEach(key => params.delete(key))
+
+    button.disabled = true
+    try {
+      const response = await fetch(`${this.idsUrlValue}?${params}`, { headers: { Accept: "application/json" }, credentials: "same-origin" })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const { ids, truncated } = await response.json()
+
+      ids.forEach(id => this.selected.add(String(id)))
+      this.rowCheckboxTargets.forEach(box => { box.checked = this.selected.has(box.value) })
+      this.renderSelection()
+      if (truncated) this.showBatchNote(ids.length)
+    } catch (e) {
+      console.warn("Could not select all matching rows", e)
+    } finally {
+      button.disabled = false
+    }
+  }
+
+  showBatchNote(max) {
+    if (!this.hasBatchNoteTarget) return
+    this.batchNoteTarget.textContent = this.batchNoteTarget.dataset.template.replace("__MAX__", max)
+    this.batchNoteTarget.hidden = false
+  }
+
+  hideBatchNote() {
+    if (this.hasBatchNoteTarget) this.batchNoteTarget.hidden = true
   }
 
   // Sends the selected ids as ids[] to the action's URL. GET navigates; other verbs

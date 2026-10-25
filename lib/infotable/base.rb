@@ -116,6 +116,21 @@ module Infotable
         record.public_send(@checkbox_settings[:id_method])
       end
 
+      # Ids of every row the query matches (the "select all matching" button), at most `limit`.
+      # Plucks when the id method is a plain column of an ungrouped query, loads records otherwise.
+      def checkbox_ids(query, limit = nil)
+        method = @checkbox_settings[:id_method]
+        scope = query.reorder(nil)
+        scope = scope.limit(limit) if limit
+        model = query.model
+
+        if model.column_names.include?(method.to_s) && scope.group_values.empty? && scope.having_clause.empty?
+          scope.pluck(model.arel_table[method])
+        else
+          scope.map { |record| checkbox_value(record) }
+        end
+      end
+
       # Per-table access check. Block receives the controller; falsy => 403.
       #   authorize { |controller| controller.current_user&.admin? }
       def authorize(&block)

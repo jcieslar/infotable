@@ -57,6 +57,19 @@ module Infotable
       end
     end
 
+    # Ids of every row matching the current filters and search, for "select all matching".
+    # Same authorization and query as the table; capped by Infotable.configuration.max_select_all.
+    def ids
+      return head :not_found unless @table_class.checkbox_enabled?
+
+      cap = Infotable.configuration.max_select_all
+      ids = @table_class.checkbox_ids(build_query, cap && cap + 1)
+      truncated = cap && ids.size > cap
+      ids = ids.first(cap) if truncated
+
+      render json: { ids: ids.map(&:to_s), truncated: truncated ? true : false }
+    end
+
     def export
       require "csv"
 

@@ -85,6 +85,8 @@ pl:
       selected: "Zaznaczono: %{count}"
       clear: "Wyczyść zaznaczenie"
       select_all: "Zaznacz wszystkie wiersze"
+      select_all_matching: "Zaznacz wszystkie pasujące (%{count})"
+      truncated: "Zaznaczono tylko pierwsze %{max} wierszy"
       select_row: "Zaznacz wiersz"
 
     search:

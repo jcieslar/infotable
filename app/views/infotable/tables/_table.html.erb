@@ -21,7 +21,7 @@
 <% title = local_assigns.fetch(:title, table_class.title || table_class.name.demodulize.titleize) %>
 <% subtitle = local_assigns.fetch(:subtitle, table_class.subtitle) %>
 <% initial_state = table_class.url_state? ? infotable_initial_state(table_name) : {} %>
-<div class="w-full relative overflow-hidden" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>" data-infotable--table-url-state-value="<%= table_class.url_state? %>">
+<div class="w-full relative overflow-hidden" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>" data-infotable--table-url-state-value="<%= table_class.url_state? %>"<% if table_class.checkbox_enabled? %> data-infotable--table-ids-url-value="<%= Infotable::Engine.routes.url_helpers.table_ids_path(table_name: table_name) %>"<% end %>>
   <div class="bg-white rounded-xl shadow-sm border border-gray-200 relative" style="overflow: hidden;">
     <%# Header section with controls %>
     <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -92,6 +92,14 @@
                 data-template="<%= t('infotable.batch.selected', count: '__COUNT__') %>"></span>
           <button type="button" data-action="click->infotable--table#clearSelection"
                   class="text-indigo-600 hover:text-indigo-800 underline"><%= t('infotable.batch.clear') %></button>
+          <button type="button" hidden
+                  data-infotable--table-target="selectAllMatching"
+                  data-action="click->infotable--table#selectAllMatching"
+                  data-template="<%= t('infotable.batch.select_all_matching', count: '__COUNT__') %>"
+                  class="text-indigo-600 hover:text-indigo-800 underline font-medium"></button>
+          <span hidden data-infotable--table-target="batchNote"
+                data-template="<%= t('infotable.batch.truncated', max: '__MAX__') %>"
+                class="text-amber-700"></span>
         </div>
         <div class="flex gap-2">
           <% table_class.batch_action_list.each do |action| %>
