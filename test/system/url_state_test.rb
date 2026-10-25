@@ -64,6 +64,18 @@ class UrlStateTest < ApplicationSystemTestCase
     assert_equal "45", find("input[name='filters[age][from]']", visible: :all).value
   end
 
+  test "a shared link with a comparison operator shows the single value input" do
+    visit "/users?users_table[filters][age][op]=gte&users_table[filters][age][value]=45"
+    wait_for_table("users_table")
+    open_filters
+
+    assert_equal "gte", find("select[name='filters[age][op]']").value
+    assert_equal "45", find("input[name='filters[age][value]']").value
+    assert_no_selector "input[name='filters[age][from]']"
+    # Bob (45) and the extras aged 45..49
+    assert_includes names(6), "Bob_100%"
+  end
+
   test "changing a filter after opening a shared link keeps the other filters" do
     visit "/users?users_table[filters][age][from]=45"
     wait_for_table("users_table")

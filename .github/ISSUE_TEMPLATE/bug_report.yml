@@ -1,0 +1,43 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What did you expect and what did you get? A screenshot helps for UI problems.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: The table definition and the view code, as small as you can make them.
+      render: ruby
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: infotable version
+      placeholder: "1.0.1"
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Rails, Ruby and database versions
+      placeholder: "Rails 8.1.0, Ruby 3.4.1, PostgreSQL 17"
+    validations:
+      required: true
+  - type: dropdown
+    id: bundler
+    attributes:
+      label: JavaScript setup
+      options: [importmap, esbuild, webpack, vite, other]
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or browser console errors
+      render: text

@@ -2,6 +2,8 @@
 
 Modern, flexible datatable engine for Rails 8+ with Hotwire. Build beautiful, interactive tables with server-side filtering, sorting, searching, and pagination—without page reloads.
 
+**[Live demo](https://infotable.infovation.eu/)** · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
+
 ## Features
 
 - ✨ **Server-side operations** - Filtering, sorting, searching, pagination all on the backend
@@ -359,7 +361,7 @@ Filter types are inferred from the column type or set with `filter_type:`.
 | Type | Operators |
 |------|-----------|
 | text | contains, equals, starts with, ends with, not contains, is empty, is not empty |
-| number | `eq` `neq` `gt` `gte` `lt` `lte` `between` `is_empty` `is_not_empty` (plain `from`/`to` still work) |
+| number | `eq` `neq` `gt` `gte` `lt` `lte` `between` `is_empty` `is_not_empty` (plain `from`/`to` still work; the drawer shows them as "Between") |
 | date | `on` `before` `after` `between` `is_empty` `is_not_empty` (plain `from`/`to` still work) |
 | boolean | any, yes, no |
 | select | one value, or several with `filter_multi_select: true` |
@@ -1044,7 +1046,7 @@ end
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/jcieslar/infotable.
+Bug reports and pull requests are welcome on GitHub at https://github.com/jcieslar/infotable. See [CONTRIBUTING.md](CONTRIBUTING.md) for the setup and the checks a change has to pass, and [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 
 ---
 

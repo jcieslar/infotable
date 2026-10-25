@@ -62,6 +62,19 @@ pl:
         ends_with: "Kończy się na"
         is_empty: "Jest puste"
         is_not_empty: "Nie jest puste"
+      range_ops:
+        between: "Pomiędzy"
+      number_ops:
+        eq: "Równa się"
+        neq: "Różne od"
+        gt: "Większe niż"
+        gte: "Większe lub równe"
+        lt: "Mniejsze niż"
+        lte: "Mniejsze lub równe"
+      date_ops:
+        "on": "W dniu"
+        before: "Przed"
+        after: "Po"
 
     formatters:
       ago: "%{time} temu"

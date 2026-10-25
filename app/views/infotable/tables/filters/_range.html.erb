@@ -1,0 +1,66 @@
+<%# Shared by the number and date filters.
+    Locals: column, table_name, kind (:number or :date)
+    The operator select picks the shape of the filter:
+      ""            from/to inputs (either may stay blank)
+      single ops    one :value input
+      empty ops     no input %>
+<%
+  kind = kind.to_sym
+  input_type = kind == :date ? "date" : "number"
+  ops = kind == :date ? %w[on before after] : %w[eq neq gt gte lt lte]
+  input_class = "block w-full rounded-lg border-0 bg-white pr-3 pl-3 py-2 text-base sm:text-sm text-neutral-900 placeholder:text-neutral-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-offset-0 transition-all [box-shadow:inset_0_0_0_1px_rgb(212_212_212)] focus:[box-shadow:inset_0_0_0_2px_rgb(82_82_82)] disabled:cursor-not-allowed disabled:bg-neutral-100"
+  select_class = "#{input_class} appearance-none pr-10 cursor-pointer bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%23737373%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27M6%208l4%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.25em_1.25em]"
+  step = kind == :number ? "any" : nil
+%>
+<div class="space-y-2" data-range-container id="<%= infotable_filter_id(table_name, column, 'container') %>">
+  <div class="flex items-center gap-2">
+    <select name="filters[<%= column[:name] %>][op]"
+            data-range-op
+            data-action="change->infotable--drawer#syncFilterOps"
+            id="<%= infotable_filter_id(table_name, column, 'op') %>"
+            class="<%= select_class %>">
+      <option value=""><%= t("infotable.filters.range_ops.between") %></option>
+      <% ops.each do |op| %>
+        <option value="<%= op %>"><%= t("infotable.filters.#{kind}_ops.#{op}") %></option>
+      <% end %>
+      <option value="is_empty"><%= t("infotable.filters.text_ops.is_empty") %></option>
+      <option value="is_not_empty"><%= t("infotable.filters.text_ops.is_not_empty") %></option>
+    </select>
+    <button type="button"
+            class="shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+            data-action="click->infotable--drawer#clearSingleFilter"
+            data-filter-name="<%= column[:name] %>"
+            data-filter-type="<%= kind %>"
+            title="<%= t('infotable.filters.clear_filter') %>">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="grid grid-cols-2 gap-2" data-range-fields="range">
+    <input type="<%= input_type %>"
+           name="filters[<%= column[:name] %>][from]"
+           id="<%= infotable_filter_id(table_name, column, 'from') %>"
+           placeholder="<%= t(kind == :date ? 'infotable.filters.from' : 'infotable.filters.min') %>"
+           aria-label="<%= t('infotable.filters.from') %>"
+           <% if step %>step="<%= step %>"<% end %>
+           class="<%= input_class %>">
+    <input type="<%= input_type %>"
+           name="filters[<%= column[:name] %>][to]"
+           id="<%= infotable_filter_id(table_name, column, 'to') %>"
+           placeholder="<%= t(kind == :date ? 'infotable.filters.to' : 'infotable.filters.max') %>"
+           aria-label="<%= t('infotable.filters.to') %>"
+           <% if step %>step="<%= step %>"<% end %>
+           class="<%= input_class %>">
+  </div>
+
+  <div data-range-fields="single" style="display: none">
+    <input type="<%= input_type %>"
+           name="filters[<%= column[:name] %>][value]"
+           id="<%= infotable_filter_id(table_name, column, 'value') %>"
+           placeholder="<%= t('infotable.filters.enter_value') %>"
+           <% if step %>step="<%= step %>"<% end %>
+           class="<%= input_class %>">
+  </div>
+</div>

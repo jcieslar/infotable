@@ -62,6 +62,19 @@ en:
         ends_with: "Ends with"
         is_empty: "Is empty"
         is_not_empty: "Is not empty"
+      range_ops:
+        between: "Between"
+      number_ops:
+        eq: "Equals"
+        neq: "Does not equal"
+        gt: "Greater than"
+        gte: "Greater than or equal"
+        lt: "Less than"
+        lte: "Less than or equal"
+      date_ops:
+        "on": "On"
+        before: "Before"
+        after: "After"
 
     formatters:
       ago: "%{time} ago"
