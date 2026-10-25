@@ -4,7 +4,7 @@ import Sortable from "sortablejs"
 // Drawer controller for the filter drawer and column visibility
 // Handles opening/closing the right-side drawer with smooth animations
 export default class extends Controller {
-  static targets = ["drawer", "content", "tabButton", "tabContent", "panelTitle", "columnBadge", "columnList"]
+  static targets = ["rail", "drawer", "content", "tabButton", "tabContent", "panelTitle", "columnBadge", "columnList"]
   static values = {
     open: { type: Boolean, default: false },
     currentTab: { type: String, default: "filters" }
@@ -146,12 +146,40 @@ export default class extends Controller {
 
 
 
+  // Rail buttons: open the tab, or collapse the drawer when that tab is already showing
+  toggleFilters(event) {
+    this.toggleTab(event, "filters")
+  }
+
+  toggleColumns(event) {
+    this.toggleTab(event, "columns")
+  }
+
+  // Click on the rail itself (outside its buttons): toggle the drawer on its default tab
+  toggleRail(event) {
+    if (event.target.closest("button, a")) return
+
+    const hasFiltersTab = this.tabContentTargets.some(content => content.dataset.tab === "filters")
+    this.toggleTab(event, hasFiltersTab ? "filters" : "columns")
+  }
+
+  toggleTab(event, tab) {
+    event?.preventDefault()
+    if (this.openValue && this.currentTabValue === tab) {
+      this.openValue = false
+    } else {
+      this.currentTabValue = tab
+      this.openValue = true
+    }
+  }
+
   showDrawer() {
     // Slide in drawer from its side using inline transform
     this.previouslyFocused = document.activeElement
     this.drawerTarget.inert = false
     this.drawerTarget.removeAttribute("aria-hidden")
     this.drawerTarget.style.transform = "translateX(0)"
+    this.shiftRail(true)
     this.drawerTarget.querySelector("input:not([type=hidden]), select, button")?.focus({ preventScroll: true })
   }
 
@@ -163,6 +191,15 @@ export default class extends Controller {
 
     // Slide out drawer to its side (data-drawer-side) using inline transform
     this.drawerTarget.style.transform = this.drawerTarget.dataset.drawerSide === "left" ? "translateX(-100%)" : "translateX(100%)"
+    this.shiftRail(false)
+  }
+
+  // `toolbar :rail`: the rail slides left so it stays visible next to a right-hand drawer
+  shiftRail(open) {
+    if (!this.hasRailTarget || this.drawerTarget.dataset.drawerSide === "left") return
+
+    this.railTarget.style.transform = open ? `translateX(-${this.drawerTarget.offsetWidth}px)` : ""
+    this.railTarget.classList.toggle("shadow-lg", open)
   }
 
   closeOnEscape(event) {
@@ -184,6 +221,11 @@ export default class extends Controller {
 
     // Don't close if click is inside the drawer
     if (this.drawerTarget.contains(event.target)) {
+      return
+    }
+
+    // The rail's buttons toggle the drawer themselves
+    if (this.hasRailTarget && this.railTarget.contains(event.target)) {
       return
     }
 

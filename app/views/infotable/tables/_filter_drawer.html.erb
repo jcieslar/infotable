@@ -6,7 +6,7 @@
     end %>
 <div class="flex flex-col h-full">
   <%# Drawer Content - Scrollable %>
-  <div class="flex-1 overflow-y-auto px-4 py-4">
+  <div class="flex-1 overflow-y-auto px-4 py-4 bg-gray-50 dark:bg-gray-950">
     <form id="filter-form-<%= table_name %>"
           action="<%= infotable_table_data_path(table_name: table_name) %>"
           method="get"
@@ -29,8 +29,8 @@
 
       <%# Render filter for each filterable column %>
       <% table_class.filterable_columns.each do |column| %>
-        <div class="group p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-indigo-200 dark:hover:border-indigo-700 transition-all duration-150">
-          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+        <div class="group p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-150">
+          <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
             <%= column[:label] %>
           </label>
 
