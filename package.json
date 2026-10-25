@@ -22,7 +22,8 @@
     "table",
     "pagination"
   ],
-  "author": "Jakub Cieślar",
+  "author": "Jakub Cieślar <jakub@infovation.pl>",
+  "homepage": "https://infotable.infovation.eu/",
   "license": "MIT",
   "repository": {
     "type": "git",

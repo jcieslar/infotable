@@ -4,8 +4,8 @@ Gem::Specification.new do |spec|
   spec.name        = "infotable"
   spec.version     = Infotable::VERSION
   spec.authors     = [ "Jakub Cieślar" ]
-  spec.email       = [ "cieslar.jakub@gmail.com" ]
-  spec.homepage    = "https://github.com/jcieslar/infotable"
+  spec.email       = [ "jakub@infovation.pl" ]
+  spec.homepage    = "https://infotable.infovation.eu/"
   spec.summary     = "Modern, flexible datatable engine for Rails 8+ with Hotwire"
   spec.description = "InfoTable provides server-side datatable functionality with filtering, sorting, searching, and pagination. Built with Hotwire, Stimulus, and Tailwind CSS for a modern, no-reload user experience."
   spec.license     = "MIT"
