@@ -775,30 +775,27 @@ export default class extends Controller {
     // The data-turbo="false" ensures Turbo doesn't intercept this
   }
 
-  // Handle row click for clickable rows
+  // Row click (`row_link` and/or `row_click`). Fires a cancelable `infotable:row-click` on the row;
+  // when nothing calls preventDefault() the click falls back to following the row's link.
   handleRowClick(event) {
     const row = event.currentTarget
-    const url = row.dataset.rowLink
 
-    if (!url) return
+    // Clicks on controls inside the row belong to those controls
+    if (event.target.closest("a, button, summary, details, label, input, select, textarea")) return
 
-    // Don't navigate if clicking on interactive elements
-    const target = event.target
-    const tagName = target.tagName.toLowerCase()
+    const url = row.dataset.rowLink || null
+    const data = { ...row.dataset }
+    delete data.rowLink
+    delete data.action
 
-    // Ignore clicks on links, buttons, inputs, selects, etc.
-    if (tagName === "a" || tagName === "button" || tagName === "input" ||
-        tagName === "select" || tagName === "textarea") {
-      return
-    }
+    const click = new CustomEvent("infotable:row-click", {
+      bubbles: true,
+      cancelable: true,
+      detail: { id: row.id || null, url, data, originalEvent: event }
+    })
+    if (!row.dispatchEvent(click) || !url) return
 
-    // Ignore clicks on elements inside buttons or links
-    if (target.closest("a, button, summary, details, label, input, select, textarea")) {
-      return
-    }
-
-    // Navigate to the URL
-    // Check if meta key (Cmd on Mac, Ctrl on Windows) is pressed for new tab
+    // Cmd on Mac, Ctrl elsewhere: new tab
     if (event.metaKey || event.ctrlKey) {
       window.open(url, "_blank")
     } else {

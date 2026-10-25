@@ -1,7 +1,7 @@
 module Infotable
   class Base
     class << self
-      attr_accessor :table_columns, :table_query, :table_query_sql, :pagination_settings, :sort_settings, :height_settings, :infinite_scroll_settings, :row_link_settings, :slim_rows_settings, :row_size_settings, :filters_button_settings, :display_settings, :nil_value_settings, :empty_value_settings, :table_authorize, :checkbox_settings, :batch_action_list, :countless_setting, :url_state_setting, :resizable_columns_setting
+      attr_accessor :table_columns, :table_query, :table_query_sql, :pagination_settings, :sort_settings, :height_settings, :infinite_scroll_settings, :row_link_settings, :row_attr_settings, :slim_rows_settings, :row_size_settings, :filters_button_settings, :display_settings, :nil_value_settings, :empty_value_settings, :table_authorize, :checkbox_settings, :batch_action_list, :countless_setting, :url_state_setting, :resizable_columns_setting
 
       def inherited(subclass)
         super
@@ -19,6 +19,7 @@ module Infotable
         subclass.infinite_scroll_settings = {
           enabled: false
         }
+        subclass.row_attr_settings = { class: nil, data: nil }
         subclass.row_link_settings = {
           enabled: false,
           url: nil
@@ -67,7 +68,7 @@ module Infotable
         subclass.resizable_columns_setting = parent.resizable_columns_setting
         subclass.instance_variable_set(:@toolbar_setting, parent.instance_variable_get(:@toolbar_setting))
         subclass.instance_variable_set(:@export_column_names, parent.instance_variable_get(:@export_column_names)&.dup)
-        %i[pagination_settings sort_settings height_settings infinite_scroll_settings row_link_settings
+        %i[pagination_settings sort_settings height_settings infinite_scroll_settings row_link_settings row_attr_settings
            slim_rows_settings row_size_settings filters_button_settings display_settings
            nil_value_settings empty_value_settings].each do |attr|
           subclass.public_send("#{attr}=", parent.public_send(attr).dup)
@@ -327,6 +328,51 @@ module Infotable
         else
           url_generator
         end
+      end
+
+      # Extra CSS classes per row: a String, or a Proc that receives the record (nil/false adds nothing).
+      # Tailwind only generates classes it can see in your source, so write them out in full.
+      # @example
+      #   row_class ->(order) { "bg-red-50" if order.overdue? }
+      def row_class(value = nil, &block)
+        @row_attr_settings[:class] = value || block
+      end
+
+      def row_classes_for(record)
+        setting = @row_attr_settings[:class]
+        (setting.respond_to?(:call) ? setting.call(record) : setting).presence
+      end
+
+      # Extra data-* attributes per row: a Proc that receives the record and returns a Hash
+      # ({ post_id: 1 } becomes data-post-id="1"). Handy for your own Stimulus controllers.
+      # @example
+      #   row_data ->(post) { { post_id: post.id, status: post.status } }
+      def row_data(value = nil, &block)
+        @row_attr_settings[:data] = value || block
+      end
+
+      def row_data_for(record)
+        setting = @row_attr_settings[:data]
+        data = setting.respond_to?(:call) ? setting.call(record) : setting
+        data.is_a?(Hash) ? data : {}
+      end
+
+      # Clicking a row (not a link, button or input inside it) fires a cancelable
+      # `infotable:row-click` event on the row (detail: { id, url, data }). If nothing calls
+      # preventDefault() and the table has a row_link, the click falls back to following it.
+      # @example
+      #   row_click true
+      def row_click(enabled = true)
+        @row_link_settings[:click] = enabled ? true : false
+      end
+
+      def row_click?
+        @row_link_settings[:click] ? true : false
+      end
+
+      # Rows react to clicks (row_link and/or row_click)
+      def row_clickable?
+        row_link_enabled? || row_click?
       end
 
       # Set row size (padding and text size)

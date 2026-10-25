@@ -226,4 +226,10 @@ class CommentsTable < Infotable::Base
   # Row link - make entire row clickable
   # Click on row to view comment (Cmd/Ctrl+Click to open in new tab)
   row_link ->(record) { "#comment-#{record.id}" }
+
+  # The click first fires `infotable:row-click` on the row (preventDefault() keeps the link
+  # from being followed); row_class / row_data decorate the row; the <tr> gets id="comment_<id>"
+  row_click
+  row_class ->(record) { "bg-amber-50/60 dark:bg-amber-950/20" if record.flagged }
+  row_data ->(record) { { comment_id: record.id, author_id: record.author_id } }
 end

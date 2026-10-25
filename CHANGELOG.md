@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- `row_class ->(record) { }`, `row_data ->(record) { { key: value } }` (data-* on the `<tr>`) and `id="<dom_id>"` on every row (a base for Turbo Streams).
+- `row_click`: rows fire a cancelable `infotable:row-click` event (`detail: { id, url, data, originalEvent }`); without `preventDefault()` the click falls back to the table's `row_link`. Rows are clickable with `row_click` alone, `row_link` keeps working as before.
+
 ### Security
 - The installer's initializer now sets `config.parent_controller = "ApplicationController"` (it was commented out), and the README has a Security section: with the engine's default parent (`ActionController::Base`) a table without `authorize` is readable and exportable by anyone.
 
@@ -26,17 +30,13 @@
 - sortablejs is served with the gem (`infotable/vendor/sortable.esm.js`) instead of a jsDelivr CDN pin.
 - Unknown `column` options (a typo like `sortble:`) are logged as a warning.
 - `TableResolver` memoizes the class names it tries.
+- Fresher table look: quieter header (medium weight, grey), flat row hover instead of the lifted row, lighter row dividers.
+- Pinned columns show a pushpin in their header, tilted to the side they are pinned to; the pin buttons in the column list use the same icon instead of chevrons.
+- Pinned cells no longer use hard-coded white/grey backgrounds with `!important`; they follow dark mode and the row hover.
 
 ### Removed
 - Unused `build_export_params` helper, `showLoading` / `hideLoading` and the no-op `config.infotable` engine options.
 - `package.json` `files` listed a nonexistent `app/assets/stylesheets`; it now ships `app/assets/tailwind`.
-
-## Unreleased
-
-### Changed
-- Fresher table look: quieter header (medium weight, grey), flat row hover instead of the lifted row, lighter row dividers.
-- Pinned columns show a pushpin in their header, tilted to the side they are pinned to; the pin buttons in the column list use the same icon instead of chevrons.
-- Pinned cells no longer use hard-coded white/grey backgrounds with `!important`; they follow dark mode and the row hover.
 
 ## 1.4.1
 

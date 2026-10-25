@@ -334,3 +334,44 @@ class PagyV43Test < ActionDispatch::IntegrationTest
     assert_response :success
   end
 end
+
+class RowAttributesTest < ActionDispatch::IntegrationTest
+  setup do
+    author = Author.create!(name: "A")
+    post = Post.create!(author: author, title: "p")
+    @flagged = Comment.create!(post: post, author: author, body: "x", flagged: true)
+    @plain = Comment.create!(post: post, author: author, body: "y", flagged: false)
+  end
+
+  def row(record)
+    get "/infotable/tables/comments_table"
+    Nokogiri::HTML(response.body).at_css("tr##{ActionView::RecordIdentifier.dom_id(record)}")
+  end
+
+  test "rows get a dom_id" do
+    assert row(@flagged), "tr#comment_#{@flagged.id}"
+  end
+
+  test "row_class and row_data decorate the row" do
+    assert_includes row(@flagged)["class"], "bg-amber-50/60"
+    assert_not_includes row(@plain)["class"], "bg-amber-50/60"
+    assert_equal @flagged.id.to_s, row(@flagged)["data-comment-id"]
+    assert_equal @flagged.author_id.to_s, row(@flagged)["data-author-id"]
+  end
+
+  test "clickable rows keep the link and the click action" do
+    r = row(@flagged)
+    assert_equal "#comment-#{@flagged.id}", r["data-row-link"]
+    assert_equal "click->infotable--table#handleRowClick", r["data-action"]
+    assert_includes r["class"], "cursor-pointer"
+  end
+
+  test "rows of other tables have an id but no click action" do
+    User.create!(name: "u", email: "u@x.io")
+    get "/infotable/tables/users_table"
+    r = Nokogiri::HTML(response.body).at_css("tbody tr")
+    assert r["id"].start_with?("user_")
+    assert_nil r["data-action"]
+    assert_not_includes r["class"], "cursor-pointer"
+  end
+end
