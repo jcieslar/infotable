@@ -38,6 +38,12 @@ class IdsEndpointTest < ActionDispatch::IntegrationTest
     assert body["truncated"]
   end
 
+  test "a capped selection is the first rows in the table's order" do
+    Infotable.configuration.max_select_all = 2
+    body = ids(sort_column: "title", sort_direction: "desc")
+    assert_equal [ @posts[1].id.to_s, @posts[4].id.to_s ], body["ids"]
+  end
+
   test "exactly at the cap is not truncated" do
     Infotable.configuration.max_select_all = 5
     body = ids

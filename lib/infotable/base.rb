@@ -137,8 +137,9 @@ module Infotable
       # Plucks when the id method is a plain column of an ungrouped query, loads records otherwise.
       def checkbox_ids(query, limit = nil)
         method = @checkbox_settings[:id_method]
-        scope = query.reorder(nil)
-        scope = scope.limit(limit) if limit
+        # Without a cap the order is irrelevant (and costs a sort); with one, the table's own order
+        # decides which rows make it in, so a capped selection is the first N rows the user sees
+        scope = limit ? query.limit(limit) : query.reorder(nil)
         model = query.model
 
         if model.column_names.include?(method.to_s) && scope.group_values.empty? && scope.having_clause.empty?

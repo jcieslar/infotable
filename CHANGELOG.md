@@ -23,6 +23,7 @@
 - No primary-key tiebreaker is added to grouped queries (it broke `GROUP BY` on another column).
 - The columns drawer survives browsers without `localStorage`; the history state no longer needs `crypto.randomUUID` (plain-HTTP origins).
 - `BooleanFormatter` `style: :icon` has an accessible name.
+- A capped "select all matching" (`max_select_all`) takes the first N rows in the table's sort order instead of arbitrary ones.
 - Selecting 500 rows renders the selection once instead of once per row; applying column visibility is a single pass over the cells.
 
 ### Changed
