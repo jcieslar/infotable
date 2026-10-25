@@ -10,3 +10,4 @@
 /test/dummy/tmp/
 /test/dummy/log/*.log.*
 /test/tmp/
+/test/dummy/app/assets/builds/tailwind/
