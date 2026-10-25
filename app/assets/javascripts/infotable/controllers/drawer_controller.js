@@ -368,11 +368,13 @@ export default class extends Controller {
 
       case 'number':
       case 'date':
-        // Clear both from and to fields
-        const fromInput = field('from')
-        const toInput = field('to')
-        if (fromInput) fromInput.value = ''
-        if (toInput) toInput.value = ''
+        // Back to the plain from/to range
+        ;['from', 'to', 'value'].forEach(suffix => {
+          const input = field(suffix)
+          if (input) input.value = ''
+        })
+        const rangeOp = field('op')
+        if (rangeOp) rangeOp.value = ''
         break
 
       case 'select':
@@ -411,6 +413,7 @@ export default class extends Controller {
 
   // Hide the value input for operators that take none (is_empty / is_not_empty)
   syncFilterOps() {
+    this.syncRangeOps()
     this.element.querySelectorAll("select[data-filter-op]").forEach(select => {
       const container = select.closest("[data-filter-container]")
       const wrapper = container?.querySelector("[data-filter-value-wrapper]")
@@ -420,6 +423,24 @@ export default class extends Controller {
       if (noValue) wrapper.querySelector("input").value = ""
       wrapper.style.display = noValue ? "none" : "block"
       container.className = noValue ? "grid grid-cols-1 gap-2" : "grid grid-cols-[1fr_2fr] gap-2"
+    })
+  }
+
+  // Number and date filters: the operator decides between from/to inputs, one value input, or none
+  syncRangeOps() {
+    this.element.querySelectorAll("select[data-range-op]").forEach(select => {
+      const container = select.closest("[data-range-container]")
+      if (!container) return
+
+      const op = select.value
+      const mode = op === "" ? "range" : (op === "is_empty" || op === "is_not_empty") ? "none" : "single"
+
+      container.querySelectorAll("[data-range-fields]").forEach(group => {
+        const visible = group.dataset.rangeFields === mode
+        group.style.display = visible ? "" : "none"
+        // inputs that are not shown must not leak into the request
+        if (!visible) group.querySelectorAll("input").forEach(input => { input.value = "" })
+      })
     })
   }
 

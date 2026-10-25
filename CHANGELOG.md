@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Added
+- Number and date filters in the drawer have an operator select: Between (from/to, the default), Equals, Greater than, Before, After, Is empty, ... Single-value operators show one input; the choice is kept in shared links (`url_state`).
+
 ## 1.0.1
 
 ### Fixed

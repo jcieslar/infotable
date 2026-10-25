@@ -357,7 +357,7 @@ Filter types are inferred from the column type or set with `filter_type:`.
 | Type | Operators |
 |------|-----------|
 | text | contains, equals, starts with, ends with, not contains, is empty, is not empty |
-| number | `eq` `neq` `gt` `gte` `lt` `lte` `between` `is_empty` `is_not_empty` (plain `from`/`to` still work) |
+| number | `eq` `neq` `gt` `gte` `lt` `lte` `between` `is_empty` `is_not_empty` (plain `from`/`to` still work; the drawer shows them as "Between") |
 | date | `on` `before` `after` `between` `is_empty` `is_not_empty` (plain `from`/`to` still work) |
 | boolean | any, yes, no |
 | select | one value, or several with `filter_multi_select: true` |

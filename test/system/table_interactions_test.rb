@@ -16,6 +16,14 @@ class TableInteractionsTest < ApplicationSystemTestCase
     find("button[data-action*='infotable--drawer#open']").click
   end
 
+  # Filters apply after a debounce, so retry until the rows settle
+  def assert_names(expected)
+    page.document.synchronize do
+      actual = names.sort
+      raise Capybara::ExpectationNotMet, "expected #{expected.inspect}, got #{actual.inspect}" unless actual == expected.sort
+    end
+  end
+
   def header(label)
     find("turbo-frame#users_table_content th a", text: label, exact_text: true)
   end
@@ -93,5 +101,44 @@ class TableInteractionsTest < ApplicationSystemTestCase
     assert_selector "turbo-frame#users_table_content tbody tr", count: 10
     click_link "Next", match: :first
     assert_selector "turbo-frame#users_table_content tbody tr", count: 10
+  end
+
+  test "number operator swaps the range inputs for one value input" do
+    open_filters
+    within("[role=dialog]") do
+      assert_selector "input[name='filters[age][from]']"
+      assert_no_selector "input[name='filters[age][value]']"
+
+      find("select[name='filters[age][op]']").select "Greater than or equal"
+      assert_no_selector "input[name='filters[age][from]']"
+      find("input[name='filters[age][value]']").fill_in with: "30"
+    end
+
+    assert_names [ "Alice Smith", "Bob_100%" ]
+  end
+
+  test "is_empty on a number column hides every input and matches nulls" do
+    open_filters
+    within("[role=dialog]") do
+      find("select[name='filters[score][op]']").select "Is empty"
+      assert_no_selector "input[name='filters[score][from]']"
+      assert_no_selector "input[name='filters[score][value]']"
+    end
+
+    assert_names [ "Carol Jones" ]
+  end
+
+  test "date operator offers a single date and clearing goes back to the range" do
+    open_filters
+    within("[role=dialog]") do
+      find("select[name='filters[created_at][op]']").select "Before"
+      assert_selector "input[name='filters[created_at][value]'][type=date]"
+      find("input[name='filters[created_at][value]']").fill_in with: "2000-01-01"
+    end
+    assert_names []
+
+    within("[role=dialog]") { click_button "Clear All" }
+    assert_names [ "Alice Smith", "Bob_100%", "Carol Jones" ]
+    within("[role=dialog]") { assert_selector "input[name='filters[created_at][from]']" }
   end
 end
