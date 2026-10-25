@@ -122,7 +122,7 @@ module Infotable
     # render their own idea of "nothing" (BooleanFormatter and ActionFormatter handle it themselves)
     def placeholder_for(value, column, table_class)
       return unless table_class
-      return if %i[boolean action actions].include?(column[:type]) || %i[boolean action actions].include?(column[:formatter])
+      return if %i[boolean action actions avatar].include?(column[:type]) || %i[boolean action actions avatar].include?(column[:formatter])
 
       return table_class.nil_value_placeholder if value.nil?
       table_class.empty_value_placeholder if value.is_a?(String) && value.empty?
@@ -143,11 +143,17 @@ module Infotable
         Infotable::Formatters::BadgeFormatter
       when :action, :actions
         Infotable::Formatters::ActionFormatter
+      when :link
+        Infotable::Formatters::LinkFormatter
+      when :avatar
+        Infotable::Formatters::AvatarFormatter
+      when :percent
+        Infotable::Formatters::PercentFormatter
       else
         # Custom formatter: :avatar => AvatarFormatter (or Namespaced::AvatarFormatter)
         "#{formatter_name.to_s.camelize}Formatter".safe_constantize ||
           raise(Infotable::Error, "Unknown formatter :#{formatter_name} for column :#{column[:name]}. " \
-                                  "Built-ins: date, currency, boolean, badge, action; custom: define #{formatter_name.to_s.camelize}Formatter.")
+                                  "Built-ins: date, currency, boolean, badge, action, link, avatar, percent; custom: define #{formatter_name.to_s.camelize}Formatter.")
       end
 
       formatter_class.new(self).format(value, record, formatter_options)
@@ -201,6 +207,21 @@ module Infotable
       Infotable::Engine.routes.url_helpers.table_export_path(options)
     end
 
+    INITIAL_STATE_KEYS = %w[search sort sort_column sort_direction page per_page filters].freeze
+
+    # Table state carried by the host page's own URL as `?users_table[search]=x&users_table[page]=2`
+    # (written by the table controller). Only known keys and plain values survive; the data
+    # endpoint validates them again when the frame loads.
+    def infotable_initial_state(table_name)
+      raw = params[table_name.to_s]
+      return {} unless raw.respond_to?(:to_unsafe_h)
+
+      raw.to_unsafe_h.slice(*INITIAL_STATE_KEYS).each_with_object({}) do |(key, value), state|
+        clean = sanitize_state_value(value)
+        state[key.to_sym] = clean unless clean.nil? || clean == ""
+      end
+    end
+
     # Helper to build table URL params while preserving current state
     # This ensures sorting, pagination, and other state is maintained across interactions
     def table_url_params(new_params = {})
@@ -216,6 +237,14 @@ module Infotable
       base_params[:filters] = params[:filters].to_unsafe_h if params[:filters].respond_to?(:to_unsafe_h) && params[:filters].present?
 
       base_params.compact.merge(new_params)
+    end
+
+    def sanitize_state_value(value, depth = 0)
+      case value
+      when String then value.delete("\u0000")[0, 500]
+      when Array then depth < 3 ? value.first(50).filter_map { sanitize_state_value(_1, depth + 1) }.select { _1.is_a?(String) } : nil
+      when Hash then depth < 3 ? value.first(50).to_h { |k, v| [ k.to_s[0, 100], sanitize_state_value(v, depth + 1) ] }.compact : nil
+      end
     end
 
     DRAWER_WIDTH_FORMAT = /\A\d+(\.\d+)?(px|rem|em|vw|%)\z/
@@ -271,6 +300,28 @@ module Infotable
     # with the same column names do not collide (labels, getElementById).
     def infotable_filter_id(table_name, column, suffix)
       "filter_#{table_name}_#{column[:name]}_#{suffix}"
+    end
+
+    # [options, total] for a select filter. The Proc runs in the view (so it can use helpers),
+    # the result is cut to the column's `filter_options_limit` (default
+    # Infotable.configuration.max_filter_options) and, with `filter_options_cache: 5.minutes`,
+    # cached per table and column. Do not cache options that depend on the current user.
+    def infotable_filter_options(table_class, column)
+      source = column[:filter_options]
+      options = if source.is_a?(Proc)
+        ttl = column[:filter_options_cache]
+        if ttl
+          key = [ "infotable", "filter_options", table_class&.name || table_class.object_id, column[:name].to_s ]
+          Rails.cache.fetch(key, expires_in: ttl) { instance_exec(&source).to_a }
+        else
+          instance_exec(&source).to_a
+        end
+      else
+        source.to_a
+      end
+
+      limit = column[:filter_options_limit] || Infotable.configuration.max_filter_options
+      [ limit ? options.first(limit) : options, options.size ]
     end
 
     # Per-page choices for the selector: the table's own options plus the current limit

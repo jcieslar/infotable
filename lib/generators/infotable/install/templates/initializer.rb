@@ -18,6 +18,9 @@ Infotable.configure do |config|
   # authentication, locale, tenant scoping etc. also protect the tables:
   # config.parent_controller = "ApplicationController"
 
+  # Mirror search, filters, sort and page in the address bar (shareable links, Back button)
+  # config.url_state = true
+
   # Filter behavior: true = auto-apply filters (debounced, no Apply button), false = manual apply button
   config.autofilter = true
 end

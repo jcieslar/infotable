@@ -1,7 +1,7 @@
 module Infotable
   class Base
     class << self
-      attr_accessor :table_columns, :table_query, :table_query_sql, :pagination_settings, :sort_settings, :height_settings, :infinite_scroll_settings, :row_link_settings, :slim_rows_settings, :row_size_settings, :filters_button_settings, :display_settings, :nil_value_settings, :empty_value_settings, :table_authorize, :checkbox_settings, :batch_action_list, :countless_setting
+      attr_accessor :table_columns, :table_query, :table_query_sql, :pagination_settings, :sort_settings, :height_settings, :infinite_scroll_settings, :row_link_settings, :slim_rows_settings, :row_size_settings, :filters_button_settings, :display_settings, :nil_value_settings, :empty_value_settings, :table_authorize, :checkbox_settings, :batch_action_list, :countless_setting, :url_state_setting
 
       def inherited(subclass)
         super
@@ -44,6 +44,7 @@ module Infotable
         subclass.checkbox_settings = { enabled: false, id_method: :id }
         subclass.batch_action_list = []
         subclass.countless_setting = false
+        subclass.url_state_setting = nil
 
         inherit_from_parent(subclass)
       end
@@ -60,6 +61,7 @@ module Infotable
         subclass.checkbox_settings = parent.checkbox_settings.dup
         subclass.batch_action_list = parent.batch_action_list.map(&:dup)
         subclass.countless_setting = parent.countless_setting
+        subclass.url_state_setting = parent.url_state_setting
         %i[pagination_settings sort_settings height_settings infinite_scroll_settings row_link_settings
            slim_rows_settings row_size_settings filters_button_settings display_settings
            nil_value_settings empty_value_settings].each do |attr|
@@ -77,6 +79,17 @@ module Infotable
       # Skip SELECT COUNT(*) (slow on big tables): no total, no page numbers, only prev/next.
       def countless(enabled = true)
         @countless_setting = enabled
+      end
+
+      # Keep search, filters, sort and page in the page's address bar (shareable links, working Back
+      # button). Default: Infotable.configuration.url_state. Turn it off for tables in modals/tabs
+      # or when several unrelated tables should not fight over the URL.
+      def url_state(enabled = true)
+        @url_state_setting = enabled
+      end
+
+      def url_state?
+        @url_state_setting.nil? ? Infotable.configuration.url_state : @url_state_setting ? true : false
       end
 
       def countless?
@@ -156,6 +169,8 @@ module Infotable
           actions: options[:actions], # For action columns (deprecated - use formatter_options)
           filter_type: options[:filter_type],
           filter_options: options[:filter_options],
+          filter_options_cache: options[:filter_options_cache], # e.g. 5.minutes: cache a Proc's result (not for per-user options)
+          filter_options_limit: options[:filter_options_limit], # max <option>s rendered; default Infotable.configuration.max_filter_options
           filter_multi_select: options.fetch(:filter_multi_select, false),
           width: width
         }

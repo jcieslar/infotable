@@ -61,6 +61,9 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
 
+      - name: Build Tailwind CSS for the dummy app
+        run: bin/rails app:tailwindcss:build
+
       - name: Run tests
         env:
           RAILS_ENV: test
@@ -72,6 +75,7 @@ jobs:
         run: |
           bin/rails db:test:prepare
           bin/rails test
+          bin/rails test:system
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v7

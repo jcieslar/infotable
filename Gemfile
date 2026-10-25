@@ -30,3 +30,9 @@ gem "rubocop-rails-omakase", require: false
 
 # Start debugger with binding.b [https://github.com/ruby/debug]
 # gem "debug", ">= 1.0.0"
+
+# Browser tests (system tests drive headless Chrome through CDP, no chromedriver needed)
+group :test do
+  gem "capybara", "~> 3.40"
+  gem "cuprite", "~> 0.19"
+end

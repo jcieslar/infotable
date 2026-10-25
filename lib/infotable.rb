@@ -20,6 +20,9 @@ module Infotable
     autoload :BooleanFormatter, "infotable/formatters/boolean_formatter"
     autoload :BadgeFormatter, "infotable/formatters/badge_formatter"
     autoload :ActionFormatter, "infotable/formatters/action_formatter"
+    autoload :LinkFormatter, "infotable/formatters/link_formatter"
+    autoload :AvatarFormatter, "infotable/formatters/avatar_formatter"
+    autoload :PercentFormatter, "infotable/formatters/percent_formatter"
   end
 
   # Returns the root path of the InfoTable gem

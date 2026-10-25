@@ -46,6 +46,7 @@ pl:
       enter_value: "Wpisz wartość..."
       all: "Wszystkie"
       multi_select_hint: "Przytrzymaj Ctrl/Cmd, aby wybrać wiele"
+      options_truncated: "Pokazano pierwsze %{shown} z %{total} opcji"
       boolean:
         "true": "Tak"
         "false": "Nie"
