@@ -5,6 +5,7 @@ export default class extends Controller {
   static values = {
     name: String,
     urlState: Boolean,
+    resizable: { type: Boolean, default: true },
     idsUrl: String
   }
 
@@ -23,6 +24,9 @@ export default class extends Controller {
 
     // Apply column visibility from localStorage when table loads
     this.applyColumnVisibility()
+
+    // Remembered column widths and the drag handles
+    this.applyColumnWidths()
 
     // Apply column pinning (sticky positioning)
     this.applyColumnPinning()
@@ -54,6 +58,7 @@ export default class extends Controller {
   applyOrderAndVisibility() {
     this.applyColumnOrder()
     this.applyColumnVisibility()
+    this.applyColumnWidths()
     this.applyColumnPinning()
   }
 
@@ -778,6 +783,150 @@ export default class extends Controller {
     } else {
       window.location.href = url
     }
+  }
+
+  // ---- Column widths ----------------------------------------------------------
+  // Every header gets a drag handle on its right edge (pointer drag, or arrow keys while it is
+  // focused). The width is written to the header and each cell of the column and remembered in
+  // localStorage as { columnName: px }. Double-click on a handle goes back to the table's width.
+
+  static MIN_COLUMN_WIDTH = 60
+  static MAX_COLUMN_WIDTH = 800
+
+  loadColumnWidths() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(`infotable_column_widths_${this.nameValue}`) || "{}")
+      return stored && typeof stored === "object" ? stored : {}
+    } catch (e) {
+      return {}
+    }
+  }
+
+  saveColumnWidths(widths) {
+    try {
+      const key = `infotable_column_widths_${this.nameValue}`
+      Object.keys(widths).length ? localStorage.setItem(key, JSON.stringify(widths)) : localStorage.removeItem(key)
+    } catch (e) {
+      // storage unavailable (private window): the width still applies until the next load
+    }
+  }
+
+  columnTable() {
+    return this.element.querySelector("table") || document.getElementById(`${this.nameValue}_content`)?.querySelector("table")
+  }
+
+  // Writes one column's width to its header and cells. null restores the width the table was rendered with.
+  setColumnWidth(table, columnName, width) {
+    const escaped = CSS.escape(columnName)
+    const cells = table.querySelectorAll(`th[data-column-name="${escaped}"], td[data-column-name="${escaped}"]`)
+
+    cells.forEach(cell => {
+      if (cell.dataset.defaultWidth === undefined) cell.dataset.defaultWidth = cell.style.width
+      const value = width === null ? cell.dataset.defaultWidth : `${width}px`
+      cell.style.width = value
+      cell.style.maxWidth = value
+      cell.style.minWidth = width === null ? "" : value
+    })
+  }
+
+  applyColumnWidths() {
+    const table = this.columnTable()
+    if (!table) return
+
+    const widths = this.loadColumnWidths()
+    Object.entries(widths).forEach(([name, width]) => {
+      if (Number.isFinite(width)) this.setColumnWidth(table, name, width)
+    })
+
+    if (this.resizableValue) this.addResizeHandles(table)
+  }
+
+  addResizeHandles(table) {
+    table.querySelectorAll("thead th[data-column-name]").forEach(header => {
+      if (header.querySelector("[data-resize-handle]")) return
+
+      const handle = document.createElement("div")
+      handle.setAttribute("data-resize-handle", "")
+      handle.setAttribute("role", "separator")
+      handle.setAttribute("aria-orientation", "vertical")
+      handle.setAttribute("aria-label", `${header.textContent.trim()}: ${this.resizeLabel()}`)
+      handle.tabIndex = 0
+      handle.className = "absolute top-0 bottom-0 right-0 w-2 cursor-col-resize touch-none select-none hover:bg-indigo-400/40 focus:bg-indigo-400/60 focus:outline-none"
+
+      handle.addEventListener("pointerdown", event => this.startResize(event, header, handle))
+      handle.addEventListener("keydown", event => this.resizeWithKeys(event, header))
+      handle.addEventListener("dblclick", event => { event.stopPropagation(); this.resetColumnWidth(header) })
+      handle.addEventListener("click", event => { event.preventDefault(); event.stopPropagation() })
+
+      header.appendChild(handle)
+    })
+  }
+
+  resizeLabel() {
+    return this.element.dataset.resizeLabel || "resize column"
+  }
+
+  startResize(event, header, handle) {
+    if (event.button !== undefined && event.button !== 0) return
+    event.preventDefault()
+    event.stopPropagation()
+
+    const table = header.closest("table")
+    const name = header.dataset.columnName
+    const startX = event.clientX
+    const startWidth = header.getBoundingClientRect().width
+    let width = startWidth
+
+    handle.setPointerCapture?.(event.pointerId)
+
+    const move = moveEvent => {
+      width = this.clampColumnWidth(startWidth + (moveEvent.clientX - startX))
+      this.setColumnWidth(table, name, width)
+    }
+    const stop = () => {
+      handle.removeEventListener("pointermove", move)
+      handle.removeEventListener("pointerup", stop)
+      handle.removeEventListener("pointercancel", stop)
+      this.commitColumnWidth(name, width)
+    }
+
+    handle.addEventListener("pointermove", move)
+    handle.addEventListener("pointerup", stop)
+    handle.addEventListener("pointercancel", stop)
+  }
+
+  resizeWithKeys(event, header) {
+    const step = event.shiftKey ? 50 : 10
+    const delta = { ArrowLeft: -step, ArrowRight: step }[event.key]
+    if (delta === undefined) return
+
+    event.preventDefault()
+    event.stopPropagation()
+    const width = this.clampColumnWidth(header.getBoundingClientRect().width + delta)
+    this.setColumnWidth(header.closest("table"), header.dataset.columnName, width)
+    this.commitColumnWidth(header.dataset.columnName, width)
+  }
+
+  resetColumnWidth(header) {
+    const name = header.dataset.columnName
+    this.setColumnWidth(header.closest("table"), name, null)
+    const widths = this.loadColumnWidths()
+    delete widths[name]
+    this.saveColumnWidths(widths)
+    this.applyColumnPinning()
+    this.updateExportLink()
+  }
+
+  clampColumnWidth(width) {
+    return Math.round(Math.min(this.constructor.MAX_COLUMN_WIDTH, Math.max(this.constructor.MIN_COLUMN_WIDTH, width)))
+  }
+
+  commitColumnWidth(name, width) {
+    const widths = this.loadColumnWidths()
+    widths[name] = width
+    this.saveColumnWidths(widths)
+    // pinned columns are positioned from the widths of the columns before them
+    this.applyColumnPinning()
   }
 
   // Apply column pinning (sticky positioning) from localStorage

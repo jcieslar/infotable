@@ -1,7 +1,7 @@
 module Infotable
   class Base
     class << self
-      attr_accessor :table_columns, :table_query, :table_query_sql, :pagination_settings, :sort_settings, :height_settings, :infinite_scroll_settings, :row_link_settings, :slim_rows_settings, :row_size_settings, :filters_button_settings, :display_settings, :nil_value_settings, :empty_value_settings, :table_authorize, :checkbox_settings, :batch_action_list, :countless_setting, :url_state_setting
+      attr_accessor :table_columns, :table_query, :table_query_sql, :pagination_settings, :sort_settings, :height_settings, :infinite_scroll_settings, :row_link_settings, :slim_rows_settings, :row_size_settings, :filters_button_settings, :display_settings, :nil_value_settings, :empty_value_settings, :table_authorize, :checkbox_settings, :batch_action_list, :countless_setting, :url_state_setting, :resizable_columns_setting
 
       def inherited(subclass)
         super
@@ -45,6 +45,7 @@ module Infotable
         subclass.batch_action_list = []
         subclass.countless_setting = false
         subclass.url_state_setting = nil
+        subclass.resizable_columns_setting = nil
 
         inherit_from_parent(subclass)
       end
@@ -62,6 +63,7 @@ module Infotable
         subclass.batch_action_list = parent.batch_action_list.map(&:dup)
         subclass.countless_setting = parent.countless_setting
         subclass.url_state_setting = parent.url_state_setting
+        subclass.resizable_columns_setting = parent.resizable_columns_setting
         %i[pagination_settings sort_settings height_settings infinite_scroll_settings row_link_settings
            slim_rows_settings row_size_settings filters_button_settings display_settings
            nil_value_settings empty_value_settings].each do |attr|
@@ -86,6 +88,17 @@ module Infotable
       # or when several unrelated tables should not fight over the URL.
       def url_state(enabled = true)
         @url_state_setting = enabled
+      end
+
+      # Drag handles on the column headers (and arrow keys on the focused handle) to change
+      # column widths; widths are remembered per browser. Double-click resets one column.
+      #   resizable_columns false
+      def resizable_columns(enabled = true)
+        @resizable_columns_setting = enabled
+      end
+
+      def resizable_columns?
+        @resizable_columns_setting.nil? ? true : @resizable_columns_setting ? true : false
       end
 
       def url_state?

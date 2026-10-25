@@ -12,6 +12,7 @@ pl:
         initial: "Ładowanie danych..."
         more_items: "Ładowanie kolejnych elementów..."
         all_loaded: "Wszystkie elementy załadowane"
+      resize_column: "zmień szerokość kolumny"
       empty_state:
         title: "Nie znaleziono danych"
         description: "Rozpocznij od dodania rekordów, aby zobaczyć je tutaj."
