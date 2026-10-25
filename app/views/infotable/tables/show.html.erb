@@ -4,6 +4,7 @@
   <% active_filters = infotable_active_filters(@table_class, @filters, @search) %>
   <%= render "infotable/tables/active_filters", chips: active_filters, table_name: params[:table_name] %>
   <div<% if @pagy && !@table_class.countless? %> data-total-count="<%= @pagy.count %>"<% end %> class="relative overflow-y-auto overflow-x-auto scroll-smooth [scrollbar-width:thin] [scrollbar-color:#cbd5e1_#f1f5f9] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-slate-400 dark:[scrollbar-color:#475569_#1e293b] dark:[&::-webkit-scrollbar-track]:bg-slate-800 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600"
+       <% if @table_class.fill_height? %>data-fill-height data-fill-offset="<%= @table_class.fill_offset %>"<% end %>
        style="min-height: <%= @table_class.min_height %>; max-height: <%= @table_class.max_height %>;">
 
     <% if @records.any? %>

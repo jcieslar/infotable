@@ -13,7 +13,8 @@ module Infotable
         subclass.sort_settings = {}
         subclass.height_settings = {
           min_height: nil, # nil means use global config
-          max_height: nil  # nil means use global config
+          max_height: nil, # nil means use global config
+          fill_offset: nil # Integer when the table fills the viewport (table_height :fill)
         }
         subclass.infinite_scroll_settings = {
           enabled: false
@@ -255,6 +256,30 @@ module Infotable
       # Set table maximum height
       def table_max_height(value)
         @height_settings[:max_height] = value
+      end
+
+      # Size the table to the viewport: the rows area grows until the bottom of the table (and its
+      # pagination) sits `offset` pixels above the bottom of the window, and follows window resizes.
+      # table_min_height still applies as a floor. :fixed (default) uses table_max_height.
+      # @example
+      #   table_height :fill
+      #   table_height :fill, offset: 32
+      def table_height(mode, offset: 16)
+        unless [ :fill, :fixed ].include?(mode)
+          raise ArgumentError, "Invalid table height: #{mode}. Must be one of fill, fixed"
+        end
+        raise ArgumentError, "offset must be a non-negative Integer" unless offset.is_a?(Integer) && offset >= 0
+
+        @height_settings[:fill_offset] = mode == :fill ? offset : nil
+      end
+
+      # Pixels to keep free below the table when it fills the viewport, nil for a fixed height
+      def fill_offset
+        @height_settings[:fill_offset]
+      end
+
+      def fill_height?
+        !fill_offset.nil?
       end
 
       # Enable/disable infinite scroll

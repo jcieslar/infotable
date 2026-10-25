@@ -417,6 +417,11 @@ checkbox_column
 # Override global height settings for this table
 table_min_height "500px"
 table_max_height "700px"
+
+# Or size the table to the window: it grows until its bottom (with the pagination) sits
+# 16px above the bottom of the viewport, and follows window resizes. table_min_height is the floor.
+table_height :fill
+table_height :fill, offset: 32   # keep 32px free below
 ```
 
 #### Infinite Scroll

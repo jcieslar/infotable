@@ -37,6 +37,11 @@ export default class extends Controller {
     // Fill the search box and the filter drawer from the page URL (the server already loaded the frame with it)
     if (this.urlStateValue) this.applyUrlStateToControls()
 
+    // `table_height :fill`: size the rows area to the window, now and on resize
+    this.boundFitHeight = this.fitHeight.bind(this)
+    window.addEventListener("resize", this.boundFitHeight)
+    this.fitHeight()
+
     // Listen for turbo frame loads to reapply order and visibility
     this.boundApplyOrderAndVisibility = this.applyOrderAndVisibility.bind(this)
     this.element.addEventListener("turbo:frame-load", this.boundApplyOrderAndVisibility)
@@ -51,7 +56,28 @@ export default class extends Controller {
     this.element.removeEventListener("turbo:frame-load", this.boundApplyOrderAndVisibility)
     document.removeEventListener("infotable:columns-changed", this.boundUpdateExportLink)
     document.removeEventListener("infotable:filters-changed", this.boundUpdateExportLink)
+    window.removeEventListener("resize", this.boundFitHeight)
+    cancelAnimationFrame(this.fitFrame)
     clearTimeout(this.searchTimeout)
+  }
+
+  // Cap the rows area (`[data-fill-height]`) so that it, plus whatever follows it in the frame
+  // (pagination), ends `data-fill-offset` px above the bottom of the window. Measured from the
+  // top of the page, so it does not depend on the current scroll position. min-height still wins.
+  fitHeight() {
+    cancelAnimationFrame(this.fitFrame)
+    this.fitFrame = requestAnimationFrame(() => {
+      this.element.querySelectorAll("[data-fill-height]").forEach(area => {
+        let below = 0
+        for (let sibling = area.nextElementSibling; sibling; sibling = sibling.nextElementSibling) {
+          below += sibling.offsetHeight
+        }
+
+        const top = area.getBoundingClientRect().top + window.scrollY
+        const offset = parseInt(area.dataset.fillOffset, 10) || 0
+        area.style.maxHeight = `${Math.max(window.innerHeight - top - below - offset, 0)}px`
+      })
+    })
   }
 
   // Apply both order and visibility (used for turbo frame loads)
@@ -73,6 +99,7 @@ export default class extends Controller {
 
   // Handle turbo frame load
   handleFrameLoad(event) {
+    this.fitHeight()
     this.updateFilterCount(event.target)
     // rows matching the current filters, when the server knows it (not with countless pagination)
     const total = parseInt(event.target.querySelector("[data-total-count]")?.dataset.totalCount, 10)
