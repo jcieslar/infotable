@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    infotable (0.1.0)
+    infotable (1.0.1)
       csv
       pagy (~> 43.0)
       rails (>= 8.0)

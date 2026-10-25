@@ -39,13 +39,5 @@ module Infotable
     initializer "infotable.i18n" do |app|
       config.i18n.load_path += Dir[root.join("config/locales/**/*.yml")]
     end
-
-    # Expose gem paths via ENV variables for Tailwind CSS v4 @source directives
-    # This allows Tailwind to scan the gem's views/formatters at build time
-    # Works in development, production, Docker, CI - everywhere!
-    initializer "infotable.tailwind", before: :load_config_initializers do
-      ENV["INFOTABLE_VIEWS_PATH"] = root.join("app/views/infotable").to_s
-      ENV["INFOTABLE_FORMATTERS_PATH"] = root.join("lib/infotable/formatters").to_s
-    end
   end
 end

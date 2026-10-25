@@ -1,0 +1,5 @@
+/* Picked up by tailwindcss-rails (app/assets/tailwind/<engine>/engine.css): the host app
+   imports it with `@import "../builds/tailwind/infotable";` so Tailwind scans these files. */
+@source "../../../views/infotable";
+@source "../../../../lib/infotable/formatters";
+@source "../../javascripts/infotable";

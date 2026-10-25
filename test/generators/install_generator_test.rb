@@ -56,40 +56,26 @@ class InstallGeneratorTest < Rails::Generators::TestCase
     Infotable.reset_configuration!
   end
 
-  test "writes the Tailwind sources file with dynamic gem paths" do
+  test "imports the engine's Tailwind sources into the Tailwind entry file" do
     run_generator
 
-    assert_file "app/assets/tailwind/infotable.css.erb" do |content|
-      assert_match(/Infotable\.views_path/, content)
-      assert_match(/Infotable\.formatters_path/, content)
-    end
-  end
-
-  test "imports the generated sources into the Tailwind entry file" do
-    run_generator
-
-    assert_file "app/assets/tailwind/application.css", /@import "tailwindcss";.*@import '\.\/infotable';/m
+    assert_file "app/assets/tailwind/application.css", /@import "tailwindcss";\n@import "\.\.\/builds\/tailwind\/infotable";/
   end
 
   test "does not import the sources twice" do
     run_generator
     run_generator
 
-    assert_equal 1, read("app/assets/tailwind/application.css").scan("@import './infotable'").size
+    assert_equal 1, read("app/assets/tailwind/application.css").scan("builds/tailwind/infotable").size
   end
 
-  test "gitignores the generated stylesheet" do
-    write ".gitignore", "/log\n"
-    run_generator
+  test "the import resolves to a stylesheet tailwindcss-rails generates from the engine" do
+    engine_css = Infotable::Engine.root.join("app/assets/tailwind/#{Infotable::Engine.engine_name}/engine.css")
 
-    assert_file ".gitignore", %r{app/assets/tailwind/infotable\.css}
-  end
-
-  test "does not duplicate the gitignore entry when run twice" do
-    run_generator
-    run_generator
-
-    assert_equal 1, read(".gitignore").scan("app/assets/tailwind/infotable.css\n").size
+    assert engine_css.exist?
+    engine_css.read.scan(/@source "([^"]+)"/).flatten.each do |source|
+      assert engine_css.dirname.join(source).exist?, "@source #{source} does not exist"
+    end
   end
 
   test "detects importmap" do

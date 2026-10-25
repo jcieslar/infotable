@@ -31,18 +31,6 @@ module Infotable
     Engine.root
   end
 
-  # Returns the path to InfoTable views directory
-  # For use in Tailwind CSS @source directives via ERB
-  def self.views_path
-    root.join("app/views/infotable").to_s
-  end
-
-  # Returns the path to InfoTable formatters directory
-  # For use in Tailwind CSS @source directives via ERB
-  def self.formatters_path
-    root.join("lib/infotable/formatters").to_s
-  end
-
   # Returns paths that should be scanned by Tailwind CSS
   # For use with Node-based Tailwind (tailwind.config.js)
   def self.tailwind_content_paths
