@@ -1,0 +1,87 @@
+pl:
+  infotable:
+    table:
+      buttons:
+        export_csv: "Eksportuj CSV"
+        filters: "Filtry"
+        exporting: "Eksportowanie..."
+      sort_hint: "Kliknij, aby sortować; Shift+klik dodaje kolumnę do sortowania"
+      loading:
+        initial: "Ładowanie danych..."
+        more_items: "Ładowanie kolejnych elementów..."
+        all_loaded: "Wszystkie elementy załadowane"
+      empty_state:
+        title: "Nie znaleziono danych"
+        description: "Rozpocznij od dodania rekordów, aby zobaczyć je tutaj."
+
+    drawer:
+      label: "Filtry i kolumny"
+      panel_title:
+        customize_columns: "Dostosuj kolumny"
+        filters: "Filtry"
+        columns: "Kolumny"
+      tabs:
+        filters: "Filtry"
+        columns: "Kolumny"
+
+    columns:
+      instructions: "Przeciągnij, aby zmienić kolejność, przypnij kolumny i pokaż/ukryj:"
+      pin:
+        left: "Przypnij do lewej"
+        right: "Przypnij do prawej"
+      actions:
+        select_all: "Zaznacz wszystkie"
+        deselect_all: "Odznacz wszystkie"
+        reset_to_defaults: "🔄 Przywróć domyślne"
+
+    filters:
+      actions:
+        clear_all: "Wyczyść wszystkie"
+        apply_filters: "Zastosuj filtry"
+      clear_filter: "Wyczyść ten filtr"
+      from: "Od"
+      to: "Do"
+      min: "Min"
+      max: "Maks"
+      enter_value: "Wpisz wartość..."
+      all: "Wszystkie"
+      multi_select_hint: "Przytrzymaj Ctrl/Cmd, aby wybrać wiele"
+      boolean:
+        "true": "Tak"
+        "false": "Nie"
+        empty: "Puste"
+        not_empty: "Niepuste"
+      text_ops:
+        contains: "Zawiera"
+        exact: "Dokładnie"
+        not_contain: "Nie zawiera"
+        starts_with: "Zaczyna się od"
+        ends_with: "Kończy się na"
+        is_empty: "Jest puste"
+        is_not_empty: "Nie jest puste"
+
+    formatters:
+      ago: "%{time} temu"
+      action: "Akcja"
+      boolean:
+        "true": "Tak"
+        "false": "Nie"
+
+    batch:
+      selected: "Zaznaczono: %{count}"
+      clear: "Wyczyść zaznaczenie"
+      select_all: "Zaznacz wszystkie wiersze"
+      select_row: "Zaznacz wiersz"
+
+    search:
+      placeholder: "Szukaj..."
+      label: "Szukaj w tabeli"
+
+    pagination:
+      showing: "Wyświetlanie"
+      to: "do"
+      of: "z"
+      results: "wyników"
+      rows_per_page: "Wierszy na stronę:"
+      previous: "Poprzednia"
+      next: "Następna"

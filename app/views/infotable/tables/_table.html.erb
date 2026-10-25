@@ -1,0 +1,134 @@
+<%# Main table wrapper %>
+<%# Build config object if not provided (when partial is called directly) %>
+<% if local_assigns.key?(:config) && !local_assigns[:config].nil? %>
+  <%# Config provided - use it, but allow autofilter override %>
+  <% config = local_assigns[:config] %>
+  <% if local_assigns.key?(:autofilter) %>
+    <% config.autofilter = local_assigns[:autofilter] %>
+  <% end %>
+<% else %>
+  <%# No config provided or config is nil - build it from local_assigns or defaults %>
+  <% config = ActiveSupport::OrderedOptions.new.merge!({
+    autofilter: local_assigns.fetch(:autofilter, Infotable.configuration.autofilter),
+    per_page: table_class.pagination_settings[:per_page],
+    per_page_options: table_class.pagination_settings[:per_page_options],
+    drawer_position: Infotable.configuration.drawer_position,
+    drawer_width: Infotable.configuration.drawer_width,
+    theme: Infotable.configuration.theme
+  }) %>
+<% end %>
+<%# Set title and subtitle with priority: local_assigns > table_class settings > defaults %>
+<% title = local_assigns.fetch(:title, table_class.title || table_class.name.demodulize.titleize) %>
+<% subtitle = local_assigns.fetch(:subtitle, table_class.subtitle) %>
+<div class="w-full relative overflow-hidden" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 relative" style="overflow: hidden;">
+    <%# Header section with controls %>
+    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-semibold text-gray-900"><%= title %></h2>
+          <% if subtitle.present? %>
+            <p class="mt-1 text-sm text-gray-500"><%= subtitle %></p>
+          <% end %>
+        </div>
+        <div class="flex gap-3">
+          <%# Global search over `searchable: true` columns %>
+          <% if table_class.searchable_columns.any? %>
+            <input type="search"
+                   name="search"
+                   value="<%= params[:search] %>"
+                   placeholder="<%= t('infotable.search.placeholder') %>"
+                   aria-label="<%= t('infotable.search.label') %>"
+                   data-action="input->infotable--table#search"
+                   class="w-56 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <% end %>
+          <%# Export CSV button %>
+          <%
+            export_params = {
+              table_name: table_name,
+              sort_column: params[:sort_column],
+              sort_direction: params[:sort_direction],
+              sort: (params[:sort] if params[:sort].is_a?(String)),
+              visible_columns: table_class.visible_columns.map { |c| c[:name].to_s }.join(',')
+            }
+            export_params[:filters] = params[:filters] if params[:filters].present?
+            export_params[:search] = params[:search] if params[:search].is_a?(String) && params[:search].present?
+            export_url = Infotable::Engine.routes.url_helpers.table_export_path(export_params.compact)
+          %>
+          <a href="<%= export_url %>"
+             data-action="click->infotable--table#exportCsv"
+             data-infotable--table-target="exportButton"
+             data-exporting-text="<%= t('infotable.table.buttons.exporting') %>"
+             data-turbo="false"
+             download
+             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span data-infotable--table-target="exportButtonText"><%= t('infotable.table.buttons.export_csv') %></span>
+          </a>
+          <%# Drawer toggle button - conditionally shown %>
+          <% if table_class.filters_button_visible? %>
+            <button type="button"
+                    data-action="click->infotable--drawer#open"
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              <%= t('infotable.table.buttons.filters') %>
+            </button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# Batch action bar: shown while rows are selected %>
+    <% if table_class.batch_action_list.any? %>
+      <div class="hidden items-center justify-between gap-3 px-6 py-3 border-b border-indigo-100 bg-indigo-50"
+           data-infotable--table-target="batchBar">
+        <div class="flex items-center gap-3 text-sm text-indigo-900">
+          <span data-infotable--table-target="batchCount"
+                data-template="<%= t('infotable.batch.selected', count: '__COUNT__') %>"></span>
+          <button type="button" data-action="click->infotable--table#clearSelection"
+                  class="text-indigo-600 hover:text-indigo-800 underline"><%= t('infotable.batch.clear') %></button>
+        </div>
+        <div class="flex gap-2">
+          <% table_class.batch_action_list.each do |action| %>
+            <button type="button"
+                    data-action="click->infotable--table#runBatchAction"
+                    data-batch-name="<%= action[:name] %>"
+                    data-batch-url="<%= action[:url] %>"
+                    data-batch-method="<%= action[:method] %>"
+                    data-batch-confirm="<%= action[:confirm] %>"
+                    class="<%= infotable_batch_button_classes(action[:color]) %>"><%= action[:label] %></button>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# Main content frame %>
+    <turbo-frame id="<%= table_name %>_content"
+                 src="<%= infotable_table_path(table_name: table_name) %>"
+                 data-action="turbo:frame-load->infotable--table#handleFrameLoad">
+      <%# Loading state %>
+      <div class="flex items-center justify-center py-16">
+        <div class="text-center">
+          <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-sm text-gray-500"><%= t('infotable.table.loading.initial') %></p>
+        </div>
+      </div>
+    </turbo-frame>
+  </div>
+
+    <%# Side panel drawer - always available for column visibility, filters if available %>
+      <%# Drawer - positioned within table bounds, starts completely hidden off-screen %>
+      <div <%= tag.attributes(infotable_drawer_attributes(config)) %>>
+        <div data-infotable--drawer-target="content" class="h-full flex flex-col overflow-hidden">
+          <%= render "infotable/tables/side_panel", table_name: table_name, table_class: table_class, config: config %>
+        </div>
+      </div>
+  </div>
+</div>

@@ -1,0 +1,103 @@
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+  <div class="container mx-auto px-4">
+    <%# Page header %>
+    <div class="mb-8">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">InfoTable Demo</h1>
+          <p class="text-gray-600 mt-1">
+            Modern datatable for Rails 8+ with Hotwire - Multiple Independent Tables
+          </p>
+        </div>
+      </div>
+
+      <%# Navigation %>
+      <div class="mt-4 flex gap-4 items-center flex-wrap">
+        <%= link_to "Dashboard", root_path, class: "text-indigo-600 hover:text-indigo-800 font-semibold" %>
+        <span class="text-gray-300">|</span>
+        <%= link_to "Users", users_path, class: "text-gray-600 hover:text-indigo-600 font-medium" %>
+        <span class="text-gray-300">|</span>
+        <%= link_to "Products", products_path, class: "text-gray-600 hover:text-indigo-600 font-medium" %>
+        <span class="text-gray-300">|</span>
+        <%= link_to "Authors", authors_path, class: "text-gray-600 hover:text-purple-600 font-medium" %>
+        <span class="text-gray-300">|</span>
+        <%= link_to "Posts", posts_path, class: "text-gray-600 hover:text-blue-600 font-medium" %>
+        <span class="text-gray-300">|</span>
+        <%= link_to "Comments", comments_path, class: "text-gray-600 hover:text-green-600 font-medium" %>
+      </div>
+    </div>
+
+    <%# Users Table %>
+    <div class="container mx-auto my-4">
+      <div class="mb-4">
+        <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          Users Table
+        </h2>
+        <p class="text-sm text-gray-600 mt-1">75 users with various data types and filters</p>
+      </div>
+      <%= render "infotable/tables/table", table_name: "users_table", table_class: UsersTable, autofilter: false %>
+    </div>
+
+    <%# Products Table %>
+    <div class="container mx-auto my-4">
+      <div class="mb-4">
+        <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          Products Table
+        </h2>
+        <p class="text-sm text-gray-600 mt-1">100,000 products - Performance test with large dataset</p>
+      </div>
+      <%= render "infotable/tables/table", table_name: "products_table", table_class: ProductsTable %>
+    </div>
+
+    <%# CMS Users Table (Nested: app/infotable/cms/users_table.rb) %>
+    <div class="container mx-auto my-4">
+      <div class="mb-4">
+        <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+          </svg>
+          CMS Users Table
+        </h2>
+        <p class="text-sm text-gray-600 mt-1">Organized in folder: <code class="bg-gray-100 px-2 py-1 rounded text-xs">app/infotable/cms/users_table.rb</code> → <code class="bg-indigo-100 px-2 py-1 rounded text-xs">Cms::UsersTable</code></p>
+      </div>
+      <%= infotable :cms_users_table, title: "CMS Users", subtitle: "Single-level namespace example" %>
+    </div>
+
+    <%# CMS Admins Users Table (Deep Nested: app/infotable/cms/admins/users_table.rb) %>
+    <div class="container mx-auto my-4">
+      <div class="mb-4">
+        <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          CMS Admins Users Table
+        </h2>
+        <p class="text-sm text-gray-600 mt-1">Organized in nested folders: <code class="bg-gray-100 px-2 py-1 rounded text-xs">app/infotable/cms/admins/users_table.rb</code> → <code class="bg-indigo-100 px-2 py-1 rounded text-xs">Cms::Admins::UsersTable</code></p>
+      </div>
+      <%= infotable :cms_admins_users_table, title: "Admin Users", subtitle: "Multi-level namespace example" %>
+    </div>
+
+    <%# Footer info %>
+    <div class="mt-8 text-center">
+      <p class="text-sm text-gray-500">
+        Built with
+        <span class="font-semibold text-indigo-600">InfoTable</span>
+        • Powered by Rails 8, Hotwire & Tailwind CSS
+      </p>
+      <p class="text-xs text-gray-400 mt-2">
+        All tables work independently with their own sorting, filtering, and pagination
+      </p>
+    </div>
+  </div>
+</div>

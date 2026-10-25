@@ -1,0 +1,36 @@
+{
+  "name": "infotable",
+  "version": "0.1.0",
+  "description": "Modern, flexible datatable engine for Rails 8+ with Hotwire",
+  "main": "app/assets/javascripts/infotable/index.js",
+  "module": "app/assets/javascripts/infotable/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./app/assets/javascripts/infotable/index.js",
+    "./controllers/*": "./app/assets/javascripts/infotable/controllers/*.js"
+  },
+  "files": [
+    "app/assets/javascripts/**/*.js",
+    "app/assets/stylesheets/**/*.css"
+  ],
+  "keywords": [
+    "rails",
+    "hotwire",
+    "turbo",
+    "stimulus",
+    "datatable",
+    "table",
+    "pagination"
+  ],
+  "author": "Jakub Cieślar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcieslar/infotable.git"
+  },
+  "peerDependencies": {
+    "@hotwired/stimulus": "^3.0.0",
+    "@hotwired/turbo-rails": "^8.0.0",
+    "sortablejs": "^1.15.0"
+  }
+}

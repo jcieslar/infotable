@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Scan the dummy app views */
+@source "../../views";
+@source "../../infotable";
+
+/* Scan the InfoTable engine views */
+@source "../../../../../app/views/infotable";
+
+/* Scan the InfoTable formatters (they contain Tailwind classes) */
+@source "../../../../../lib/infotable/formatters";
