@@ -446,6 +446,14 @@ row_size :default
 - **Mid**: Moderate padding, normal text - balanced appearance
 - **Default**: Generous padding, normal text - comfortable reading
 
+#### Toolbar
+
+```ruby
+toolbar :rail   # :header (default) or :rail
+```
+
+`:rail` hides the header bar and puts filters (with a badge of active filters), columns, CSV export and refresh on a slim vertical rail at the table's right edge. Search moves to the top of the drawer.
+
 #### Filters Button Visibility
 
 Show or hide the filters button:

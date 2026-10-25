@@ -5,6 +5,8 @@ pl:
         export_csv: "Eksportuj CSV"
         filters: "Filtry"
         exporting: "Eksportowanie..."
+        refresh: "Odśwież"
+        columns: "Kolumny"
       sort_hint: "Kliknij, aby sortować; Shift+klik dodaje kolumnę do sortowania"
       loading:
         initial: "Ładowanie danych..."

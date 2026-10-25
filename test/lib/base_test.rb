@@ -80,6 +80,16 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal "S", t.subtitle
   end
 
+  test "toolbar defaults to the header and accepts :rail" do
+    assert_equal :header, build_table.toolbar_mode
+    assert_not build_table.rail_toolbar?
+    assert build_table { toolbar :rail }.rail_toolbar?
+  end
+
+  test "toolbar rejects unknown modes" do
+    assert_raises(ArgumentError) { build_table { toolbar :sidebar } }
+  end
+
   test "row_link with proc and string" do
     user = User.new(id: 3)
     t = build_table { row_link ->(r) { "/u/#{r.id}" } }

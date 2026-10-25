@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0
+
+### Added
+- `toolbar :rail`: hides the header bar and puts the controls on a slim vertical rail at the table's right edge: filters (with a badge counting the columns that have an active filter), columns, CSV export and refresh. Global search moves to the top of the drawer. The default stays `toolbar :header`.
+
 ## 1.0.1
 
 ### Fixed

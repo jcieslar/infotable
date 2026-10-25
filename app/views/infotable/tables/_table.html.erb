@@ -21,9 +21,24 @@
 <% title = local_assigns.fetch(:title, table_class.title || table_class.name.demodulize.titleize) %>
 <% subtitle = local_assigns.fetch(:subtitle, table_class.subtitle) %>
 <% initial_state = table_class.url_state? ? infotable_initial_state(table_name) : {} %>
+<% rail = table_class.rail_toolbar? %>
+<%
+  export_params = {
+    table_name: table_name,
+    sort_column: initial_state[:sort_column],
+    sort_direction: initial_state[:sort_direction],
+    sort: initial_state[:sort],
+    visible_columns: table_class.visible_columns.map { |c| c[:name].to_s }.join(',')
+  }
+  export_params[:filters] = initial_state[:filters] if initial_state[:filters].present?
+  export_params[:search] = initial_state[:search] if initial_state[:search].present?
+  export_url = Infotable::Engine.routes.url_helpers.table_export_path(export_params.compact)
+%>
 <div class="w-full relative overflow-hidden" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>" data-infotable--table-url-state-value="<%= table_class.url_state? %>">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 relative" style="overflow: hidden;">
-    <%# Header section with controls %>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 relative<%= " flex" if rail %>" style="overflow: hidden;">
+   <div class="<%= rail ? "flex-1 min-w-0" : "w-full" %>">
+    <%# Header section with controls (hidden with `toolbar :rail`) %>
+    <% unless rail %>
     <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
       <div class="flex justify-between items-center">
         <div>
@@ -44,18 +59,6 @@
                    class="w-56 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
           <% end %>
           <%# Export CSV button %>
-          <%
-            export_params = {
-              table_name: table_name,
-              sort_column: initial_state[:sort_column],
-              sort_direction: initial_state[:sort_direction],
-              sort: initial_state[:sort],
-              visible_columns: table_class.visible_columns.map { |c| c[:name].to_s }.join(',')
-            }
-            export_params[:filters] = initial_state[:filters] if initial_state[:filters].present?
-            export_params[:search] = initial_state[:search] if initial_state[:search].present?
-            export_url = Infotable::Engine.routes.url_helpers.table_export_path(export_params.compact)
-          %>
           <a href="<%= export_url %>"
              data-action="click->infotable--table#exportCsv"
              data-infotable--table-target="exportButton"
@@ -82,6 +85,7 @@
         </div>
       </div>
     </div>
+    <% end %>
 
     <%# Batch action bar: shown while rows are selected %>
     <% if table_class.batch_action_list.any? %>
@@ -122,6 +126,11 @@
         </div>
       </div>
     </turbo-frame>
+   </div>
+    <%# Vertical rail with the controls (`toolbar :rail`) %>
+    <% if rail %>
+      <%= render "infotable/tables/rail", table_name: table_name, table_class: table_class, export_url: export_url, initial_state: initial_state %>
+    <% end %>
   </div>
 
     <%# Side panel drawer - always available for column visibility, filters if available %>
