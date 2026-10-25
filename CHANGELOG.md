@@ -1,9 +1,13 @@
 # Changelog
 
-## Unreleased
+## 1.4.0
 
 ### Added
 - `table_height :fill` (optionally `offset: 32`): the rows area grows until the table and its pagination end `offset` px above the bottom of the window, and follows window resizes. `table_min_height` is the floor. `:fixed` (default) keeps `table_max_height`.
+
+### Changed
+- `toolbar :rail`: the rail slides left to stay visible beside the open drawer; clicking anywhere on it (or its active tab's button) collapses the drawer.
+- Filter drawer restyle: grey body with white filter cards, small uppercase labels, correct rounded corners and a softer shadow.
 
 ## 1.3.0
 
