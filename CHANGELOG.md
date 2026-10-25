@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.5.0
 
 ### Added
 - `row_class ->(record) { }`, `row_data ->(record) { { key: value } }` (data-* on the `<tr>`) and `id="<dom_id>"` on every row (a base for Turbo Streams).
