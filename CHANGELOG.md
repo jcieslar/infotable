@@ -6,6 +6,8 @@
 - CSV export follows the user's on-screen column order, never exports action columns, and has `export_columns :a, :b` (default list and pool) and `exportable: false` per column.
 - "Select all N matching" in batch actions: new `tables/:name/ids` endpoint, capped by `config.max_select_all` (default 10000); hidden for countless tables.
 - Active filter chips above the rows (each removable, "Clear all filters" from two on) and a filtered empty state with a clear button.
+- Column widths: drag the handle on a header's right edge (or focus it and press Left/Right, Shift for bigger steps); double-click resets. Widths are remembered per browser; `resizable_columns false` turns it off.
+- Mobile layout: the toolbar stacks on narrow screens, the search takes the full width, chips and the batch bar wrap.
 - Dark mode (`prefers-color-scheme`; for a `.dark` class add `@custom-variant dark (&:where(.dark, .dark *));` to your Tailwind CSS).
 - Number and date filters in the drawer have an operator select: Between (from/to, the default), Equals, Greater than, Before, After, Is empty, ... Single-value operators show one input; the choice is kept in shared links (`url_state`).
 

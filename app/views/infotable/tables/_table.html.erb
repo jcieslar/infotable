@@ -34,20 +34,20 @@
   export_params[:search] = initial_state[:search] if initial_state[:search].present?
   export_url = Infotable::Engine.routes.url_helpers.table_export_path(export_params.compact)
 %>
-<div class="w-full relative overflow-hidden dark:[color-scheme:dark]" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>" data-infotable--table-url-state-value="<%= table_class.url_state? %>"<% if table_class.checkbox_enabled? %> data-infotable--table-ids-url-value="<%= Infotable::Engine.routes.url_helpers.table_ids_path(table_name: table_name) %>"<% end %>>
+<div class="w-full relative overflow-hidden dark:[color-scheme:dark]" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>" data-infotable--table-url-state-value="<%= table_class.url_state? %>" data-infotable--table-resizable-value="<%= table_class.resizable_columns? %>" data-resize-label="<%= t('infotable.table.resize_column') %>"<% if table_class.checkbox_enabled? %> data-infotable--table-ids-url-value="<%= Infotable::Engine.routes.url_helpers.table_ids_path(table_name: table_name) %>"<% end %>>
   <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 relative<%= " flex" if rail %>" style="overflow: hidden;">
    <div class="<%= rail ? "flex-1 min-w-0" : "w-full" %>">
     <%# Header section with controls (hidden with `toolbar :rail`) %>
     <% unless rail %>
-    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-      <div class="flex justify-between items-center">
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+      <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
         <div>
           <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100"><%= title %></h2>
           <% if subtitle.present? %>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= subtitle %></p>
           <% end %>
         </div>
-        <div class="flex gap-3">
+        <div class="flex flex-wrap items-center gap-3">
           <%# Global search over `searchable: true` columns %>
           <% if table_class.searchable_columns.any? %>
             <input type="search"
@@ -56,7 +56,7 @@
                    placeholder="<%= t('infotable.search.placeholder') %>"
                    aria-label="<%= t('infotable.search.label') %>"
                    data-action="input->infotable--table#search"
-                   class="w-56 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                   class="w-full sm:w-56 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
           <% end %>
           <%# Export CSV button %>
           <a href="<%= export_url %>"
@@ -89,7 +89,7 @@
 
     <%# Batch action bar: shown while rows are selected %>
     <% if table_class.batch_action_list.any? %>
-      <div class="hidden items-center justify-between gap-3 px-6 py-3 border-b border-indigo-100 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950"
+      <div class="hidden flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 border-b border-indigo-100 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950"
            data-infotable--table-target="batchBar">
         <div class="flex items-center gap-3 text-sm text-indigo-900 dark:text-indigo-100">
           <span data-infotable--table-target="batchCount"

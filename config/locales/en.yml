@@ -12,6 +12,7 @@ en:
         initial: "Loading data..."
         more_items: "Loading more items..."
         all_loaded: "All items loaded"
+      resize_column: "resize column"
       empty_state:
         title: "No data found"
         description: "Get started by adding some records to see them here."
