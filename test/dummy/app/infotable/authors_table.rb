@@ -121,6 +121,9 @@ class AuthorsTable < Infotable::Base
     }
 
   # Table settings
+  # Controls on a slim vertical rail instead of the header bar
+  toolbar :rail
+
   per_page 25
   per_page_options [ 10, 25, 50, 100 ]
   default_sort :created_at, :desc

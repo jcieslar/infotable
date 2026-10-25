@@ -7,7 +7,7 @@ export default class extends Controller {
     urlState: Boolean
   }
 
-  static targets = ["exportButton", "exportButtonText", "selectAll", "rowCheckbox", "batchBar", "batchCount"]
+  static targets = ["filterCount", "exportButton", "exportButtonText", "selectAll", "rowCheckbox", "batchBar", "batchCount"]
 
   // Target callbacks (rowCheckboxTargetConnected) can fire before connect(), so state lives here
   initialize() {
@@ -66,8 +66,29 @@ export default class extends Controller {
 
   // Handle turbo frame load
   handleFrameLoad(event) {
+    this.updateFilterCount(event.target)
     this.syncSelectionScope(event.target)
     if (this.urlStateValue && event.target.id === `${this.nameValue}_content`) this.syncUrl(event.target)
+  }
+
+  // Reload the current page of rows (rail toolbar's refresh button)
+  refresh() {
+    document.getElementById(`${this.nameValue}_content`)?.reload()
+  }
+
+  // Badge on the rail's filter button: number of columns with an active filter
+  updateFilterCount(frame) {
+    if (!this.hasFilterCountTarget || !frame?.src) return
+
+    const params = new URL(frame.src, window.location.href).searchParams
+    const columns = new Set()
+    for (const [key, value] of params) {
+      const match = key.match(/^filters\[([^\]]+)\]/)
+      if (match && value !== "") columns.add(match[1])
+    }
+
+    this.filterCountTarget.textContent = columns.size
+    this.filterCountTarget.classList.toggle("hidden", columns.size === 0)
   }
 
   // ---- Table state in the address bar ---------------------------------------
