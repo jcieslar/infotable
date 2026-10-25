@@ -848,11 +848,20 @@ export default class extends Controller {
     const cells = table.querySelectorAll(`th[data-column-name="${escaped}"], td[data-column-name="${escaped}"]`)
 
     cells.forEach(cell => {
-      if (cell.dataset.defaultWidth === undefined) cell.dataset.defaultWidth = cell.style.width
-      const value = width === null ? cell.dataset.defaultWidth : `${width}px`
-      cell.style.width = value
-      cell.style.maxWidth = value
-      cell.style.minWidth = width === null ? "" : value
+      // Remember how the server rendered the cell (action columns have width/min-width but no max-width)
+      if (cell.dataset.defaultWidth === undefined) {
+        cell.dataset.defaultWidth = cell.style.width
+        cell.dataset.defaultMaxWidth = cell.style.maxWidth
+        cell.dataset.defaultMinWidth = cell.style.minWidth
+      }
+
+      if (width === null) {
+        cell.style.width = cell.dataset.defaultWidth
+        cell.style.maxWidth = cell.dataset.defaultMaxWidth
+        cell.style.minWidth = cell.dataset.defaultMinWidth
+      } else {
+        cell.style.width = cell.style.maxWidth = cell.style.minWidth = `${width}px`
+      }
     })
   }
 
