@@ -7,8 +7,9 @@ class TableInteractionsTest < ApplicationSystemTestCase
     wait_for_table("users_table")
   end
 
+  # Cells are moved around right after a frame load, so retry if a node goes stale
   def names
-    all("turbo-frame#users_table_content table tbody tr").map { _1.all("td")[1]&.text }
+    page.document.synchronize { all("turbo-frame#users_table_content table tbody tr td strong").map(&:text) }
   end
 
   def open_filters

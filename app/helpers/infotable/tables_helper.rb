@@ -207,6 +207,21 @@ module Infotable
       Infotable::Engine.routes.url_helpers.table_export_path(options)
     end
 
+    INITIAL_STATE_KEYS = %w[search sort sort_column sort_direction page per_page filters].freeze
+
+    # Table state carried by the host page's own URL as `?users_table[search]=x&users_table[page]=2`
+    # (written by the table controller). Only known keys and plain values survive; the data
+    # endpoint validates them again when the frame loads.
+    def infotable_initial_state(table_name)
+      raw = params[table_name.to_s]
+      return {} unless raw.respond_to?(:to_unsafe_h)
+
+      raw.to_unsafe_h.slice(*INITIAL_STATE_KEYS).each_with_object({}) do |(key, value), state|
+        clean = sanitize_state_value(value)
+        state[key.to_sym] = clean unless clean.nil? || clean == ""
+      end
+    end
+
     # Helper to build table URL params while preserving current state
     # This ensures sorting, pagination, and other state is maintained across interactions
     def table_url_params(new_params = {})
@@ -222,6 +237,14 @@ module Infotable
       base_params[:filters] = params[:filters].to_unsafe_h if params[:filters].respond_to?(:to_unsafe_h) && params[:filters].present?
 
       base_params.compact.merge(new_params)
+    end
+
+    def sanitize_state_value(value, depth = 0)
+      case value
+      when String then value.delete("\u0000")[0, 500]
+      when Array then depth < 3 ? value.first(50).filter_map { sanitize_state_value(_1, depth + 1) }.select { _1.is_a?(String) } : nil
+      when Hash then depth < 3 ? value.first(50).to_h { |k, v| [ k.to_s[0, 100], sanitize_state_value(v, depth + 1) ] }.compact : nil
+      end
     end
 
     DRAWER_WIDTH_FORMAT = /\A\d+(\.\d+)?(px|rem|em|vw|%)\z/

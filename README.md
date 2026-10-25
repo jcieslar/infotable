@@ -139,6 +139,7 @@ end
 | `table_min_height` | String | `"400px"` | Minimum table height |
 | `table_max_height` | String | `"600px"` | Maximum table height (enables scrolling) |
 | `autofilter` | Boolean | `true` | Auto-apply filters on change (debounced) vs manual apply |
+| `url_state` | Boolean | `true` | Mirror search, filters, sort and page in the address bar (override per table with `url_state false`) |
 | `max_filter_options` | Integer | `500` | Cap on `<option>`s in a select filter (`nil` = no cap) |
 
 `theme`, `turbo_enabled` and `pagination_gem` are still accepted so old initializers keep loading, but they do nothing.
@@ -362,6 +363,10 @@ Filter types are inferred from the column type or set with `filter_type:`.
 | select | one value, or several with `filter_multi_select: true` |
 
 Filters, search and sort survive pagination, per-page changes and CSV export.
+
+#### Table state in the URL
+
+Search, filters, sort, page and page size are mirrored in the page's address bar, one namespace per table (`/users?users_table[search]=ann&users_table[page]=2`). Links can be shared and bookmarked, a reload keeps the table as it was, and the Back button steps through the states. Turn it off globally with `config.url_state = false` or per table with `url_state false` (e.g. tables inside modals or tabs).
 
 #### Large tables
 
