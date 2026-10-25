@@ -1,5 +1,5 @@
 module Infotable
-  # Global search: every whitespace-separated term must match (ILIKE) at least one
+  # Global search: every whitespace-separated term must match (case-insensitively) at least one
   # searchable column. Non-text columns are matched on their text representation.
   class SearchProcessor
     MAX_TERMS = 5
@@ -19,8 +19,8 @@ module Infotable
 
       terms.reduce(query) do |relation, word|
         pattern = "%#{ActiveRecord::Base.sanitize_sql_like(word)}%"
-        conditions = columns.map { "CAST(#{column_ref(_1)} AS text) ILIKE :pattern" }
-        relation.where(conditions.join(" OR "), pattern: pattern)
+        conditions = columns.map { Infotable::Sql.like(query.model.connection, "CAST(#{column_ref(_1)} AS text)") }
+        relation.where(conditions.join(" OR "), *[ pattern ] * columns.size)
       end
     end
 

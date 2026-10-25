@@ -44,7 +44,7 @@ That's it! You now have a fully functional datatable with sorting and pagination
 
 - Rails 8.0+
 - Ruby 3.3+
-- PostgreSQL (filters use `ILIKE`, `HAVING` and `CAST(... AS numeric)`; other databases are not supported)
+- PostgreSQL or SQLite (other databases are not supported). On SQLite, text filters and search ignore case for ASCII letters only (`ś` does not match `Ś`); PostgreSQL matches all letters
 - [Pagy](https://github.com/ddnexus/pagy) 43 (installed as a dependency)
 - Tailwind CSS v4 (via `tailwindcss-rails` gem) - **Required for styling**
 - Hotwire (Turbo + Stimulus)

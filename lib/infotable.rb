@@ -10,6 +10,7 @@ module Infotable
   autoload :FilterProcessor, "infotable/filter_processor"
   autoload :BatchActions, "infotable/batch_actions"
   autoload :SearchProcessor, "infotable/search_processor"
+  autoload :Sql, "infotable/sql"
   autoload :TableResolver, "infotable/table_resolver"
 
   # Formatters

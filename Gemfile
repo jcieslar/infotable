@@ -8,6 +8,7 @@ gem "puma"
 
 # Database
 gem "pg"
+gem "sqlite3", ">= 2.1"
 gem "minitest", ">= 5.25"
 gem "minitest-mock"
 
