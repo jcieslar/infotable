@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.4.2
 
 ### Changed
 - Fresher table look: quieter header (medium weight, grey), flat row hover instead of the lifted row, lighter row dividers.
