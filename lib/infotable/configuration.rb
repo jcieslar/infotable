@@ -31,7 +31,7 @@ module Infotable
       @nil_value = "-" # Default placeholder for nil values
       @empty_value = "-" # Default placeholder for empty strings
       @url_state = true # mirror table state in the address bar
-      @max_select_all = 10_000 # "select all matching" collects at most this many ids (nil = no limit)
+      @max_select_all = 4000 # "select all matching" collects at most this many ids (nil = no limit). Rack accepts 4096 params per request, and every id is sent as ids[]
       @max_filter_options = 500 # select filters render at most this many <option>s (nil = no limit)
       @parent_controller = "ActionController::Base" # Set to "ApplicationController" to inherit host auth/filters
     end

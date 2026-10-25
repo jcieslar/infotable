@@ -66,6 +66,8 @@ module Infotable
         subclass.countless_setting = parent.countless_setting
         subclass.url_state_setting = parent.url_state_setting
         subclass.resizable_columns_setting = parent.resizable_columns_setting
+        subclass.instance_variable_set(:@toolbar_setting, parent.instance_variable_get(:@toolbar_setting))
+        subclass.instance_variable_set(:@export_column_names, parent.instance_variable_get(:@export_column_names)&.dup)
         %i[pagination_settings sort_settings height_settings infinite_scroll_settings row_link_settings row_attr_settings
            slim_rows_settings row_size_settings filters_button_settings display_settings
            nil_value_settings empty_value_settings].each do |attr|
@@ -135,8 +137,9 @@ module Infotable
       # Plucks when the id method is a plain column of an ungrouped query, loads records otherwise.
       def checkbox_ids(query, limit = nil)
         method = @checkbox_settings[:id_method]
-        scope = query.reorder(nil)
-        scope = scope.limit(limit) if limit
+        # Without a cap the order is irrelevant (and costs a sort); with one, the table's own order
+        # decides which rows make it in, so a capped selection is the first N rows the user sees
+        scope = limit ? query.limit(limit) : query.reorder(nil)
         model = query.model
 
         if model.column_names.include?(method.to_s) && scope.group_values.empty? && scope.having_clause.empty?
@@ -168,8 +171,16 @@ module Infotable
       end
 
       # Define a column
+      COLUMN_OPTIONS = %i[label type sortable searchable filterable visible exportable pinned virtual virtual_sql
+                          sql sort_sql value includes formatter formatter_options actions filter_type filter_options
+                          filter_options_cache filter_options_limit filter_multi_select width].freeze
+
       def column(name, **options)
         @table_columns ||= []
+        unknown = options.keys - COLUMN_OPTIONS
+        if unknown.any? && defined?(Rails) && Rails.logger
+          Rails.logger.warn("[Infotable] #{self.name || 'table'}: column :#{name} ignores unknown option(s) #{unknown.map(&:inspect).join(', ')}")
+        end
         type = options[:type] || :string
 
         # Determine width - use custom if provided and not blank, otherwise use default

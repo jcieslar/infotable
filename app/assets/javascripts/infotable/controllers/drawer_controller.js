@@ -267,7 +267,7 @@ export default class extends Controller {
     // Keep search and sort from the current frame URL
     if (tableFrame?.src) {
       const current = new URL(tableFrame.src, window.location.href).searchParams
-      for (const key of ["search", "sort", "sort_column", "sort_direction"]) {
+      for (const key of ["search", "per_page", "sort", "sort_column", "sort_direction"]) {
         if (current.has(key) && !params.has(key)) params.set(key, current.get(key))
       }
     }
@@ -568,7 +568,7 @@ export default class extends Controller {
     this.saveColumnVisibility(tableName, columnName, isVisible)
 
     // Apply visibility to table
-    this.applyColumnVisibility(tableName)
+    this.applyToTable(tableName)
     
     // Update badge
     this.updateColumnBadge(tableName)
@@ -591,7 +591,7 @@ export default class extends Controller {
         const columnName = checkbox.dataset.columnName
         this.saveColumnVisibility(tableName, columnName, true)
       })
-      this.applyColumnVisibility(tableName)
+      this.applyToTable(tableName)
       this.updateColumnBadge(tableName)
       
       // Dispatch event to update export link
@@ -613,7 +613,7 @@ export default class extends Controller {
         const columnName = checkbox.dataset.columnName
         this.saveColumnVisibility(tableName, columnName, false)
       })
-      this.applyColumnVisibility(tableName)
+      this.applyToTable(tableName)
       this.updateColumnBadge(tableName)
       
       // Dispatch event to update export link
@@ -638,7 +638,7 @@ export default class extends Controller {
     }
 
     visibility[columnName] = isVisible
-    localStorage.setItem(key, JSON.stringify(visibility))
+    this.storeSet(key, JSON.stringify(visibility))
   }
 
   // Sync checkboxes with localStorage values or defaults
@@ -722,67 +722,12 @@ export default class extends Controller {
     }
   }
 
-  // Apply column visibility to the table
-  applyColumnVisibility(tableName) {
-    const tableWrapper = document.querySelector(`[data-infotable--table-name-value="${tableName}"]`)
-    if (!tableWrapper) {
-      console.warn(`Table wrapper not found for: ${tableName}`)
-      return
-    }
-
-    // Try to find table in the wrapper or in turbo-frame
-    let table = tableWrapper.querySelector("table")
-    if (!table) {
-      // Table might be inside turbo-frame
-      const turboFrame = document.getElementById(`${tableName}_content`)
-      if (turboFrame) {
-        table = turboFrame.querySelector("table")
-      }
-    }
-    
-    if (!table) {
-      console.warn(`Table not found for: ${tableName}`)
-      return
-    }
-
-    // Find all table headers and cells
-    const headers = table.querySelectorAll("thead th[data-column-name]")
-    const rows = table.querySelectorAll("tbody tr")
-    
-    if (headers.length === 0) {
-      console.warn(`No column headers found for table: ${tableName}`)
-      return
-    }
-    
-    // Get saved preferences from localStorage
-    const visibility = this.getColumnVisibility(tableName)
-
-    headers.forEach((header) => {
-      const columnName = header.dataset.columnName
-      const defaultVisible = header.dataset.defaultVisible === "true"
-      
-      // Determine if column should be visible
-      let shouldShow
-      if (visibility && visibility.hasOwnProperty(columnName)) {
-        // Use saved preference
-        shouldShow = visibility[columnName]
-      } else {
-        // Use default visibility
-        shouldShow = defaultVisible
-      }
-      
-      // Apply visibility
-      header.style.display = shouldShow ? "" : "none"
-      
-      // Hide/show corresponding cells in all rows
-      rows.forEach(row => {
-        const cells = row.querySelectorAll("td[data-column-name]")
-        const cell = Array.from(cells).find(c => c.dataset.columnName === columnName)
-        if (cell) {
-          cell.style.display = shouldShow ? "" : "none"
-        }
-      })
-    })
+  // The table controller applies order, visibility and pinning (it owns the table DOM); an explicit
+  // `order` replaces the stored one (used right after a drag, a pin or a reset)
+  applyToTable(tableName, order = null) {
+    document.dispatchEvent(new CustomEvent("infotable:apply-columns", {
+      detail: { tableName, order }
+    }))
   }
 
   // Update column badge count for a specific table
@@ -876,12 +821,9 @@ export default class extends Controller {
       const columnItems = list.querySelectorAll('.column-item')
       const newOrder = Array.from(columnItems).map(item => item.dataset.columnName)
 
-      // Apply the new order to the table (reorders DOM)
-      this.applyColumnOrder(tableName, newOrder)
+      // Order and sticky positioning, applied to the table immediately
+      this.applyToTable(tableName, newOrder)
     }
-
-    // Apply sticky positioning to table immediately
-    this.applyColumnPinningToTable(tableName)
 
     // Dispatch event for export link update
     document.dispatchEvent(new CustomEvent("infotable:columns-changed", {
@@ -903,40 +845,53 @@ export default class extends Controller {
       console.warn("Failed to parse column pinned from localStorage", e)
     }
 
-    if (pinned) {
-      pinnedData[columnName] = pinned
-    } else {
-      delete pinnedData[columnName]
-    }
+    // An unpin is stored as null (not removed): a column pinned by default must stay unpinned
+    pinnedData[columnName] = pinned || null
 
-    localStorage.setItem(key, JSON.stringify(pinnedData))
+    this.storeSet(key, JSON.stringify(pinnedData))
+  }
+
+  // localStorage is missing or full in some browsers (private mode): the drawer then works for this page only
+  storeSet(key, value) {
+    try {
+      localStorage.setItem(key, value)
+    } catch (e) {
+      console.warn("Failed to write to localStorage", e)
+    }
+  }
+
+  storeRemove(key) {
+    try {
+      localStorage.removeItem(key)
+    } catch (e) {
+      console.warn("Failed to write to localStorage", e)
+    }
   }
 
   // Get pinned state from localStorage
   getColumnPinned(tableName, columnName) {
-    const key = `infotable_column_pinned_${tableName}`
-    try {
-      const stored = localStorage.getItem(key)
-      if (stored) {
-        const pinnedData = JSON.parse(stored)
-        return pinnedData[columnName] || null
-      }
-    } catch (e) {
-      console.warn("Failed to parse column pinned from localStorage", e)
-    }
-    return null
+    return this.getAllColumnsPinned(tableName)[columnName] || null
   }
 
-  // Get all pinned columns
+  // Pinned columns: what the user chose (localStorage) over the table's `pinned:` defaults.
+  // A column the user unpinned is stored as null and stays unpinned.
   getAllColumnsPinned(tableName) {
     const key = `infotable_column_pinned_${tableName}`
+    let stored = {}
     try {
-      const stored = localStorage.getItem(key)
-      return stored ? JSON.parse(stored) : {}
+      const raw = localStorage.getItem(key)
+      if (raw) stored = JSON.parse(raw)
     } catch (e) {
       console.warn("Failed to parse column pinned from localStorage", e)
-      return {}
     }
+
+    const pinned = {}
+    const form = document.getElementById(`column-visibility-form-${tableName}`)
+    form?.querySelectorAll('.column-item').forEach(item => {
+      const defaultPinned = item.dataset.defaultPinned
+      if (defaultPinned) pinned[item.dataset.columnName] = defaultPinned
+    })
+    return { ...pinned, ...stored }
   }
 
   // Update pin button styling
@@ -1001,202 +956,6 @@ export default class extends Controller {
     this.saveColumnOrder(tableName, newOrder)
   }
 
-  // Apply pinning to table (add sticky positioning)
-  applyColumnPinningToTable(tableName) {
-    const tableWrapper = document.querySelector(`[data-infotable--table-name-value="${tableName}"]`)
-    if (!tableWrapper) return
-
-    let table = tableWrapper.querySelector("table")
-    if (!table) {
-      const turboFrame = document.getElementById(`${tableName}_content`)
-      if (turboFrame) {
-        table = turboFrame.querySelector("table")
-      }
-    }
-
-    if (!table) return
-
-    const pinnedData = this.getAllColumnsPinned(tableName)
-    const headers = Array.from(table.querySelectorAll("thead th[data-column-name]"))
-    const rows = table.querySelectorAll("tbody tr")
-
-    // Calculate positions for pinned columns
-    let leftOffset = 0
-    let rightOffset = 0
-
-    // First pass: reset all columns
-    headers.forEach(header => {
-      header.style.position = ''
-      header.style.left = ''
-      header.style.right = ''
-      header.style.zIndex = ''
-      header.style.removeProperty('background-color')
-      header.style.removeProperty('background-image')
-      header.style.removeProperty('opacity')
-      header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
-    })
-
-    rows.forEach(row => {
-      const cells = row.querySelectorAll("td[data-column-name]")
-      cells.forEach(cell => {
-        cell.style.position = ''
-        cell.style.left = ''
-        cell.style.right = ''
-        cell.style.zIndex = ''
-        cell.style.removeProperty('background-color')
-        cell.style.removeProperty('background-image')
-        cell.style.removeProperty('opacity')
-        cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
-      })
-    })
-
-    // Find last left-pinned and first right-pinned columns
-    let lastLeftPinned = null
-    let firstRightPinned = null
-
-    headers.forEach(header => {
-      const columnName = header.dataset.columnName
-      const pinned = pinnedData[columnName]
-      if (pinned === 'left') {
-        lastLeftPinned = columnName
-      }
-      if (pinned === 'right' && !firstRightPinned) {
-        firstRightPinned = columnName
-      }
-    })
-
-    // Apply sticky positioning for pinned columns
-    headers.forEach(header => {
-      const columnName = header.dataset.columnName
-      const pinned = pinnedData[columnName]
-
-      if (pinned === 'left') {
-        // Get existing inline styles
-        const existingStyles = header.getAttribute('style') || ''
-
-        // Build comprehensive style string with all !important flags
-        const newStyles = `
-          position: sticky !important;
-          left: ${leftOffset}px !important;
-          z-index: 30 !important;
-          background: #f9fafb !important;
-          background-color: #f9fafb !important;
-          background-image: none !important;
-          background-position: initial !important;
-          background-size: initial !important;
-          background-repeat: initial !important;
-          background-attachment: initial !important;
-          opacity: 1 !important;
-          ${existingStyles}
-        `.replace(/\s+/g, ' ').trim()
-
-        // Set all styles at once via setAttribute
-        header.setAttribute('style', newStyles)
-        header.classList.add('infotable-pinned-left', '!bg-gray-50', 'dark:!bg-gray-800')
-
-        // Mark last left-pinned column
-        if (columnName === lastLeftPinned) {
-          header.classList.add("after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]")
-        }
-
-        // Apply to cells in all rows
-        rows.forEach(row => {
-          const cell = row.querySelector(`td[data-column-name="${columnName}"]`)
-          if (cell) {
-            // Get existing inline styles
-            const existingStyles = cell.getAttribute('style') || ''
-
-            // Build comprehensive style string
-            const newStyles = `
-              position: sticky !important;
-              left: ${leftOffset}px !important;
-              z-index: 15 !important;
-              background: #ffffff !important;
-              background-color: #ffffff !important;
-              background-image: none !important;
-              background-position: initial !important;
-              background-size: initial !important;
-              background-repeat: initial !important;
-              background-attachment: initial !important;
-              opacity: 1 !important;
-              ${existingStyles}
-            `.replace(/\s+/g, ' ').trim()
-
-            cell.setAttribute('style', newStyles)
-            cell.classList.add('infotable-pinned-left', '!bg-white', 'dark:!bg-gray-900')
-
-            if (columnName === lastLeftPinned) {
-              cell.classList.add("after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]")
-            }
-          }
-        })
-
-        leftOffset += header.offsetWidth
-      } else if (pinned === 'right') {
-        // Get existing inline styles
-        const existingStyles = header.getAttribute('style') || ''
-
-        // Build comprehensive style string
-        const newStyles = `
-          position: sticky !important;
-          right: ${rightOffset}px !important;
-          z-index: 30 !important;
-          background: #f9fafb !important;
-          background-color: #f9fafb !important;
-          background-image: none !important;
-          background-position: initial !important;
-          background-size: initial !important;
-          background-repeat: initial !important;
-          background-attachment: initial !important;
-          opacity: 1 !important;
-          ${existingStyles}
-        `.replace(/\s+/g, ' ').trim()
-
-        header.setAttribute('style', newStyles)
-        header.classList.add('infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
-
-        // Mark first right-pinned column
-        if (columnName === firstRightPinned) {
-          header.classList.add("before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
-        }
-
-        // Apply to cells in all rows
-        rows.forEach(row => {
-          const cell = row.querySelector(`td[data-column-name="${columnName}"]`)
-          if (cell) {
-            // Get existing inline styles
-            const existingStyles = cell.getAttribute('style') || ''
-
-            // Build comprehensive style string
-            const newStyles = `
-              position: sticky !important;
-              right: ${rightOffset}px !important;
-              z-index: 15 !important;
-              background: #ffffff !important;
-              background-color: #ffffff !important;
-              background-image: none !important;
-              background-position: initial !important;
-              background-size: initial !important;
-              background-repeat: initial !important;
-              background-attachment: initial !important;
-              opacity: 1 !important;
-              ${existingStyles}
-            `.replace(/\s+/g, ' ').trim()
-
-            cell.setAttribute('style', newStyles)
-            cell.classList.add('infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900')
-
-            if (columnName === firstRightPinned) {
-              cell.classList.add("before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
-            }
-          }
-        })
-
-        rightOffset += header.offsetWidth
-      }
-    })
-  }
-
   // ========== Column Ordering with Drag and Drop ==========
 
   // Initialize Sortable for drag and drop column ordering
@@ -1237,7 +996,9 @@ export default class extends Controller {
 
     // Unpin all columns when manually reordering
     const pinnedKey = `infotable_column_pinned_${tableName}`
-    localStorage.removeItem(pinnedKey)
+    const unpinned = {}
+    columnItems.forEach(item => { unpinned[item.dataset.columnName] = null })
+    this.storeSet(pinnedKey, JSON.stringify(unpinned))
 
     // Update pin button styling for all items
     columnItems.forEach(item => {
@@ -1247,11 +1008,8 @@ export default class extends Controller {
     // Save to localStorage
     this.saveColumnOrder(tableName, newOrder)
 
-    // Apply order to table
-    this.applyColumnOrder(tableName, newOrder)
-
-    // Remove sticky positioning since all are unpinned
-    this.applyColumnPinningToTable(tableName)
+    // Apply order to the table; nothing is pinned any more
+    this.applyToTable(tableName, newOrder)
 
     // Dispatch event for export link update
     document.dispatchEvent(new CustomEvent("infotable:columns-changed", {
@@ -1262,7 +1020,7 @@ export default class extends Controller {
   // Save column order to localStorage
   saveColumnOrder(tableName, order) {
     const key = `infotable_column_order_${tableName}`
-    localStorage.setItem(key, JSON.stringify(order))
+    this.storeSet(key, JSON.stringify(order))
   }
 
   // Load column order from localStorage
@@ -1298,7 +1056,7 @@ export default class extends Controller {
 
     // Valid schema, apply the order
     this.applyColumnOrderToList(tableName, storedOrder)
-    this.applyColumnOrder(tableName, storedOrder)
+    this.applyToTable(tableName, storedOrder)
   }
 
   // Check if stored order is valid against default schema
@@ -1352,64 +1110,10 @@ export default class extends Controller {
     })
   }
 
-  // Apply column order to the table
-  applyColumnOrder(tableName, order) {
-    const tableWrapper = document.querySelector(`[data-infotable--table-name-value="${tableName}"]`)
-    if (!tableWrapper) return
-
-    // Try to find table in the wrapper or in turbo-frame
-    let table = tableWrapper.querySelector("table")
-    if (!table) {
-      const turboFrame = document.getElementById(`${tableName}_content`)
-      if (turboFrame) {
-        table = turboFrame.querySelector("table")
-      }
-    }
-
-    if (!table) return
-
-    // Get headers and create a map
-    const headerRow = table.querySelector("thead tr")
-    if (!headerRow) return
-
-    const headers = Array.from(headerRow.querySelectorAll("th[data-column-name]"))
-    const headerMap = new Map()
-
-    headers.forEach((header, index) => {
-      headerMap.set(header.dataset.columnName, { element: header, originalIndex: index })
-    })
-
-    // Reorder headers according to order array
-    order.forEach(columnName => {
-      const headerInfo = headerMap.get(columnName)
-      if (headerInfo) {
-        headerRow.appendChild(headerInfo.element)
-      }
-    })
-
-    // Reorder cells in each row
-    const rows = table.querySelectorAll("tbody tr")
-    rows.forEach(row => {
-      const cells = Array.from(row.querySelectorAll("td[data-column-name]"))
-      const cellMap = new Map()
-
-      cells.forEach(cell => {
-        cellMap.set(cell.dataset.columnName, cell)
-      })
-
-      order.forEach(columnName => {
-        const cell = cellMap.get(columnName)
-        if (cell) {
-          row.appendChild(cell)
-        }
-      })
-    })
-  }
-
   // Clear column order from localStorage
   clearColumnOrder(tableName) {
     const key = `infotable_column_order_${tableName}`
-    localStorage.removeItem(key)
+    this.storeRemove(key)
   }
 
   // Reset to defaults - clear all custom settings
@@ -1421,14 +1125,14 @@ export default class extends Controller {
 
     // Clear column visibility
     const visibilityKey = `infotable_columns_${tableName}`
-    localStorage.removeItem(visibilityKey)
+    this.storeRemove(visibilityKey)
 
     // Clear column order
     this.clearColumnOrder(tableName)
 
     // Clear column pinning
     const pinnedKey = `infotable_column_pinned_${tableName}`
-    localStorage.removeItem(pinnedKey)
+    this.storeRemove(pinnedKey)
 
     // Reset checkboxes to defaults
     const form = document.getElementById(`column-visibility-form-${tableName}`)
@@ -1452,19 +1156,10 @@ export default class extends Controller {
       this.applyColumnOrderToList(tableName, schemaNames)
     }
 
-    // Apply defaults to table
-    this.applyColumnVisibility(tableName)
-
-    // Apply default column order to table
+    // Apply the defaults (visibility, default order, default pinning) to the table
     const list = Array.from(this.columnListTargets).find(l => l.dataset.tableName === tableName)
-    if (list) {
-      const defaultSchema = JSON.parse(list.dataset.columnsSchema || '[]')
-      const schemaNames = defaultSchema.map(item => typeof item === 'string' ? item : item.name)
-      this.applyColumnOrder(tableName, schemaNames)
-    }
-
-    // Remove sticky positioning
-    this.applyColumnPinningToTable(tableName)
+    const defaultSchema = JSON.parse(list?.dataset.columnsSchema || '[]')
+    this.applyToTable(tableName, list ? defaultSchema.map(item => typeof item === 'string' ? item : item.name) : null)
 
     // Update badge
     this.updateColumnBadge(tableName)

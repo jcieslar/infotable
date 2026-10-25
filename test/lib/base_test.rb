@@ -186,6 +186,28 @@ class BaseTest < ActiveSupport::TestCase
     assert_equal [ :name ], child.columns.map { |c| c[:name] }
   end
 
+  test "subclass inherits toolbar and export_columns" do
+    parent = build_table do
+      column :name
+      column :email
+      toolbar :rail
+      export_columns :email, :name
+    end
+    child = Class.new(parent)
+    assert_equal :rail, child.toolbar_mode
+    assert_equal %i[email name], child.columns_for_export.map { |c| c[:name] }
+  end
+
+  test "an unknown column option is logged, not silently dropped" do
+    io = StringIO.new
+    previous = Rails.logger
+    Rails.logger = Logger.new(io)
+    build_table { column :name, sortble: true }
+    assert_match(/column :name ignores unknown option\(s\) :sortble/, io.string)
+  ensure
+    Rails.logger = previous
+  end
+
   test "multi select option is stored" do
     t = build_table { column :status, filter_type: :select, filter_multi_select: true }
     assert t.columns.first[:filter_multi_select]

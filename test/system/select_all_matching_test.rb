@@ -2,7 +2,9 @@ require "application_system_test_case"
 
 class SelectAllMatchingTest < ApplicationSystemTestCase
   setup do
-    author = Author.create!(name: "Writer", email: "writer@example.com")
+    # The search matches posts.author_id as text: a sequence id containing "0" would make the
+    # term "0" match every post (the filter test below searches "Post 0")
+    author = Author.create!(id: 1, name: "Writer", email: "writer@example.com")
     @posts = 60.times.map { |i| Post.create!(author: author, title: "Post #{format('%02d', i)}", body: "Body", status: i < 40 ? "published" : "draft", category: "tech") }
     visit "/posts"
     wait_for_table("posts_table")

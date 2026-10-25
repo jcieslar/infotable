@@ -24,6 +24,15 @@ class FilterProcessorTest < ActiveSupport::TestCase
     assert_equal 3, filter(@table, { "nope" => { "value" => "x" }, "secret" => { "value" => "x" } }).count
   end
 
+  test "a text filter on a number column compares its text form" do
+    table = build_table do
+      column :age, type: :integer, filterable: true, filter_type: :text
+    end
+    assert_equal [ "Alice Smith" ], names(filter(table, { "age" => { "op" => "contains", "value" => "30" } }))
+    assert_equal [ "Bob_100%" ], names(filter(table, { "age" => { "op" => "exact", "value" => "45" } }))
+    assert_equal 0, filter(table, { "age" => { "op" => "is_empty" } }).count
+  end
+
   test "text contains is case insensitive" do
     assert_equal [ "Alice Smith" ], names(filter(@table, { "name" => { "op" => "contains", "value" => "alice" } }))
   end

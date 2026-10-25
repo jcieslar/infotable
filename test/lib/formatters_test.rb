@@ -40,6 +40,8 @@ class FormattersTest < ActiveSupport::TestCase
     assert_includes f.format(true, nil), "bg-green-100"
     assert_includes f.format(false, nil), "bg-gray-100"
     assert_includes f.format(true, nil, style: :icon), "<svg"
+    assert_includes f.format(true, nil, style: :icon), 'aria-label="Yes"'
+    assert_includes f.format(false, nil, style: :icon, false_text: "Off"), 'aria-label="Off"'
   end
 
   test "badge colors and sizes" do
