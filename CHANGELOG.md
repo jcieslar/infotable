@@ -6,7 +6,7 @@
 - Requires Ruby >= 3.3 (Pagy 43).
 - `query_sql` requires `model:`.
 - Requires Pagy 43 (`~> 43.0`); the host app's own Pagy usage must be on 43 too. Pagy is no longer included anywhere except the engine's controller (`Pagy::Method`).
-- PostgreSQL is the only supported database.
+- PostgreSQL and SQLite are the supported databases (SQLite matches case-insensitively for ASCII only).
 - Unknown formatter names (`formatter: :curency`) now raise `Infotable::Error` instead of rendering `value.to_s`.
 - `nil_value` / `empty_value` placeholders now also apply to named formatters (`:currency`, `:date`, `:badge`, ...).
 - The default `drawer_width` is `"26rem"` (what the drawer always used); `drawer_position` and `drawer_width` now take effect.
@@ -15,6 +15,7 @@
 - Actions with `method:` use `data-turbo-method` / `data-turbo-confirm` (they relied on rails-ujs before).
 
 ### Added
+- SQLite support: text filters and global search use `LIKE ... ESCAPE` there (`Infotable::Sql`); the suite runs on both databases (`DB=sqlite3 bin/rails test`).
 - Browser system tests (Capybara + Cuprite, `bin/rails test:system`) for search, sorting, the filter drawer, per-page/pagination, batch actions and URL state; JavaScript errors fail the test.
 - `rails generate infotable:table MODEL [--only=..] [--skip=..]` writes a table definition from the model's columns (enums become select filters, secrets and foreign keys are skipped, `belongs_to` come as hints).
 - Formatters `:link` (only http(s), mailto, tel and relative URLs are linked), `:avatar` and `:percent`.

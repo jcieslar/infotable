@@ -119,7 +119,7 @@ module Infotable
 
       case op
       when "contains"
-        result = result.public_send(filter_method, "#{column_ref} ILIKE ?", "%#{sanitize_like(value)}%") if value.present?
+        result = result.public_send(filter_method, like(column_ref), "%#{sanitize_like(value)}%") if value.present?
       when "exact"
         if is_virtual
           result = result.having("LOWER(#{column_ref}) = LOWER(?)", value) if value.present?
@@ -127,11 +127,11 @@ module Infotable
           result = result.where("LOWER(#{column_ref}) = LOWER(?)", value) if value.present?
         end
       when "not_contain"
-        result = result.public_send(filter_method, "NOT #{column_ref} ILIKE ?", "%#{sanitize_like(value)}%") if value.present?
+        result = result.public_send(filter_method, like(column_ref, negate: true), "%#{sanitize_like(value)}%") if value.present?
       when "starts_with"
-        result = result.public_send(filter_method, "#{column_ref} ILIKE ?", "#{sanitize_like(value)}%") if value.present?
+        result = result.public_send(filter_method, like(column_ref), "#{sanitize_like(value)}%") if value.present?
       when "ends_with"
-        result = result.public_send(filter_method, "#{column_ref} ILIKE ?", "%#{sanitize_like(value)}") if value.present?
+        result = result.public_send(filter_method, like(column_ref), "%#{sanitize_like(value)}") if value.present?
       when "is_empty"
         result = result.public_send(filter_method, "#{column_ref} IS NULL OR #{column_ref} = ''")
       when "is_not_empty"
@@ -297,6 +297,10 @@ module Infotable
       end
 
       DECLARED_TYPES[column[:type]]
+    end
+
+    def like(column_ref, negate: false)
+      Infotable::Sql.like(query.model.connection, column_ref, negate: negate)
     end
 
     # Helper to sanitize LIKE values

@@ -1,4 +1,21 @@
-# PostgreSQL only.
+# PostgreSQL by default; DB=sqlite3 runs the suite on SQLite.
+<% if ENV["DB"] == "sqlite3" %>
+default: &default
+  adapter: sqlite3
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: storage/development.sqlite3
+
+test:
+  <<: *default
+  database: storage/test.sqlite3
+
+production:
+  <<: *default
+  database: storage/production.sqlite3
+<% else %>
 default: &default
   adapter: postgresql
   encoding: unicode
@@ -19,3 +36,4 @@ test:
 production:
   <<: *default
   database: infotable_dummy_production
+<% end %>
