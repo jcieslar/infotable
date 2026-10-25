@@ -1,13 +1,15 @@
 <%# This view renders inside the turbo frame %>
 <%# Turbo requires the frame element to be present in the response %>
 <turbo-frame id="<%= params[:table_name] %>_content">
-  <div class="relative overflow-y-auto overflow-x-auto scroll-smooth [scrollbar-width:thin] [scrollbar-color:#cbd5e1_#f1f5f9] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-slate-400"
+  <% active_filters = infotable_active_filters(@table_class, @filters, @search) %>
+  <%= render "infotable/tables/active_filters", chips: active_filters, table_name: params[:table_name] %>
+  <div<% if @pagy && !@table_class.countless? %> data-total-count="<%= @pagy.count %>"<% end %> class="relative overflow-y-auto overflow-x-auto scroll-smooth [scrollbar-width:thin] [scrollbar-color:#cbd5e1_#f1f5f9] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded [&::-webkit-scrollbar-thumb:hover]:bg-slate-400 dark:[scrollbar-color:#475569_#1e293b] dark:[&::-webkit-scrollbar-track]:bg-slate-800 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600"
        style="min-height: <%= @table_class.min_height %>; max-height: <%= @table_class.max_height %>;">
 
     <% if @records.any? %>
       <%# Table %>
-      <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50 border-b-2 border-gray-200">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-800 border-b-2 border-gray-200 dark:border-gray-700">
             <tr>
               <%
                 row_size = @table_class.row_size_value
@@ -18,12 +20,12 @@
                 end
               %>
               <% if @table_class.checkbox_enabled? %>
-                <th scope="col" class="<%= header_padding %> w-10 bg-gray-50 sticky top-0 z-20">
+                <th scope="col" class="<%= header_padding %> w-10 bg-gray-50 dark:bg-gray-800 sticky top-0 z-20">
                   <input type="checkbox"
                          aria-label="<%= t('infotable.batch.select_all') %>"
                          data-infotable--table-target="selectAll"
                          data-action="change->infotable--table#toggleAll"
-                         class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                         class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500">
                 </th>
               <% end %>
               <% @table_class.columns.each do |column| %>
@@ -32,7 +34,7 @@
                     data-default-visible="<%= column[:visible] %>"
                     <%= tag.attributes(data: { default_pinned: column[:pinned] }) if column[:pinned] %>
                     style="width: <%= column[:width] %>; max-width: <%= column[:width] %>; overflow: hidden;"
-                    class="<%= header_padding %> text-left text-xs font-semibold text-gray-900 tracking-wider select-none bg-gray-50 sticky top-0 z-20">
+                    class="<%= header_padding %> text-left text-xs font-semibold text-gray-900 dark:text-gray-100 tracking-wider select-none bg-gray-50 dark:bg-gray-800 sticky top-0 z-20">
                   <% if column[:sortable] %>
                     <% sort_index = current_sorts.index { |name, _| name == column[:name].to_s } %>
                     <% sort_dir = sort_index ? current_sorts[sort_index].last : nil %>
@@ -56,16 +58,16 @@
                       <span class="flex-none rounded">
                         <% if sort_index %>
                           <% if sort_dir == 'asc' %>
-                            <svg class="h-4 w-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
                               <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"/>
                             </svg>
                           <% else %>
-                            <svg class="h-4 w-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="h-4 w-4 text-indigo-600 dark:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
                               <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
                             </svg>
                           <% end %>
                           <% if current_sorts.size > 1 %>
-                            <span class="text-[10px] font-bold text-indigo-600"><%= sort_index + 1 %></span>
+                            <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400"><%= sort_index + 1 %></span>
                           <% end %>
                         <% else %>
                           <svg class="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
@@ -81,7 +83,7 @@
               <% end %>
             </tr>
           </thead>
-          <tbody id="<%= params[:table_name] %>_tbody" class="bg-white">
+          <tbody id="<%= params[:table_name] %>_tbody" class="bg-white dark:bg-gray-900">
             <%= render partial: "infotable/tables/table_rows", locals: { records: @records, table_class: @table_class } %>
           </tbody>
         </table>
@@ -96,8 +98,15 @@
         <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
         </svg>
-        <h3 class="mt-4 text-lg font-medium text-gray-900"><%= t('infotable.table.empty_state.title') %></h3>
-        <p class="mt-2 text-sm text-gray-500"><%= t('infotable.table.empty_state.description') %></p>
+        <% if active_filters.any? %>
+          <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100"><%= t('infotable.table.empty_state.filtered_title') %></h3>
+          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400"><%= t('infotable.table.empty_state.filtered_description') %></p>
+          <button type="button" data-action="click->infotable--table#clearAllFilters" data-empty-clear-filters
+                  class="mt-4 inline-flex items-center rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"><%= t('infotable.filters.active.clear_all') %></button>
+        <% else %>
+          <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100"><%= t('infotable.table.empty_state.title') %></h3>
+          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400"><%= t('infotable.table.empty_state.description') %></p>
+        <% end %>
       </div>
     <% end %>
 
@@ -105,7 +114,7 @@
 
   <%# Pagination - Only visible when infinite scroll is disabled %>
   <% unless @infinite_scroll_enabled %>
-    <div class="border-t border-gray-200 bg-white px-6 py-4">
+    <div class="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-6 py-4">
       <%= render "infotable/tables/pagination", pagy: @pagy, table_name: params[:table_name] %>
     </div>
   <% end %>

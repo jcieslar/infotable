@@ -57,19 +57,29 @@ module Infotable
       end
     end
 
+    # Ids of every row matching the current filters and search, for "select all matching".
+    # Same authorization and query as the table; capped by Infotable.configuration.max_select_all.
+    def ids
+      return head :not_found unless @table_class.checkbox_enabled?
+
+      cap = Infotable.configuration.max_select_all
+      ids = @table_class.checkbox_ids(build_query, cap && cap + 1)
+      truncated = cap && ids.size > cap
+      ids = ids.first(cap) if truncated
+
+      render json: { ids: ids.map(&:to_s), truncated: truncated ? true : false }
+    end
+
     def export
       require "csv"
 
       # Process the same query as show/data but without pagination
       @query = build_query
 
-      # Get visible columns from params or use all visible columns
-      visible_column_names = if params[:visible_columns].present?
-        params[:visible_columns].split(",").map(&:strip)
-      else
-        @table_class.visible_columns.map { |c| c[:name].to_s }
-      end
-      visible_columns = @table_class.columns.select { |col| visible_column_names.include?(col[:name].to_s) }
+      # The browser sends the user's visible columns in their on-screen order; the table decides
+      # what may be exported (see Base.columns_for_export)
+      requested = scalar_param(:visible_columns).to_s.split(",").map(&:strip)
+      visible_columns = @table_class.columns_for_export(requested)
 
       # Set CSV headers for streaming download
       headers["Content-Type"] = "text/csv; charset=utf-8"

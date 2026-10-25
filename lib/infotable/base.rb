@@ -116,6 +116,21 @@ module Infotable
         record.public_send(@checkbox_settings[:id_method])
       end
 
+      # Ids of every row the query matches (the "select all matching" button), at most `limit`.
+      # Plucks when the id method is a plain column of an ungrouped query, loads records otherwise.
+      def checkbox_ids(query, limit = nil)
+        method = @checkbox_settings[:id_method]
+        scope = query.reorder(nil)
+        scope = scope.limit(limit) if limit
+        model = query.model
+
+        if model.column_names.include?(method.to_s) && scope.group_values.empty? && scope.having_clause.empty?
+          scope.pluck(model.arel_table[method])
+        else
+          scope.map { |record| checkbox_value(record) }
+        end
+      end
+
       # Per-table access check. Block receives the controller; falsy => 403.
       #   authorize { |controller| controller.current_user&.admin? }
       def authorize(&block)
@@ -157,6 +172,7 @@ module Infotable
           searchable: options.fetch(:searchable, false),
           filterable: options.fetch(:filterable, false),
           visible: options.fetch(:visible, true),
+          exportable: options.fetch(:exportable, !%i[action actions].include?(type)), # false keeps the column out of CSV exports
           pinned: options[:pinned], # :left, :right, or nil
           virtual: options.fetch(:virtual, false), # Virtual/computed columns (aggregates, subqueries)
           virtual_sql: options[:virtual_sql], # SQL expression for aggregate columns (used in HAVING clause)
@@ -462,6 +478,36 @@ module Infotable
       # Get visible columns
       def visible_columns
         columns.select { |col| col[:visible] }
+      end
+
+      # Columns a CSV export may contain (action columns and `exportable: false` are left out)
+      def exportable_columns
+        columns.select { |col| col[:exportable] }
+      end
+
+      # Which columns the CSV export contains and in which order, when the user has not chosen:
+      #   export_columns :name, :email, :created_at
+      # Without it the export uses the visible, exportable columns in table order. With it, the
+      # list is also the pool the user can pick from (visible_columns can only narrow and reorder it).
+      def export_columns(*names)
+        @export_column_names = names.flatten.map(&:to_sym)
+      end
+
+      def export_column_names
+        @export_column_names
+      end
+
+      # The columns to export, as column definitions in export order. `requested` is the list of
+      # names the browser sends (the user's visible columns in their on-screen order).
+      def columns_for_export(requested = nil)
+        pool = exportable_columns
+        pool = export_column_names.map { |name| pool.find { |col| col[:name] == name } || raise(ArgumentError, "export_columns: unknown or non-exportable column #{name.inspect} in #{self.name}") } if export_column_names
+
+        by_name = pool.index_by { |col| col[:name].to_s }
+        picked = Array(requested).map { |name| by_name[name.to_s] }.compact.uniq
+        return picked if picked.any?
+
+        export_column_names ? pool : pool.select { |col| col[:visible] }
       end
 
       # Get sortable columns

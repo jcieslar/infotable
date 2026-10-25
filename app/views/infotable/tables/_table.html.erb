@@ -34,17 +34,17 @@
   export_params[:search] = initial_state[:search] if initial_state[:search].present?
   export_url = Infotable::Engine.routes.url_helpers.table_export_path(export_params.compact)
 %>
-<div class="w-full relative overflow-hidden" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>" data-infotable--table-url-state-value="<%= table_class.url_state? %>">
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 relative<%= " flex" if rail %>" style="overflow: hidden;">
+<div class="w-full relative overflow-hidden dark:[color-scheme:dark]" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>" data-infotable--table-url-state-value="<%= table_class.url_state? %>"<% if table_class.checkbox_enabled? %> data-infotable--table-ids-url-value="<%= Infotable::Engine.routes.url_helpers.table_ids_path(table_name: table_name) %>"<% end %>>
+  <div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 relative<%= " flex" if rail %>" style="overflow: hidden;">
    <div class="<%= rail ? "flex-1 min-w-0" : "w-full" %>">
     <%# Header section with controls (hidden with `toolbar :rail`) %>
     <% unless rail %>
-    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+    <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
       <div class="flex justify-between items-center">
         <div>
-          <h2 class="text-xl font-semibold text-gray-900"><%= title %></h2>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100"><%= title %></h2>
           <% if subtitle.present? %>
-            <p class="mt-1 text-sm text-gray-500"><%= subtitle %></p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= subtitle %></p>
           <% end %>
         </div>
         <div class="flex gap-3">
@@ -56,7 +56,7 @@
                    placeholder="<%= t('infotable.search.placeholder') %>"
                    aria-label="<%= t('infotable.search.label') %>"
                    data-action="input->infotable--table#search"
-                   class="w-56 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                   class="w-56 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
           <% end %>
           <%# Export CSV button %>
           <a href="<%= export_url %>"
@@ -65,7 +65,7 @@
              data-exporting-text="<%= t('infotable.table.buttons.exporting') %>"
              data-turbo="false"
              download
-             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+             class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -75,7 +75,7 @@
           <% if table_class.filters_button_visible? %>
             <button type="button"
                     data-action="click->infotable--drawer#open"
-                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
@@ -89,13 +89,21 @@
 
     <%# Batch action bar: shown while rows are selected %>
     <% if table_class.batch_action_list.any? %>
-      <div class="hidden items-center justify-between gap-3 px-6 py-3 border-b border-indigo-100 bg-indigo-50"
+      <div class="hidden items-center justify-between gap-3 px-6 py-3 border-b border-indigo-100 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950"
            data-infotable--table-target="batchBar">
-        <div class="flex items-center gap-3 text-sm text-indigo-900">
+        <div class="flex items-center gap-3 text-sm text-indigo-900 dark:text-indigo-100">
           <span data-infotable--table-target="batchCount"
                 data-template="<%= t('infotable.batch.selected', count: '__COUNT__') %>"></span>
           <button type="button" data-action="click->infotable--table#clearSelection"
-                  class="text-indigo-600 hover:text-indigo-800 underline"><%= t('infotable.batch.clear') %></button>
+                  class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 underline"><%= t('infotable.batch.clear') %></button>
+          <button type="button" hidden
+                  data-infotable--table-target="selectAllMatching"
+                  data-action="click->infotable--table#selectAllMatching"
+                  data-template="<%= t('infotable.batch.select_all_matching', count: '__COUNT__') %>"
+                  class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 underline font-medium"></button>
+          <span hidden data-infotable--table-target="batchNote"
+                data-template="<%= t('infotable.batch.truncated', max: '__MAX__') %>"
+                class="text-amber-700"></span>
         </div>
         <div class="flex gap-2">
           <% table_class.batch_action_list.each do |action| %>
@@ -118,11 +126,11 @@
       <%# Loading state %>
       <div class="flex items-center justify-center py-16">
         <div class="text-center">
-          <svg class="animate-spin h-8 w-8 text-indigo-600 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg class="animate-spin h-8 w-8 text-indigo-600 dark:text-indigo-400 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <p class="text-sm text-gray-500"><%= t('infotable.table.loading.initial') %></p>
+          <p class="text-sm text-gray-500 dark:text-gray-400"><%= t('infotable.table.loading.initial') %></p>
         </div>
       </div>
     </turbo-frame>

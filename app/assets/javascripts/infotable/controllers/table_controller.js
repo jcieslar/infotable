@@ -4,15 +4,17 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static values = {
     name: String,
-    urlState: Boolean
+    urlState: Boolean,
+    idsUrl: String
   }
 
-  static targets = ["filterCount", "exportButton", "exportButtonText", "selectAll", "rowCheckbox", "batchBar", "batchCount"]
+  static targets = ["filterCount", "exportButton", "exportButtonText", "selectAll", "rowCheckbox", "batchBar", "batchCount", "selectAllMatching", "batchNote"]
 
   // Target callbacks (rowCheckboxTargetConnected) can fire before connect(), so state lives here
   initialize() {
     this.selected = new Set()
     this.selectionScope = null
+    this.totalCount = null
   }
 
   connect() {
@@ -67,6 +69,9 @@ export default class extends Controller {
   // Handle turbo frame load
   handleFrameLoad(event) {
     this.updateFilterCount(event.target)
+    // rows matching the current filters, when the server knows it (not with countless pagination)
+    const total = parseInt(event.target.querySelector("[data-total-count]")?.dataset.totalCount, 10)
+    this.totalCount = Number.isFinite(total) ? total : null
     this.syncSelectionScope(event.target)
     if (this.urlStateValue && event.target.id === `${this.nameValue}_content`) this.syncUrl(event.target)
   }
@@ -223,6 +228,7 @@ export default class extends Controller {
 
   clearSelection() {
     this.selected.clear()
+    this.hideBatchNote()
     this.rowCheckboxTargets.forEach(checkbox => { checkbox.checked = false })
     this.renderSelection()
   }
@@ -237,17 +243,65 @@ export default class extends Controller {
     if (this.hasBatchCountTarget) {
       this.batchCountTarget.textContent = this.batchCountTarget.dataset.template.replace("__COUNT__", count)
     }
+    let allOnPageChecked = false
     if (this.hasSelectAllTarget) {
       const boxes = this.rowCheckboxTargets
       const checkedOnPage = boxes.filter(box => box.checked).length
-      this.selectAllTarget.checked = boxes.length > 0 && checkedOnPage === boxes.length
+      allOnPageChecked = boxes.length > 0 && checkedOnPage === boxes.length
+      this.selectAllTarget.checked = allOnPageChecked
       this.selectAllTarget.indeterminate = checkedOnPage > 0 && checkedOnPage < boxes.length
+    }
+
+    // Offer "select all N matching" once every loaded row is ticked and more rows match
+    if (this.hasSelectAllMatchingTarget) {
+      const offer = this.idsUrlValue !== "" && allOnPageChecked && this.totalCount !== null && this.totalCount > count
+      this.selectAllMatchingTarget.hidden = !offer
+      if (offer) {
+        this.selectAllMatchingTarget.textContent = this.selectAllMatchingTarget.dataset.template.replace("__COUNT__", this.totalCount)
+      }
     }
 
     this.element.dispatchEvent(new CustomEvent("infotable:selection-changed", {
       bubbles: true,
       detail: { table: this.nameValue, ids: Array.from(this.selected) }
     }))
+  }
+
+  // Fetches the ids of every row matching the current filters and search (not just the loaded
+  // pages) and adds them to the selection. The server caps the list (max_select_all).
+  async selectAllMatching(event) {
+    const button = event.currentTarget
+    const frame = document.getElementById(`${this.nameValue}_content`)
+    if (!frame || !this.idsUrlValue) return
+
+    const params = new URL(frame.src || frame.getAttribute("src"), window.location.href).searchParams
+    ;["page", "per_page", "sort", "sort_column", "sort_direction", "format"].forEach(key => params.delete(key))
+
+    button.disabled = true
+    try {
+      const response = await fetch(`${this.idsUrlValue}?${params}`, { headers: { Accept: "application/json" }, credentials: "same-origin" })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const { ids, truncated } = await response.json()
+
+      ids.forEach(id => this.selected.add(String(id)))
+      this.rowCheckboxTargets.forEach(box => { box.checked = this.selected.has(box.value) })
+      this.renderSelection()
+      if (truncated) this.showBatchNote(ids.length)
+    } catch (e) {
+      console.warn("Could not select all matching rows", e)
+    } finally {
+      button.disabled = false
+    }
+  }
+
+  showBatchNote(max) {
+    if (!this.hasBatchNoteTarget) return
+    this.batchNoteTarget.textContent = this.batchNoteTarget.dataset.template.replace("__MAX__", max)
+    this.batchNoteTarget.hidden = false
+  }
+
+  hideBatchNote() {
+    if (this.hasBatchNoteTarget) this.batchNoteTarget.hidden = true
   }
 
   // Sends the selected ids as ids[] to the action's URL. GET navigates; other verbs
@@ -339,22 +393,51 @@ export default class extends Controller {
     clearTimeout(this.searchTimeout)
     const value = event.currentTarget.value.trim()
 
-    this.searchTimeout = setTimeout(() => {
-      const frame = document.getElementById(`${this.nameValue}_content`)
-      if (!frame) return
+    this.searchTimeout = setTimeout(() => this.applySearch(value), 300)
+  }
 
-      const url = new URL(frame.src || frame.getAttribute("src"), window.location.href)
-      if (value) {
-        url.searchParams.set("search", value)
-      } else {
-        url.searchParams.delete("search")
-      }
-      url.searchParams.set("page", "1")
-      frame.src = url.toString()
+  applySearch(value) {
+    const frame = document.getElementById(`${this.nameValue}_content`)
+    if (!frame) return
 
-      // Export link follows the frame's params
-      frame.addEventListener("turbo:frame-load", () => this.updateExportLink(), { once: true })
-    }, 300)
+    const url = new URL(frame.src || frame.getAttribute("src"), window.location.href)
+    if (value) {
+      url.searchParams.set("search", value)
+    } else {
+      url.searchParams.delete("search")
+    }
+    url.searchParams.set("page", "1")
+    frame.src = url.toString()
+
+    // Export link follows the frame's params
+    frame.addEventListener("turbo:frame-load", () => this.updateExportLink(), { once: true })
+  }
+
+  // The "x" on the search chip
+  clearSearch() {
+    clearTimeout(this.searchTimeout)
+    const input = this.element.querySelector('input[name="search"]')
+    if (input) input.value = ""
+    this.applySearch("")
+  }
+
+  // "Clear all filters" (chips bar and empty state): search and every filter, sort and per-page stay
+  clearAllFilters() {
+    clearTimeout(this.searchTimeout)
+    const input = this.element.querySelector('input[name="search"]')
+    if (input) input.value = ""
+    this.application.getControllerForElementAndIdentifier(this.element, "infotable--drawer")?.resetFilterInputs()
+
+    const frame = document.getElementById(`${this.nameValue}_content`)
+    if (!frame) return
+
+    const url = new URL(frame.src || frame.getAttribute("src"), window.location.href)
+    Array.from(url.searchParams.keys()).forEach(key => {
+      if (key === "search" || key.startsWith("filters[")) url.searchParams.delete(key)
+    })
+    url.searchParams.set("page", "1")
+    frame.src = url.toString()
+    frame.addEventListener("turbo:frame-load", () => this.updateExportLink(), { once: true })
   }
 
   // Handle per-page change
@@ -756,7 +839,7 @@ export default class extends Controller {
         header.style.removeProperty('opacity')
         header.style.backgroundClip = ''
         header.style.boxShadow = ''
-        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
+        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
       })
 
       rows.forEach(row => {
@@ -776,7 +859,7 @@ export default class extends Controller {
           cell.style.removeProperty('opacity')
           cell.style.backgroundClip = ''
           cell.style.boxShadow = ''
-          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
+          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
         })
       })
 
@@ -825,7 +908,7 @@ export default class extends Controller {
 
           // Set all styles at once via setAttribute (most aggressive method)
           header.setAttribute('style', newStyles)
-          header.classList.add('infotable-pinned-left', '!bg-gray-50')
+          header.classList.add('infotable-pinned-left', '!bg-gray-50', 'dark:!bg-gray-800')
 
           // Mark last left-pinned column
           if (columnName === lastLeftPinned) {
@@ -858,7 +941,7 @@ export default class extends Controller {
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
-              cell.classList.add('infotable-pinned-left', '!bg-white')
+              cell.classList.add('infotable-pinned-left', '!bg-white', 'dark:!bg-gray-900')
 
               if (columnName === lastLeftPinned) {
                 cell.classList.add("after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]")
@@ -891,7 +974,7 @@ export default class extends Controller {
           `.replace(/\s+/g, ' ').trim()
 
           header.setAttribute('style', newStyles)
-          header.classList.add('infotable-pinned-right', '!bg-gray-50')
+          header.classList.add('infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
 
           // Mark first right-pinned column
           if (columnName === firstRightPinned) {
@@ -924,7 +1007,7 @@ export default class extends Controller {
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
-              cell.classList.add('infotable-pinned-right', '!bg-white')
+              cell.classList.add('infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900')
 
               if (columnName === firstRightPinned) {
                 cell.classList.add("before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")

@@ -3,6 +3,10 @@
 ## 1.2.0
 
 ### Added
+- CSV export follows the user's on-screen column order, never exports action columns, and has `export_columns :a, :b` (default list and pool) and `exportable: false` per column.
+- "Select all N matching" in batch actions: new `tables/:name/ids` endpoint, capped by `config.max_select_all` (default 10000); hidden for countless tables.
+- Active filter chips above the rows (each removable, "Clear all filters" from two on) and a filtered empty state with a clear button.
+- Dark mode (`prefers-color-scheme`; for a `.dark` class add `@custom-variant dark (&:where(.dark, .dark *));` to your Tailwind CSS).
 - Number and date filters in the drawer have an operator select: Between (from/to, the default), Equals, Greater than, Before, After, Is empty, ... Single-value operators show one input; the choice is kept in shared links (`url_state`).
 
 ## 1.1.0

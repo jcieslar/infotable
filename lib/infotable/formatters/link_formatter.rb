@@ -10,7 +10,7 @@ module Infotable
     # Without url: the value itself is the URL (handy for website columns); mailto:/tel: work too.
     class LinkFormatter < BaseFormatter
       ALLOWED_SCHEMES = %w[http https mailto tel].freeze
-      DEFAULT_CLASSES = "text-indigo-600 hover:text-indigo-800 hover:underline".freeze
+      DEFAULT_CLASSES = "text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-200 hover:underline".freeze
 
       def format(value, record, options = {})
         label = resolve(options[:label], record) || value

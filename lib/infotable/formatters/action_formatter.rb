@@ -72,7 +72,7 @@ module Infotable
           action[:label] || action[:icon] || view_context.t("infotable.formatters.action"),
           resolve_url(action[:url], record),
           role: "menuitem",
-          class: "block px-3 py-1.5 text-sm whitespace-nowrap #{link_classes(action[:color])} hover:bg-gray-50",
+          class: "block px-3 py-1.5 text-sm whitespace-nowrap #{link_classes(action[:color])} hover:bg-gray-50 dark:hover:bg-gray-800",
           data: link_data(action[:data] || {}, action[:method] || :get, action[:confirm])
         )
       end
@@ -81,10 +81,10 @@ module Infotable
         # <details> gives open/close and keyboard support without JS
         content_tag(:details, class: "relative inline-block text-left") do
           summary = content_tag(:summary, "\u22EF".html_safe,
-            class: "list-none cursor-pointer inline-flex items-center px-2 py-1 rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50",
+            class: "list-none cursor-pointer inline-flex items-center px-2 py-1 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800",
             "aria-label": view_context.t("infotable.formatters.action"), "aria-haspopup": "menu")
           menu = content_tag(:div, role: "menu",
-            class: "absolute right-0 z-30 mt-1 min-w-36 rounded-md border border-gray-200 bg-white py-1 shadow-lg") do
+            class: "absolute right-0 z-30 mt-1 min-w-36 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-1 shadow-lg") do
             safe_join(actions.map { |action| render_menu_item(action, record) })
           end
           summary + menu
@@ -110,7 +110,7 @@ module Infotable
         when "success"
           "border-green-600 bg-green-600 text-white hover:bg-green-700"
         else
-          "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+          "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
         end
 
         "#{base} #{color_classes}"
@@ -119,11 +119,11 @@ module Infotable
       def link_classes(color = nil)
         case color&.to_s
         when "danger"
-          "text-red-600 hover:text-red-900"
+          "text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
         when "success"
-          "text-green-600 hover:text-green-900"
+          "text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
         else
-          "text-indigo-600 hover:text-indigo-900"
+          "text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-200"
         end
       end
 

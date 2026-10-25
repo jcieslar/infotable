@@ -141,4 +141,22 @@ class TableInteractionsTest < ApplicationSystemTestCase
     assert_names [ "Alice Smith", "Bob_100%", "Carol Jones" ]
     within("[role=dialog]") { assert_selector "input[name='filters[created_at][from]']" }
   end
+
+  test "the export link carries the columns in the user's on-screen order and without hidden ones" do
+    order = %w[email name id]
+    headers = all("turbo-frame#users_table_content th[data-column-name]", visible: :all).map { _1["data-column-name"] }
+    page.execute_script("localStorage.setItem('infotable_column_order_users_table', JSON.stringify(#{(order + (headers - order)).to_json}))")
+    page.execute_script("localStorage.setItem('infotable_columns_users_table', JSON.stringify({ id: false }))")
+    visit "/users"
+    wait_for_table("users_table")
+
+    href = nil
+    page.document.synchronize do
+      href = find("a[href*='/export']")[:href]
+      raise Capybara::ExpectationNotMet, href unless href.include?("visible_columns=email")
+    end
+    columns = Rack::Utils.parse_query(URI.parse(href).query)["visible_columns"].split(",")
+    assert_equal %w[email name], columns.first(2)
+    assert_not_includes columns, "id"
+  end
 end
