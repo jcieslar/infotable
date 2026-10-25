@@ -14,7 +14,7 @@
       else "text-sm" # default
     end
   %>
-  <tr class="infotable-row relative border-t border-gray-50 dark:border-gray-800 first:border-t-0 hover:shadow-sm hover:translate-x-px transition-all duration-200 ease-out <%= 'cursor-pointer' if row_link_enabled %>"
+  <tr class="infotable-row group relative border-t border-gray-100 dark:border-gray-800 first:border-t-0 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150 <%= 'cursor-pointer' if row_link_enabled %>"
       <%= tag.attributes(data: { row_link: row_url, action: "click->infotable--table#handleRowClick" }) if row_link_enabled && row_url %>>
     <% if table_class.checkbox_enabled? %>
       <td class="<%= cell_padding %> w-10">

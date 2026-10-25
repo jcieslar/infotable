@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Fresher table look: quieter header (medium weight, grey), flat row hover instead of the lifted row, lighter row dividers.
+- Pinned columns show a pushpin in their header, tilted to the side they are pinned to; the pin buttons in the column list use the same icon instead of chevrons.
+- Pinned cells no longer use hard-coded white/grey backgrounds with `!important`; they follow dark mode and the row hover.
+
 ## 1.4.1
 
 ### Fixed
