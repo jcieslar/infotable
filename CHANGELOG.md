@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.2.0
+## 1.3.0
 
 ### Added
 - CSV export follows the user's on-screen column order, never exports action columns, and has `export_columns :a, :b` (default list and pool) and `exportable: false` per column.
@@ -9,6 +9,13 @@
 - Column widths: drag the handle on a header's right edge (or focus it and press Left/Right, Shift for bigger steps); double-click resets. Widths are remembered per browser; `resizable_columns false` turns it off.
 - Mobile layout: the toolbar stacks on narrow screens, the search takes the full width, chips and the batch bar wrap.
 - Dark mode (`prefers-color-scheme`; for a `.dark` class add `@custom-variant dark (&:where(.dark, .dark *));` to your Tailwind CSS).
+
+### Changed
+- Action columns are never part of a CSV export, even when named in `visible_columns`.
+
+## 1.2.0
+
+### Added
 - Number and date filters in the drawer have an operator select: Between (from/to, the default), Equals, Greater than, Before, After, Is empty, ... Single-value operators show one input; the choice is kept in shared links (`url_state`).
 
 ## 1.1.0
