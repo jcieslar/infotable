@@ -12,6 +12,12 @@ class RailToolbarTest < ActionDispatch::IntegrationTest
     assert doc.at_css("aside button[data-action*='infotable--table#refresh']")
   end
 
+  test "clicking the rail itself toggles the drawer" do
+    get "/authors"
+
+    assert_select "aside[data-action*='infotable--drawer#toggleRail']"
+  end
+
   test "rail tables move the search box into the drawer" do
     get "/authors"
     doc = Nokogiri::HTML(response.body)

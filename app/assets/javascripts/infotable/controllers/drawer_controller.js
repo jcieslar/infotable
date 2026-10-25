@@ -155,6 +155,14 @@ export default class extends Controller {
     this.toggleTab(event, "columns")
   }
 
+  // Click on the rail itself (outside its buttons): toggle the drawer on its default tab
+  toggleRail(event) {
+    if (event.target.closest("button, a")) return
+
+    const hasFiltersTab = this.tabContentTargets.some(content => content.dataset.tab === "filters")
+    this.toggleTab(event, hasFiltersTab ? "filters" : "columns")
+  }
+
   toggleTab(event, tab) {
     event?.preventDefault()
     if (this.openValue && this.currentTabValue === tab) {
