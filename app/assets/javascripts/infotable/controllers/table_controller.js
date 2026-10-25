@@ -3,7 +3,8 @@ import { Controller } from "@hotwired/stimulus"
 // Main table controller that coordinates table interactions
 export default class extends Controller {
   static values = {
-    name: String
+    name: String,
+    urlState: Boolean
   }
 
   static targets = ["exportButton", "exportButtonText", "selectAll", "rowCheckbox", "batchBar", "batchCount"]
@@ -26,6 +27,9 @@ export default class extends Controller {
 
     // Update export link with current visible columns
     this.updateExportLink()
+
+    // Fill the search box and the filter drawer from the page URL (the server already loaded the frame with it)
+    if (this.urlStateValue) this.applyUrlStateToControls()
 
     // Listen for turbo frame loads to reapply order and visibility
     this.boundApplyOrderAndVisibility = this.applyOrderAndVisibility.bind(this)
@@ -63,6 +67,98 @@ export default class extends Controller {
   // Handle turbo frame load
   handleFrameLoad(event) {
     this.syncSelectionScope(event.target)
+    if (this.urlStateValue && event.target.id === `${this.nameValue}_content`) this.syncUrl(event.target)
+  }
+
+  // ---- Table state in the address bar ---------------------------------------
+  // The frame URL (`/infotable/tables/users_table/data?filters[..]&sort=..&page=2`) is mirrored in the
+  // page URL as `?users_table[filters][..]=..&users_table[page]=2`, one namespace per table. The
+  // server reads it back when it renders the page (infotable_initial_state). Back/forward go through
+  // Turbo's normal history handling, which re-renders the page from that URL.
+
+  // "filters[name][op]" -> "users_table[filters][name][op]"
+  toUrlKey(key) {
+    const [, head, rest] = key.match(/^([^\[]+)(.*)$/)
+    return `${this.nameValue}[${head}]${rest}`
+  }
+
+  // "users_table[filters][name][op]" -> "filters[name][op]" (nil when it belongs to another table)
+  fromUrlKey(key) {
+    const prefix = `${this.nameValue}[`
+    if (!key.startsWith(prefix)) return null
+    const [, head, rest] = key.slice(this.nameValue.length).match(/^\[([^\]]*)\](.*)$/) || []
+    return head ? head + rest : null
+  }
+
+  // This table's state from the page URL, as plain frame params
+  urlStateParams() {
+    const state = new URLSearchParams()
+    for (const [key, value] of new URLSearchParams(window.location.search)) {
+      const inner = this.fromUrlKey(key)
+      if (inner) state.append(inner, value)
+    }
+    return state
+  }
+
+  syncUrl(frame) {
+    if (!frame.src) return
+
+    const next = new URL(window.location.href)
+    for (const key of Array.from(next.searchParams.keys())) {
+      if (key.startsWith(`${this.nameValue}[`)) next.searchParams.delete(key)
+    }
+
+    const framePath = new URL(frame.src, window.location.href)
+    for (const [key, value] of framePath.searchParams) {
+      if (value === "" || key === "format" || key === "table_name") continue
+      if (key === "page" && value === "1") continue
+      next.searchParams.append(this.toUrlKey(key), value)
+    }
+
+    if (next.search === window.location.search) {
+      this.urlStateStarted = true
+      return
+    }
+
+    // The first change on a fresh page replaces the entry, later ones add entries for Back
+    const state = { turbo: { restorationIdentifier: crypto.randomUUID() } }
+    if (this.urlStateStarted) {
+      window.history.pushState(state, "", next)
+    } else {
+      window.history.replaceState(window.history.state, "", next)
+    }
+    this.urlStateStarted = true
+  }
+
+  applyUrlStateToControls() {
+    const state = this.urlStateParams()
+    if (state.size === 0) return
+
+    const search = this.element.querySelector('input[name="search"]')
+    if (search && state.has("search")) search.value = state.get("search")
+
+    const form = this.element.querySelector(`#filter-form-${CSS.escape(this.nameValue)}`)
+    if (!form) return
+
+    const names = new Set(Array.from(state.keys()).filter(key => key.startsWith("filters[")))
+    names.forEach(name => {
+      const values = state.getAll(name)
+      form.querySelectorAll(`[name="${CSS.escape(name)}"]`).forEach(control => {
+        if (control.tagName === "SELECT" && control.multiple) {
+          Array.from(control.options).forEach(option => { option.selected = values.includes(option.value) })
+        } else if (control.type === "checkbox" || control.type === "radio") {
+          control.checked = values.includes(control.value)
+        } else {
+          control.value = values[0]
+        }
+      })
+    })
+
+    // Hide the value box for operators such as "is empty"
+    // (the drawer controller may not be connected yet, so look it up on the next tick)
+    setTimeout(() => {
+      this.application.getControllerForElementAndIdentifier(this.element, "infotable--drawer")?.syncFilterOps()
+    }, 0)
   }
 
   // ---- Batch selection ------------------------------------------------------

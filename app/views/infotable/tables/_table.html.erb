@@ -20,7 +20,8 @@
 <%# Set title and subtitle with priority: local_assigns > table_class settings > defaults %>
 <% title = local_assigns.fetch(:title, table_class.title || table_class.name.demodulize.titleize) %>
 <% subtitle = local_assigns.fetch(:subtitle, table_class.subtitle) %>
-<div class="w-full relative overflow-hidden" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>">
+<% initial_state = table_class.url_state? ? infotable_initial_state(table_name) : {} %>
+<div class="w-full relative overflow-hidden" data-controller="infotable--table infotable--drawer" data-infotable--table-name-value="<%= table_name %>" data-infotable--table-url-state-value="<%= table_class.url_state? %>">
   <div class="bg-white rounded-xl shadow-sm border border-gray-200 relative" style="overflow: hidden;">
     <%# Header section with controls %>
     <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -36,7 +37,7 @@
           <% if table_class.searchable_columns.any? %>
             <input type="search"
                    name="search"
-                   value="<%= params[:search] %>"
+                   value="<%= initial_state[:search] %>"
                    placeholder="<%= t('infotable.search.placeholder') %>"
                    aria-label="<%= t('infotable.search.label') %>"
                    data-action="input->infotable--table#search"
@@ -46,13 +47,13 @@
           <%
             export_params = {
               table_name: table_name,
-              sort_column: params[:sort_column],
-              sort_direction: params[:sort_direction],
-              sort: (params[:sort] if params[:sort].is_a?(String)),
+              sort_column: initial_state[:sort_column],
+              sort_direction: initial_state[:sort_direction],
+              sort: initial_state[:sort],
               visible_columns: table_class.visible_columns.map { |c| c[:name].to_s }.join(',')
             }
-            export_params[:filters] = params[:filters] if params[:filters].present?
-            export_params[:search] = params[:search] if params[:search].is_a?(String) && params[:search].present?
+            export_params[:filters] = initial_state[:filters] if initial_state[:filters].present?
+            export_params[:search] = initial_state[:search] if initial_state[:search].present?
             export_url = Infotable::Engine.routes.url_helpers.table_export_path(export_params.compact)
           %>
           <a href="<%= export_url %>"
@@ -108,7 +109,7 @@
 
     <%# Main content frame %>
     <turbo-frame id="<%= table_name %>_content"
-                 src="<%= infotable_table_path(table_name: table_name) %>"
+                 src="<%= infotable_table_path(initial_state.merge(table_name: table_name)) %>"
                  data-action="turbo:frame-load->infotable--table#handleFrameLoad">
       <%# Loading state %>
       <div class="flex items-center justify-center py-16">

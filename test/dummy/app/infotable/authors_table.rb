@@ -12,6 +12,14 @@ class AuthorsTable < Infotable::Base
     sortable: true,
     visible: true
 
+  column :avatar_url,
+    label: "",
+    type: :string,
+    width: "60px",
+    visible: true,
+    formatter: :avatar,
+    formatter_options: { name: ->(record) { record.name }, label: false }
+
   column :name,
     label: "Author Name",
     type: :string,
@@ -80,15 +88,8 @@ class AuthorsTable < Infotable::Base
     type: :string,
     width: "200px",
     visible: true,
-    formatter: ->(value, record) {
-      if value.to_s.match?(%r{\Ahttps?://}i)
-        link_to value, value, target: "_blank", rel: "noopener noreferrer", class: "text-indigo-600 hover:text-indigo-900"
-      elsif value.present?
-        value
-      else
-        "-"
-      end
-    }
+    formatter: :link,
+    formatter_options: { external: true }
 
   column :created_at,
     label: "Joined",

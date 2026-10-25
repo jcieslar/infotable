@@ -139,6 +139,8 @@ end
 | `table_min_height` | String | `"400px"` | Minimum table height |
 | `table_max_height` | String | `"600px"` | Maximum table height (enables scrolling) |
 | `autofilter` | Boolean | `true` | Auto-apply filters on change (debounced) vs manual apply |
+| `url_state` | Boolean | `true` | Mirror search, filters, sort and page in the address bar (override per table with `url_state false`) |
+| `max_filter_options` | Integer | `500` | Cap on `<option>`s in a select filter (`nil` = no cap) |
 
 `theme`, `turbo_enabled` and `pagination_gem` are still accepted so old initializers keep loading, but they do nothing.
 
@@ -146,7 +148,16 @@ end
 
 ## Table Definition
 
-Create table classes in `app/infotable/`:
+Generate a starting point from a model's columns:
+
+```bash
+rails generate infotable:table User
+rails generate infotable:table Admin::Order --only=id number status   # or --skip=notes
+```
+
+It writes `app/infotable/users_table.rb` with a column per attribute (types and filters inferred, enums become select filters, passwords/tokens and foreign keys are left out, `belongs_to` associations come as commented hints).
+
+Or create table classes in `app/infotable/` by hand:
 
 ```ruby
 class UsersTable < Infotable::Base
@@ -283,7 +294,9 @@ column :products_count,
 | `width` | String | Auto (see defaults) | Column width (e.g., `"200px"`) |
 | `formatter` | Symbol/Proc/Hash | `nil` | Custom formatter (see Formatters) |
 | `filter_type` | Symbol | Auto-detected | Filter UI type (`:text`, `:number`, `:date`, `:select`, `:boolean`) |
-| `filter_options` | Array/Proc | `nil` | Options for select filters |
+| `filter_options` | Array/Proc | `nil` | Options for select filters (`["a", "b"]`, `[["Label", value]]` or a Proc) |
+| `filter_options_cache` | Duration | `nil` | Cache a Proc's result with `Rails.cache`, e.g. `5.minutes`. Keyed per table and column, so do not use it for options that depend on the current user |
+| `filter_options_limit` | Integer | `max_filter_options` | Most `<option>`s rendered for this filter; the drawer says when the list was cut. For big lists use a text filter instead |
 | `virtual` | Boolean | `false` | Mark column as virtual/computed (aggregates, subqueries) - uses HAVING for filters |
 | `virtual_sql` | String | `nil` | SQL expression for virtual columns (used in HAVING and ORDER BY clauses, without AS alias) |
 | `sql` | String | `nil` | Row-level SQL expression to filter and search on instead of the column (e.g. `"comments.post_id"`). Not an aggregate, so it goes in `WHERE` |
@@ -350,6 +363,10 @@ Filter types are inferred from the column type or set with `filter_type:`.
 | select | one value, or several with `filter_multi_select: true` |
 
 Filters, search and sort survive pagination, per-page changes and CSV export.
+
+#### Table state in the URL
+
+Search, filters, sort, page and page size are mirrored in the page's address bar, one namespace per table (`/users?users_table[search]=ann&users_table[page]=2`). Links can be shared and bookmarked, a reload keeps the table as it was, and the Back button steps through the states. Turn it off globally with `config.url_state = false` or per table with `url_state false` (e.g. tables inside modals or tabs).
 
 #### Large tables
 

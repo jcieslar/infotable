@@ -15,6 +15,12 @@
 - Actions with `method:` use `data-turbo-method` / `data-turbo-confirm` (they relied on rails-ujs before).
 
 ### Added
+- Browser system tests (Capybara + Cuprite, `bin/rails test:system`) for search, sorting, the filter drawer, per-page/pagination, batch actions and URL state; JavaScript errors fail the test.
+- `rails generate infotable:table MODEL [--only=..] [--skip=..]` writes a table definition from the model's columns (enums become select filters, secrets and foreign keys are skipped, `belongs_to` come as hints).
+- Formatters `:link` (only http(s), mailto, tel and relative URLs are linked), `:avatar` and `:percent`.
+- Select filter options: `filter_options_cache:` caches a Proc's result, `filter_options_limit:` / `config.max_filter_options` (500) cap the `<option>`s and the drawer says when a list was cut.
+- Table state in the URL (`?users_table[search]=..&users_table[page]=2`): shareable links, reload keeps the table, Back works. `config.url_state` / `url_state false` per table.
+- `aria-current="page"` on the current page number.
 - Action column `style: :dropdown` is a real menu (`<details>`), not a list of links.
 - Drawer accessibility: `role=dialog`, labelled, `inert` while closed, focus in/out.
 - `query_sql "SELECT ...", model: User` now works: the SQL becomes an aliased sub-select, so filters, search, sorting, pagination and export apply (it used to return a bare `ActiveRecord::Result` and could not). `model:` is required.
