@@ -105,6 +105,40 @@ class BaseTest < ActiveSupport::TestCase
     assert_raises(ArgumentError) { build_table { table_height :fill, offset: "8px" } }
   end
 
+  test "row_class and row_data take a proc or a value, and default to nothing" do
+    user = User.new(id: 3, name: "Ann")
+    plain = build_table
+    assert_nil plain.row_classes_for(user)
+    assert_equal({}, plain.row_data_for(user))
+
+    t = build_table do
+      row_class ->(u) { "opacity-50" if u.name == "Ann" }
+      row_data ->(u) { { user_id: u.id } }
+    end
+    assert_equal "opacity-50", t.row_classes_for(user)
+    assert_nil t.row_classes_for(User.new(name: "Bob"))
+    assert_equal({ user_id: 3 }, t.row_data_for(user))
+    assert_equal "static", build_table { row_class "static" }.row_classes_for(user)
+    assert_equal({}, build_table { row_data ->(_) { "not a hash" } }.row_data_for(user))
+  end
+
+  test "row_click makes rows clickable without a link" do
+    assert_not build_table.row_clickable?
+    t = build_table { row_click }
+    assert t.row_click?
+    assert t.row_clickable?
+    assert_not t.row_link_enabled?
+    assert build_table { row_link "/x" }.row_clickable?
+    assert_not build_table { row_click false }.row_clickable?
+  end
+
+  test "row settings are inherited" do
+    parent = build_table { row_click; row_class "a" }
+    child = Class.new(parent)
+    assert child.row_click?
+    assert_equal "a", child.row_classes_for(User.new)
+  end
+
   test "row_link with proc and string" do
     user = User.new(id: 3)
     t = build_table { row_link ->(r) { "/u/#{r.id}" } }

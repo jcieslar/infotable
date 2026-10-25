@@ -14,8 +14,15 @@
       else "text-sm" # default
     end
   %>
-  <tr class="infotable-row group relative border-t border-gray-100 dark:border-gray-800 first:border-t-0 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150 <%= 'cursor-pointer' if row_link_enabled %>"
-      <%= tag.attributes(data: { row_link: row_url, action: "click->infotable--table#handleRowClick" }) if row_link_enabled && row_url %>>
+  <%
+    clickable = table_class.row_clickable?
+    row_dom_id = dom_id(record) if record.respond_to?(:to_key) && record.to_key.present?
+    row_data = table_class.row_data_for(record).transform_keys { |key| key.to_s.dasherize }
+    row_data["row-link"] = row_url if row_url
+    row_data["action"] = "click->infotable--table#handleRowClick" if clickable
+  %>
+  <tr <%= tag.attributes(id: row_dom_id, data: row_data) %>
+      class="infotable-row group relative border-t border-gray-100 dark:border-gray-800 first:border-t-0 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150 <%= 'cursor-pointer' if clickable %> <%= table_class.row_classes_for(record) %>">
     <% if table_class.checkbox_enabled? %>
       <td class="<%= cell_padding %> w-10">
         <input type="checkbox"
