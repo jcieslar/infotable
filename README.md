@@ -2,6 +2,8 @@
 
 Modern, flexible datatable engine for Rails 8+ with Hotwire. Build beautiful, interactive tables with server-side filtering, sorting, searching, and pagination—without page reloads.
 
+**[Live demo](https://infotable.infovation.eu/)** · [Changelog](CHANGELOG.md) · [Contributing](CONTRIBUTING.md)
+
 ## Features
 
 - ✨ **Server-side operations** - Filtering, sorting, searching, pagination all on the backend
@@ -1034,7 +1036,7 @@ end
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/jcieslar/infotable.
+Bug reports and pull requests are welcome on GitHub at https://github.com/jcieslar/infotable. See [CONTRIBUTING.md](CONTRIBUTING.md) for the setup and the checks a change has to pass, and [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 
 ---
 

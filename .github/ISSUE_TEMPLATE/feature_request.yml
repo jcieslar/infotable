@@ -1,0 +1,20 @@
+name: Feature request
+description: Suggest an addition or a change
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that InfoTable does not let you do?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like
+      description: How should it look in the table definition or the UI?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you do today instead
