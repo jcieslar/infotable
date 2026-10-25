@@ -14,9 +14,11 @@ Infotable.configure do |config|
   # Drawer width
   config.drawer_width = "26rem" # px, rem, em, vw or %
 
-  # Controller the engine controllers inherit from. Use your app's controller so
-  # authentication, locale, tenant scoping etc. also protect the tables:
-  # config.parent_controller = "ApplicationController"
+  # SECURITY: tables are served at /infotable/tables/:name/{data,export,ids}. The engine
+  # controllers inherit from this controller, so authentication, locale, tenant scoping etc.
+  # of your app also protect the tables. With the default (ActionController::Base) nothing
+  # does: anyone can read and export every table that has no `authorize { ... }` block.
+  config.parent_controller = "ApplicationController"
 
   # Mirror search, filters, sort and page in the address bar (shareable links, Back button)
   # config.url_state = true

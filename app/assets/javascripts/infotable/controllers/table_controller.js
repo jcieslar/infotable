@@ -48,6 +48,8 @@ export default class extends Controller {
 
     // Listen for column visibility changes to update export link
     this.boundUpdateExportLink = this.updateExportLink.bind(this)
+    this.boundApplyColumns = this.applyColumnsFromDrawer.bind(this)
+    document.addEventListener("infotable:apply-columns", this.boundApplyColumns)
     document.addEventListener("infotable:columns-changed", this.boundUpdateExportLink)
     document.addEventListener("infotable:filters-changed", this.boundUpdateExportLink)
   }
@@ -55,6 +57,7 @@ export default class extends Controller {
   disconnect() {
     this.element.removeEventListener("turbo:frame-load", this.boundApplyOrderAndVisibility)
     document.removeEventListener("infotable:columns-changed", this.boundUpdateExportLink)
+    document.removeEventListener("infotable:apply-columns", this.boundApplyColumns)
     document.removeEventListener("infotable:filters-changed", this.boundUpdateExportLink)
     window.removeEventListener("resize", this.boundFitHeight)
     cancelAnimationFrame(this.fitFrame)
@@ -88,22 +91,16 @@ export default class extends Controller {
     this.applyColumnPinning()
   }
 
-  // Handle loading states
-  beforeFetchRequest(event) {
-    this.showLoading()
-  }
-
-  afterFetchResponse(event) {
-    this.hideLoading()
-  }
-
   // Handle turbo frame load
   handleFrameLoad(event) {
     this.fitHeight()
     this.updateFilterCount(event.target)
     // rows matching the current filters, when the server knows it (not with countless pagination)
-    const total = parseInt(event.target.querySelector("[data-total-count]")?.dataset.totalCount, 10)
-    this.totalCount = Number.isFinite(total) ? total : null
+    // (a nested frame, e.g. the infinite-scroll "next page" one, carries no count: keep the last one)
+    if (event.target.id === `${this.nameValue}_content`) {
+      const total = parseInt(event.target.querySelector("[data-total-count]")?.dataset.totalCount, 10)
+      this.totalCount = Number.isFinite(total) ? total : null
+    }
     this.syncSelectionScope(event.target)
     if (this.urlStateValue && event.target.id === `${this.nameValue}_content`) this.syncUrl(event.target)
   }
@@ -179,7 +176,7 @@ export default class extends Controller {
     }
 
     // The first change on a fresh page replaces the entry, later ones add entries for Back
-    const state = { turbo: { restorationIdentifier: crypto.randomUUID() } }
+    const state = { turbo: { restorationIdentifier: (crypto.randomUUID?.() ?? `infotable-${Date.now()}-${Math.random().toString(36).slice(2)}`) } }
     if (this.urlStateStarted) {
       window.history.pushState(state, "", next)
     } else {
@@ -240,7 +237,17 @@ export default class extends Controller {
   // Fires for rows added later (next page, infinite scroll) so they pick up the selection
   rowCheckboxTargetConnected(checkbox) {
     checkbox.checked = this.selected.has(checkbox.value)
-    this.renderSelection()
+    this.scheduleRenderSelection()
+  }
+
+  // A page connects up to 500 checkboxes at once: render the selection once for all of them
+  scheduleRenderSelection() {
+    if (this.renderScheduled) return
+    this.renderScheduled = true
+    queueMicrotask(() => {
+      this.renderScheduled = false
+      this.renderSelection()
+    })
   }
 
   toggleRow(event) {
@@ -379,15 +386,6 @@ export default class extends Controller {
     form.remove()
   }
 
-  showLoading() {
-    // Add loading indicator (to be enhanced in later phases)
-    this.element.style.opacity = "0.6"
-  }
-
-  hideLoading() {
-    this.element.style.opacity = "1"
-  }
-
   // Shift+click on a sortable header adds/toggles the column in the multi-sort list
   // (sort=name:asc,age:desc). A plain click keeps the link's single-column behaviour.
   sortClick(event) {
@@ -491,8 +489,18 @@ export default class extends Controller {
     }
   }
 
-  // Apply column order from localStorage
-  applyColumnOrder() {
+  // The columns drawer changed order, visibility or pinning (it stored them in localStorage)
+  applyColumnsFromDrawer(event) {
+    const { tableName, order } = event.detail
+    if (tableName !== this.nameValue) return
+
+    this.applyColumnOrder(order)
+    this.applyColumnVisibility()
+    this.applyColumnPinning()
+  }
+
+  // Apply column order: the given one, else the one in localStorage
+  applyColumnOrder(explicitOrder = null) {
     const tableName = this.nameValue
     const orderKey = `infotable_column_order_${tableName}`
 
@@ -520,11 +528,11 @@ export default class extends Controller {
       const defaultSchema = headers.map(h => h.dataset.columnName)
 
       // Load stored order from localStorage
-      const storedOrder = this.loadColumnOrder(tableName)
+      const storedOrder = explicitOrder || this.loadColumnOrder(tableName)
       if (!storedOrder) return
 
       // Validate stored order against default schema
-      if (!this.isSchemaValid(storedOrder, defaultSchema)) {
+      if (!explicitOrder && !this.isSchemaValid(storedOrder, defaultSchema)) {
         console.warn(`Schema mismatch for table ${tableName}, clearing stored order`)
         this.clearColumnOrder(tableName)
         return
@@ -628,7 +636,6 @@ export default class extends Controller {
       }
 
       const headers = table.querySelectorAll("thead th[data-column-name]")
-      const rows = table.querySelectorAll("tbody tr")
 
       if (headers.length === 0) {
         console.warn(`No column headers found for table: ${tableName}`)
@@ -642,31 +649,18 @@ export default class extends Controller {
         visibility = JSON.parse(stored)
       }
 
+      const shown = new Map()
       headers.forEach((header) => {
         const columnName = header.dataset.columnName
-        const defaultVisible = header.dataset.defaultVisible === "true"
-
-        // Determine if column should be visible
-        let shouldShow
-        if (visibility && visibility.hasOwnProperty(columnName)) {
-          // Use saved preference
-          shouldShow = visibility[columnName]
-        } else {
-          // Use default visibility
-          shouldShow = defaultVisible
-        }
-
-        // Apply visibility
+        const saved = visibility && Object.prototype.hasOwnProperty.call(visibility, columnName)
+        const shouldShow = saved ? visibility[columnName] : header.dataset.defaultVisible === "true"
+        shown.set(columnName, shouldShow)
         header.style.display = shouldShow ? "" : "none"
+      })
 
-        // Hide/show corresponding cells in all rows
-        rows.forEach(row => {
-          const cells = row.querySelectorAll("td[data-column-name]")
-          const cell = Array.from(cells).find(c => c.dataset.columnName === columnName)
-          if (cell) {
-            cell.style.display = shouldShow ? "" : "none"
-          }
-        })
+      // One pass over the cells: hide/show each by its column
+      table.querySelectorAll("tbody td[data-column-name]").forEach(cell => {
+        if (shown.has(cell.dataset.columnName)) cell.style.display = shown.get(cell.dataset.columnName) ? "" : "none"
       })
     } catch (e) {
       console.warn("Failed to apply column visibility", e)
@@ -799,7 +793,7 @@ export default class extends Controller {
     }
 
     // Ignore clicks on elements inside buttons or links
-    if (target.closest("a") || target.closest("button")) {
+    if (target.closest("a, button, summary, details, label, input, select, textarea")) {
       return
     }
 
@@ -808,7 +802,7 @@ export default class extends Controller {
     if (event.metaKey || event.ctrlKey) {
       window.open(url, "_blank")
     } else {
-      window.location.href = url
+      window.Turbo ? window.Turbo.visit(url) : (window.location.href = url)
     }
   }
 
@@ -1017,6 +1011,7 @@ export default class extends Controller {
       // First pass: reset all columns
       headers.forEach(header => {
         header.style.position = ''
+        header.style.top = ''
         header.style.left = ''
         header.style.right = ''
         header.style.zIndex = ''

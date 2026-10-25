@@ -89,29 +89,6 @@ module Infotable
       end
     end
 
-    # Build export params with current filters, sort, and visible columns
-    def build_export_params(table_name, table_class)
-      params_hash = {
-        table_name: table_name,
-        sort_column: scalar_request_param(:sort_column),
-        sort_direction: scalar_request_param(:sort_direction),
-        sort: scalar_request_param(:sort)
-      }
-
-      # Add filters if present
-      if params[:filters].present?
-        params_hash[:filters] = params[:filters]
-      end
-
-      # Get visible columns from localStorage via JavaScript or use defaults
-      # For now, we'll pass all visible columns and let the controller handle it
-      # The JavaScript will need to update the link dynamically
-      visible_column_names = table_class.visible_columns.map { |c| c[:name].to_s }
-      params_hash[:visible_columns] = visible_column_names.join(",")
-
-      params_hash.compact
-    end
-
     private
 
     def resolve_table_class(table_name)

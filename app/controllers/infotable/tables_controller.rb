@@ -27,6 +27,10 @@ module Infotable
         format.turbo_stream {
           # For infinite scroll - return turbo stream to append rows and replace pagination frame
           # Following the guide's "Frames + Streams" pattern
+          if @page_out_of_range # nothing left: appending the first page again would repeat its rows
+            return render turbo_stream: turbo_stream.replace("#{params[:table_name]}_pagination", partial: "infotable/tables/end_indicator")
+          end
+
           streams = [
             turbo_stream.append(
               "#{params[:table_name]}_tbody",
@@ -48,7 +52,7 @@ module Infotable
             # No more pages - replace with end indicator
             streams << turbo_stream.replace(
               "#{params[:table_name]}_pagination",
-              '<div class="infotable-end-indicator border-t border-gray-100 bg-white px-6 py-8 text-center"><div class="inline-flex items-center gap-2 text-sm text-gray-500"><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="font-medium">All items loaded</span></div></div>'.html_safe
+              partial: "infotable/tables/end_indicator"
             )
           end
 
@@ -139,6 +143,7 @@ module Infotable
       # Apply pagination
       @pagy, @records = paginate(@page)
     rescue Pagy::RangeError # page past the end: show the first page
+      @page_out_of_range = true
       @pagy, @records = paginate(1)
     end
 
@@ -207,7 +212,7 @@ module Infotable
     def add_sort_tiebreaker(query, sort_columns)
       model = query.model
       pk = model.primary_key
-      return query if pk.blank? || sort_columns.map(&:to_s).include?(pk) || query.distinct_value
+      return query if pk.blank? || sort_columns.map(&:to_s).include?(pk) || query.distinct_value || query.group_values.any?
 
       query.order(Arel.sql("#{model.table_name}.#{pk} ASC"))
     end
@@ -228,9 +233,15 @@ module Infotable
       requested.positive? ? [ requested, MAX_PER_PAGE ].min : default
     end
 
-    # Guard against spreadsheet formula injection
+    PLAIN_NUMBER = /\A[+-]?\d+([.,]\d+)?\z/
+
+    # Guard against spreadsheet formula injection. Plain numbers ("-5", "+48123456789") are
+    # not formulas and are left alone.
     def csv_safe(value)
-      value.is_a?(String) && value.match?(/\A[=+\-@\t\r]/) ? "'#{value}" : value
+      return value unless value.is_a?(String) && value.match?(/\A[=+\-@\t\r]/)
+      return value if value.match?(PLAIN_NUMBER)
+
+      "'#{value}"
     end
 
     def render_table_frame

@@ -65,6 +65,8 @@ module Infotable
         subclass.countless_setting = parent.countless_setting
         subclass.url_state_setting = parent.url_state_setting
         subclass.resizable_columns_setting = parent.resizable_columns_setting
+        subclass.instance_variable_set(:@toolbar_setting, parent.instance_variable_get(:@toolbar_setting))
+        subclass.instance_variable_set(:@export_column_names, parent.instance_variable_get(:@export_column_names)&.dup)
         %i[pagination_settings sort_settings height_settings infinite_scroll_settings row_link_settings
            slim_rows_settings row_size_settings filters_button_settings display_settings
            nil_value_settings empty_value_settings].each do |attr|
@@ -167,8 +169,16 @@ module Infotable
       end
 
       # Define a column
+      COLUMN_OPTIONS = %i[label type sortable searchable filterable visible exportable pinned virtual virtual_sql
+                          sql sort_sql value includes formatter formatter_options actions filter_type filter_options
+                          filter_options_cache filter_options_limit filter_multi_select width].freeze
+
       def column(name, **options)
         @table_columns ||= []
+        unknown = options.keys - COLUMN_OPTIONS
+        if unknown.any? && defined?(Rails) && Rails.logger
+          Rails.logger.warn("[Infotable] #{self.name || 'table'}: column :#{name} ignores unknown option(s) #{unknown.map(&:inspect).join(', ')}")
+        end
         type = options[:type] || :string
 
         # Determine width - use custom if provided and not blank, otherwise use default

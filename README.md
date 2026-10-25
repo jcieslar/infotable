@@ -129,6 +129,15 @@ Infotable.configure do |config|
 end
 ```
 
+### Security
+
+Tables are served by the engine at `/infotable/tables/:name/{data,export,ids}`. A table without an
+`authorize { |controller| ... }` block is readable (and exportable as CSV) by **everyone who can reach the
+route**, unless the engine controllers inherit your app's authentication. The installer therefore sets
+`config.parent_controller = "ApplicationController"`; keep it (or point it at a controller with your
+`before_action :authenticate_user!`) and add `authorize` to tables with restricted data. The engine's own
+default (`ActionController::Base`) applies no authentication at all.
+
 ### Available Global Options
 
 | Option | Type | Default | Description |
@@ -137,7 +146,8 @@ end
 | `per_page_options` | Array | `[10, 25, 50, 100]` | Available rows per page options |
 | `drawer_position` | Symbol | `:right` | Position of filter/column drawer (`:left` or `:right`) |
 | `drawer_width` | String | `"26rem"` | Width of the drawer (`px`, `rem`, `em`, `vw` or `%`; anything else falls back to the default) |
-| `parent_controller` | String | `"ActionController::Base"` | Controller the engine's controllers inherit from. Set it to `"ApplicationController"` to reuse your authentication |
+| `parent_controller` | String | `"ActionController::Base"` (the installer sets `"ApplicationController"`) | Controller the engine's controllers inherit from. Set it to `"ApplicationController"` to reuse your authentication |
+| `max_select_all` | Integer, nil | `4000` | "Select all N matching" collects at most this many ids (each is sent as `ids[]`; Rack accepts 4096 parameters per request) |
 | `table_min_height` | String | `"400px"` | Minimum table height |
 | `table_max_height` | String | `"600px"` | Maximum table height (enables scrolling) |
 | `autofilter` | Boolean | `true` | Auto-apply filters on change (debounced) vs manual apply |

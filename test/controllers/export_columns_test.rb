@@ -66,4 +66,21 @@ class ExportColumnsTest < ActionDispatch::IntegrationTest
     get "/infotable/tables/users_table/export", params: { visible_columns: "name" }
     assert_includes response.body, "'=1+1"
   end
+
+  test "negative numbers and phone numbers are not prefixed" do
+    User.create!(name: "-5", email: "x@example.com", age: -3)
+    User.create!(name: "+48123456789", email: "y@example.com")
+    get "/infotable/tables/users_table/export", params: { visible_columns: "name,age" }
+    rows = CSV.parse(response.body).flatten
+    assert_includes rows, "-5"
+    assert_includes rows, "-3"
+    assert_includes rows, "+48123456789"
+    assert_not_includes rows, "'-5"
+  end
+
+  test "text that merely starts like a number is still neutralized" do
+    User.create!(name: "-1+cmd|' /C calc'!A0", email: "x@example.com")
+    get "/infotable/tables/users_table/export", params: { visible_columns: "name" }
+    assert_includes response.body, "'-1+cmd"
+  end
 end

@@ -6,18 +6,11 @@ module Infotable
   class Engine < ::Rails::Engine
     isolate_namespace Infotable
 
-    # Configure engine
-    config.infotable = ActiveSupport::OrderedOptions.new
-
-    # Default configuration values
-    config.infotable.table_min_height = "400px"
-    config.infotable.table_max_height = "600px"
-
     # Rails already adds the engine's app/assets/* directories to the asset path;
     # only the precompile list is needed. Skipped for apps without an asset pipeline.
     initializer "infotable.assets" do |app|
       if app.config.respond_to?(:assets)
-        app.config.assets.precompile += %w[infotable/controllers/*.js]
+        app.config.assets.precompile += %w[infotable/controllers/*.js infotable/vendor/*.js]
       end
     end
 

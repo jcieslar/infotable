@@ -110,7 +110,7 @@ module Infotable
       column_name = column[:name]
       is_virtual = having?(column)
       # Use qualified column reference
-      column_ref = qualified_column_ref(column)
+      column_ref = text_ref(column)
 
       result = query
 
@@ -143,6 +143,14 @@ module Infotable
       end
 
       result
+    end
+
+    # PostgreSQL has no LOWER / ILIKE / = '' for numbers, dates, uuids...: a text filter on such a
+    # column (filter_type: :text on an integer) compares its text form.
+    def text_ref(column)
+      ref = qualified_column_ref(column)
+      type = select_column_type(column)
+      type.nil? || %i[string text].include?(type) ? ref : "CAST(#{ref} AS text)"
     end
 
     # Boolean filter
@@ -245,6 +253,7 @@ module Infotable
       from = parse_date(scalar(params[:from] || params["from"]))
       to = parse_date(scalar(params[:to] || params["to"]))
       to = to.end_of_day if to && datetime
+      from = from.beginning_of_day if from && datetime # same zone as `to` (Time.zone), not UTC midnight
 
       result = query
       result = result.public_send(filter_method, "#{column_ref} >= ?", from) if from

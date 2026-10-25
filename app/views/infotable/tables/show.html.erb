@@ -90,7 +90,7 @@
         </table>
 
       <%# Next page frame for infinite scroll - rendered after table %>
-      <% if @infinite_scroll_enabled && params[:page].blank? %>
+      <% if @infinite_scroll_enabled %>
         <%= render partial: "infotable/tables/next_page_frame" %>
       <% end %>
     <% else %>

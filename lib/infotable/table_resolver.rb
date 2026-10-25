@@ -22,7 +22,16 @@ module Infotable
       raise NotFound, "Table '#{table_name}' not found. Make sure it's defined in app/infotable/"
     end
 
+    CANDIDATES = Concurrent::Map.new
+
+    # The class names to try are pure string work (up to 2**(n-1) of them): memoized per name
     def candidates(table_name)
+      return [] unless table_name.to_s.match?(/\A[a-z0-9]+(_[a-z0-9]+)*\z/i)
+
+      CANDIDATES.compute_if_absent(table_name.to_s) { build_candidates(table_name) }
+    end
+
+    def build_candidates(table_name)
       return [] unless table_name.to_s.match?(/\A[a-z0-9]+(_[a-z0-9]+)*\z/i)
 
       parts = table_name.to_s.sub(/_table\z/, "").split("_")

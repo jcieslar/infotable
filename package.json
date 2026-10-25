@@ -11,7 +11,7 @@
   },
   "files": [
     "app/assets/javascripts/**/*.js",
-    "app/assets/stylesheets/**/*.css"
+    "app/assets/tailwind/**/*.css"
   ],
   "keywords": [
     "rails",

@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+### Security
+- The installer's initializer now sets `config.parent_controller = "ApplicationController"` (it was commented out), and the README has a Security section: with the engine's default parent (`ActionController::Base`) a table without `authorize` is readable and exportable by anyone.
+
+### Fixed
+- CSV export no longer prefixes plain numbers (`-5`, `+48123456789`) with `'`; text that could be a formula still is.
+- Infinite scroll kept working only until the first sort, search or per-page change.
+- A column pinned by default (`pinned: :left`) can be unpinned in the columns drawer, and "reset" restores the default pins instead of unpinning them. Pinning from the drawer no longer paints cells white in dark mode: the drawer asks the table to apply order, visibility and pinning (the duplicated code is gone).
+- Clicking an action `:dropdown` in a `row_link` table no longer follows the row link; row links use `Turbo.visit`.
+- A subclassed table keeps its parent's `toolbar` and `export_columns`.
+- Changing a filter keeps the rows-per-page choice.
+- "Select all N matching" stays offered after infinite scroll loads more rows.
+- An infinite-scroll request past the last page no longer appends the first page again; the end-of-list marker is translated and themed (`_end_indicator`).
+- Text filters on a non-text column (`filter_type: :text` on an integer) no longer fail on PostgreSQL.
+- A datetime filter's "from" starts at the beginning of the day in `Time.zone`, like "to" ends it.
+- No primary-key tiebreaker is added to grouped queries (it broke `GROUP BY` on another column).
+- The columns drawer survives browsers without `localStorage`; the history state no longer needs `crypto.randomUUID` (plain-HTTP origins).
+- `BooleanFormatter` `style: :icon` has an accessible name.
+- Selecting 500 rows renders the selection once instead of once per row; applying column visibility is a single pass over the cells.
+
+### Changed
+- `config.max_select_all` defaults to 4000 (was 10000): every id is sent as `ids[]` and Rack accepts 4096 parameters per request. A GET batch action with thousands of ids can also exceed URL limits; use `post`/`patch`/`delete` for large selections.
+- sortablejs is served with the gem (`infotable/vendor/sortable.esm.js`) instead of a jsDelivr CDN pin.
+- Unknown `column` options (a typo like `sortble:`) are logged as a warning.
+- `TableResolver` memoizes the class names it tries.
+
+### Removed
+- Unused `build_export_params` helper, `showLoading` / `hideLoading` and the no-op `config.infotable` engine options.
+- `package.json` `files` listed a nonexistent `app/assets/stylesheets`; it now ships `app/assets/tailwind`.
+
+## Unreleased
+
 ### Changed
 - Fresher table look: quieter header (medium weight, grey), flat row hover instead of the lifted row, lighter row dividers.
 - Pinned columns show a pushpin in their header, tilted to the side they are pinned to; the pin buttons in the column list use the same icon instead of chevrons.
