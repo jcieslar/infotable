@@ -28,6 +28,7 @@ class TableGeneratorTest < Rails::Generators::TestCase
       assert_match(/column :name,\n\s+type: :string,\n\s+sortable: true,\n\s+searchable: true,\n\s+filterable: true,\n\s+filter_type: :text/, content)
       assert_match(/column :age,\n\s+type: :integer/, content)
       assert_match(/default_sort :created_at, :desc/, content)
+      assert_nothing_raised { RubyVM::InstructionSequence.compile(content) }
     end
   end
 
@@ -127,6 +128,8 @@ class TableGeneratorTest < Rails::Generators::TestCase
     assert_file "app/infotable/spaceships_table.rb" do |content|
       assert_match(/class SpaceshipsTable < Infotable::Base/, content)
       assert_no_match(/^\s+column :/, content)
+      assert_nothing_raised { RubyVM::InstructionSequence.compile(content) }
+      assert_match(/TODO: Spaceship was not found/, content)
     end
   end
 end

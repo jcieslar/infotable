@@ -122,7 +122,7 @@ module Infotable
     # render their own idea of "nothing" (BooleanFormatter and ActionFormatter handle it themselves)
     def placeholder_for(value, column, table_class)
       return unless table_class
-      return if %i[boolean action actions].include?(column[:type]) || %i[boolean action actions].include?(column[:formatter])
+      return if %i[boolean action actions avatar].include?(column[:type]) || %i[boolean action actions avatar].include?(column[:formatter])
 
       return table_class.nil_value_placeholder if value.nil?
       table_class.empty_value_placeholder if value.is_a?(String) && value.empty?
@@ -143,11 +143,17 @@ module Infotable
         Infotable::Formatters::BadgeFormatter
       when :action, :actions
         Infotable::Formatters::ActionFormatter
+      when :link
+        Infotable::Formatters::LinkFormatter
+      when :avatar
+        Infotable::Formatters::AvatarFormatter
+      when :percent
+        Infotable::Formatters::PercentFormatter
       else
         # Custom formatter: :avatar => AvatarFormatter (or Namespaced::AvatarFormatter)
         "#{formatter_name.to_s.camelize}Formatter".safe_constantize ||
           raise(Infotable::Error, "Unknown formatter :#{formatter_name} for column :#{column[:name]}. " \
-                                  "Built-ins: date, currency, boolean, badge, action; custom: define #{formatter_name.to_s.camelize}Formatter.")
+                                  "Built-ins: date, currency, boolean, badge, action, link, avatar, percent; custom: define #{formatter_name.to_s.camelize}Formatter.")
       end
 
       formatter_class.new(self).format(value, record, formatter_options)

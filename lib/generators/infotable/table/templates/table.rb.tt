@@ -1,5 +1,5 @@
 class <%= table_class_name %> < Infotable::Base
-  query { <%= model_class ? class_name : "# TODO: #{class_name}" %>.all }
+  query { <%= class_name %>.all }<%= " # TODO: #{class_name} was not found, point this at your model" unless model_class %>
 <% if column_specs.empty? %>
 
   # column :name, label: "Name", type: :string, sortable: true, searchable: true, filterable: true, filter_type: :text
