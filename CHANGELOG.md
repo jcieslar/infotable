@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.1
+## 1.0.0
 
 ### Breaking / behaviour changes
 - Requires Ruby >= 3.3 (Pagy 43).
