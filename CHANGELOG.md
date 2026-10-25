@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.4.1
 
 ### Fixed
 - Action columns are no longer clipped to their width: it is a minimum now, and the column grows to show all its buttons (a `width: "150px"` column with three buttons used to hide the last ones).
