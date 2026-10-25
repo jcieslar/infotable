@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 1.0.1
+
+### Fixed
+- Tailwind did not scan the gem's views when the gem was installed outside the app (no styles for the drawer, spinner, ...). The gem now ships `app/assets/tailwind/infotable/engine.css` and the installer adds `@import "../builds/tailwind/infotable";` to the Tailwind entry file. The generated `infotable.css(.erb)`, its Rake task, the `INFOTABLE_*_PATH` env variables and `Infotable.views_path` / `formatters_path` are gone; upgrade steps are in `docs/tailwind.md`.
+
+## 1.0.0
 
 ### Breaking / behaviour changes
 - Requires Ruby >= 3.3 (Pagy 43).

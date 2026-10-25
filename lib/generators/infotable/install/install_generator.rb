@@ -96,25 +96,6 @@ module Infotable
         template "initializer.rb", "config/initializers/infotable.rb"
       end
 
-      def add_to_gitignore
-        gitignore_entry = "# InfoTable - Generated from ERB template, do not commit\napp/assets/stylesheets/infotable.css\napp/assets/tailwind/infotable.css\n"
-
-        if File.exist?(".gitignore")
-          content = File.read(".gitignore")
-          unless content.include?("infotable.css")
-            append_to_file ".gitignore", "\n#{gitignore_entry}"
-            say "   ✅ Added generated infotable.css to .gitignore", :green
-          else
-            say "   ℹ️  infotable.css already in .gitignore", :blue
-          end
-        else
-          create_file ".gitignore", gitignore_entry
-          say "   ✅ Created .gitignore with infotable.css", :green
-        end
-
-        say "   📝 Commit infotable.css.erb (the template), not infotable.css (generated)", :cyan
-      end
-
       def show_post_install_message
         say "\n" + "=" * 60, :green
         say "✅ InfoTable installation complete!", :green
@@ -144,9 +125,7 @@ module Infotable
         say "💡 Important Notes:", :cyan
         say "=" * 60, :cyan
         say "• InfoTable requires the tailwindcss-rails gem", :green
-        say "• infotable.css.erb is processed by Rake task before Tailwind builds", :green
-        say "• Gem paths resolve dynamically for each environment (dev/production)", :green
-        say "• Commit infotable.css.erb (template), gitignore infotable.css (generated)", :cyan
+        say "• Tailwind scans the gem through @import \"../builds/tailwind/infotable\" in your Tailwind entry file", :green
 
         say "\n📖 Documentation: https://github.com/jcieslar/infotable", :cyan
       end
@@ -496,59 +475,26 @@ import InfoTableDrawerController from "infotable/controllers/drawer_controller"
           return
         end
 
-        # Create separate infotable.css file with resolved gem paths
-        create_infotable_css_file
-
-        # Tailwind only scans the gem's views if the main CSS imports the generated file
+        # tailwindcss-rails writes app/assets/builds/tailwind/infotable.css (it imports the gem's
+        # app/assets/tailwind/infotable/engine.css) on every build; Tailwind only scans the gem's
+        # views if the main CSS imports it.
+        import = %(@import "../builds/tailwind/infotable";)
         content = File.read(tailwind_file)
-        if content.match?(/@import\s+["']\.?\/?infotable["']/)
+        if content.include?(import)
           say "   ℹ️  InfoTable import already exists in #{File.basename(tailwind_file)}", :blue
         else
-          if content.include?("@import \"tailwindcss\"")
+          if content.match?(/@import\s+["']tailwindcss["'];?\s*\n/)
             inject_into_file tailwind_file, after: /@import\s+["']tailwindcss["'];?\s*\n/ do
-              "\n/* InfoTable - Requires tailwindcss-rails gem */\n@import './infotable';\n"
+              "#{import}\n"
             end
           else
-            prepend_to_file tailwind_file, "/* InfoTable - Requires tailwindcss-rails gem */\n@import './infotable';\n\n"
+            prepend_to_file tailwind_file, "#{import}\n"
           end
 
-          say "   ✅ Added @import './infotable' to #{File.basename(tailwind_file)}", :green
+          say "   ✅ Added #{import} to #{File.basename(tailwind_file)}", :green
         end
 
         say "   📝 Run: rails tailwindcss:build", :cyan
-      end
-
-      def create_infotable_css_file
-        # Determine the stylesheets directory
-        stylesheets_dir = if File.exist?("app/assets/stylesheets")
-          "app/assets/stylesheets"
-        elsif File.exist?("app/assets/tailwind")
-          "app/assets/tailwind"
-        else
-          "app/assets/stylesheets"
-        end
-
-        infotable_css_path = File.join(stylesheets_dir, "infotable.css.erb")
-
-        # Create ERB file that dynamically resolves gem paths
-        css_content = <<~CSS
-          /* InfoTable Tailwind Sources - ERB Template */
-          /* Requires: tailwindcss-rails gem (https://github.com/rails/tailwindcss-rails) */
-          /* Paths are resolved dynamically via ERB from Infotable module */
-
-          /* Local table definitions in your Rails app */
-          @source "../../app/infotable";
-
-          /* InfoTable gem paths (resolved via ERB at build time) */
-          @source "<%= Infotable.views_path %>";
-          @source "<%= Infotable.formatters_path %>";
-        CSS
-
-        create_file infotable_css_path, css_content
-
-        say "   ✅ Created #{infotable_css_path} with ERB templates", :green
-        say "   📝 Gem paths resolve dynamically via Infotable module", :cyan
-        say "   📝 Works in all environments automatically", :green
       end
 
       def package_json_has?(package)
