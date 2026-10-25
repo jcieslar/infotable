@@ -966,6 +966,12 @@ export default class extends Controller {
   }
 
   // Apply column pinning (sticky positioning) from localStorage
+  // Small pushpin before a pinned column's label, tilted toward the side it is pinned to
+  addPinIcon(header, side) {
+    const tilt = side === "left" ? "-rotate-45" : "rotate-45"
+    header.insertAdjacentHTML("afterbegin", `<svg data-pin-icon aria-hidden="true" class="inline-block w-3 h-3 mr-1 -mt-0.5 text-indigo-500 dark:text-indigo-400 ${tilt}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>`)
+  }
+
   applyColumnPinning() {
     const tableName = this.nameValue
     const pinnedKey = `infotable_column_pinned_${tableName}`
@@ -1024,6 +1030,7 @@ export default class extends Controller {
         header.style.removeProperty('opacity')
         header.style.backgroundClip = ''
         header.style.boxShadow = ''
+        header.querySelectorAll('[data-pin-icon]').forEach(icon => icon.remove())
         header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
       })
 
@@ -1044,7 +1051,7 @@ export default class extends Controller {
           cell.style.removeProperty('opacity')
           cell.style.backgroundClip = ''
           cell.style.boxShadow = ''
-          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
+          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
         })
       })
 
@@ -1078,13 +1085,6 @@ export default class extends Controller {
             top: 0px !important;
             left: ${leftOffset}px !important;
             z-index: 30 !important;
-            background: #f9fafb !important;
-            background-color: #f9fafb !important;
-            background-image: none !important;
-            background-position: initial !important;
-            background-size: initial !important;
-            background-repeat: initial !important;
-            background-attachment: initial !important;
             opacity: 1 !important;
             background-clip: padding-box !important;
             box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
@@ -1094,6 +1094,7 @@ export default class extends Controller {
           // Set all styles at once via setAttribute (most aggressive method)
           header.setAttribute('style', newStyles)
           header.classList.add('infotable-pinned-left', '!bg-gray-50', 'dark:!bg-gray-800')
+          this.addPinIcon(header, 'left')
 
           // Mark last left-pinned column
           if (columnName === lastLeftPinned) {
@@ -1112,13 +1113,6 @@ export default class extends Controller {
                 position: sticky !important;
                 left: ${leftOffset}px !important;
                 z-index: 15 !important;
-                background: #ffffff !important;
-                background-color: #ffffff !important;
-                background-image: none !important;
-                background-position: initial !important;
-                background-size: initial !important;
-                background-repeat: initial !important;
-                background-attachment: initial !important;
                 opacity: 1 !important;
                 background-clip: padding-box !important;
                 box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
@@ -1126,7 +1120,7 @@ export default class extends Controller {
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
-              cell.classList.add('infotable-pinned-left', '!bg-white', 'dark:!bg-gray-900')
+              cell.classList.add('infotable-pinned-left', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
 
               if (columnName === lastLeftPinned) {
                 cell.classList.add("after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]")
@@ -1145,13 +1139,6 @@ export default class extends Controller {
             top: 0px !important;
             right: ${rightOffset}px !important;
             z-index: 30 !important;
-            background: #f9fafb !important;
-            background-color: #f9fafb !important;
-            background-image: none !important;
-            background-position: initial !important;
-            background-size: initial !important;
-            background-repeat: initial !important;
-            background-attachment: initial !important;
             opacity: 1 !important;
             background-clip: padding-box !important;
             box-shadow: -2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
@@ -1160,6 +1147,7 @@ export default class extends Controller {
 
           header.setAttribute('style', newStyles)
           header.classList.add('infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
+          this.addPinIcon(header, 'right')
 
           // Mark first right-pinned column
           if (columnName === firstRightPinned) {
@@ -1178,13 +1166,6 @@ export default class extends Controller {
                 position: sticky !important;
                 right: ${rightOffset}px !important;
                 z-index: 15 !important;
-                background: #ffffff !important;
-                background-color: #ffffff !important;
-                background-image: none !important;
-                background-position: initial !important;
-                background-size: initial !important;
-                background-repeat: initial !important;
-                background-attachment: initial !important;
                 opacity: 1 !important;
                 background-clip: padding-box !important;
                 box-shadow: -2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
@@ -1192,7 +1173,7 @@ export default class extends Controller {
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
-              cell.classList.add('infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900')
+              cell.classList.add('infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
 
               if (columnName === firstRightPinned) {
                 cell.classList.add("before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
