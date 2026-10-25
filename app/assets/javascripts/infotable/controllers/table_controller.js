@@ -372,22 +372,51 @@ export default class extends Controller {
     clearTimeout(this.searchTimeout)
     const value = event.currentTarget.value.trim()
 
-    this.searchTimeout = setTimeout(() => {
-      const frame = document.getElementById(`${this.nameValue}_content`)
-      if (!frame) return
+    this.searchTimeout = setTimeout(() => this.applySearch(value), 300)
+  }
 
-      const url = new URL(frame.src || frame.getAttribute("src"), window.location.href)
-      if (value) {
-        url.searchParams.set("search", value)
-      } else {
-        url.searchParams.delete("search")
-      }
-      url.searchParams.set("page", "1")
-      frame.src = url.toString()
+  applySearch(value) {
+    const frame = document.getElementById(`${this.nameValue}_content`)
+    if (!frame) return
 
-      // Export link follows the frame's params
-      frame.addEventListener("turbo:frame-load", () => this.updateExportLink(), { once: true })
-    }, 300)
+    const url = new URL(frame.src || frame.getAttribute("src"), window.location.href)
+    if (value) {
+      url.searchParams.set("search", value)
+    } else {
+      url.searchParams.delete("search")
+    }
+    url.searchParams.set("page", "1")
+    frame.src = url.toString()
+
+    // Export link follows the frame's params
+    frame.addEventListener("turbo:frame-load", () => this.updateExportLink(), { once: true })
+  }
+
+  // The "x" on the search chip
+  clearSearch() {
+    clearTimeout(this.searchTimeout)
+    const input = this.element.querySelector('input[name="search"]')
+    if (input) input.value = ""
+    this.applySearch("")
+  }
+
+  // "Clear all filters" (chips bar and empty state): search and every filter, sort and per-page stay
+  clearAllFilters() {
+    clearTimeout(this.searchTimeout)
+    const input = this.element.querySelector('input[name="search"]')
+    if (input) input.value = ""
+    this.application.getControllerForElementAndIdentifier(this.element, "infotable--drawer")?.resetFilterInputs()
+
+    const frame = document.getElementById(`${this.nameValue}_content`)
+    if (!frame) return
+
+    const url = new URL(frame.src || frame.getAttribute("src"), window.location.href)
+    Array.from(url.searchParams.keys()).forEach(key => {
+      if (key === "search" || key.startsWith("filters[")) url.searchParams.delete(key)
+    })
+    url.searchParams.set("page", "1")
+    frame.src = url.toString()
+    frame.addEventListener("turbo:frame-load", () => this.updateExportLink(), { once: true })
   }
 
   // Handle per-page change

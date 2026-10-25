@@ -1,0 +1,24 @@
+<%# Chips for the filters and search narrowing the table; each one removes itself. Locals: chips, table_name %>
+<% if chips.any? %>
+  <div class="flex flex-wrap items-center gap-2 border-b border-gray-100 bg-white px-6 py-2" data-active-filters>
+    <% chips.each do |chip| %>
+      <% remove_action = chip[:search] ? "click->infotable--table#clearSearch" : "click->infotable--drawer#clearSingleFilter" %>
+      <% chip_label = chip[:search] ? chip[:text] : "#{chip[:label]}: #{chip[:text]}" %>
+      <span class="inline-flex items-center gap-1 rounded-full bg-indigo-50 py-1 pl-3 pr-1 text-xs font-medium text-indigo-700" data-active-filter="<%= chip[:search] ? 'search' : chip[:name] %>">
+        <% unless chip[:search] %><span class="text-indigo-500"><%= chip[:label] %>:</span><% end %>
+        <span><%= chip[:text] %></span>
+        <button type="button"
+                class="ml-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full text-indigo-500 hover:bg-indigo-100 hover:text-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                aria-label="<%= t('infotable.filters.active.remove', filter: chip_label) %>"
+                data-action="<%= remove_action %>"
+                <% unless chip[:search] %>data-filter-name="<%= chip[:name] %>" data-filter-type="<%= chip[:type] %>"<% end %>>
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </span>
+    <% end %>
+    <% if chips.size > 1 %>
+      <button type="button" data-action="click->infotable--table#clearAllFilters" data-clear-all-filters
+              class="text-xs font-medium text-gray-600 underline hover:text-gray-900"><%= t('infotable.filters.active.clear_all') %></button>
+    <% end %>
+  </div>
+<% end %>

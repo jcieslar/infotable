@@ -274,6 +274,68 @@ module Infotable
       danger: "border-red-600 bg-red-600 text-white hover:bg-red-700"
     }.freeze
 
+    NUMBER_OP_SYMBOLS = { "eq" => "=", "neq" => "\u2260", "gt" => ">", "gte" => "\u2265", "lt" => "<", "lte" => "\u2264" }.freeze
+
+    # The filters and search that are narrowing the table right now, as chips:
+    #   [{ name: "age", type: "number", label: "Age", text: "\u2265 45" }, { search: true, text: "..." }]
+    # Only filterable columns with something to apply are listed; blank inputs are not active.
+    def infotable_active_filters(table_class, filters, search = nil)
+      filters = filters.to_unsafe_h if filters.respond_to?(:to_unsafe_h)
+      filters = {} unless filters.is_a?(Hash)
+      filters = filters.with_indifferent_access
+
+      chips = table_class.filterable_columns.filter_map do |column|
+        params = filters[column[:name]]
+        type = filter_type_for_column(column)
+        text = infotable_filter_chip_text(type, params)
+        next if text.blank?
+
+        { name: column[:name].to_s, type: type, label: column[:label].to_s, text: text }
+      end
+
+      chips.unshift(search: true, text: t("infotable.filters.active.search", query: search)) if search.present?
+      chips
+    end
+
+    def infotable_filter_chip_text(type, params)
+      case type
+      when "select", "boolean"
+        raw = params.is_a?(Hash) ? params[:value] : params
+        values = Array(raw).flatten.reject { |v| v.is_a?(Hash) || v.blank? }.map(&:to_s)
+        return if values.empty?
+
+        values.map { |v| type == "boolean" ? infotable_boolean_chip_text(v) : v }.join(", ")
+      else
+        return unless params.is_a?(Hash)
+
+        op = params[:op].to_s
+        return t("infotable.filters.text_ops.#{op}") if %w[is_empty is_not_empty].include?(op)
+
+        value = params[:value].is_a?(String) ? params[:value].strip : nil
+        from = params[:from].is_a?(String) ? params[:from].strip : nil
+        to = params[:to].is_a?(String) ? params[:to].strip : nil
+
+        if type == "text"
+          return if value.blank?
+
+          "#{t("infotable.filters.text_ops.#{op.presence_in(%w[contains exact not_contain starts_with ends_with]) || 'contains'}")} \u201c#{value}\u201d"
+        elsif op.present? && op != "between" && value.present?
+          type == "number" ? "#{NUMBER_OP_SYMBOLS.fetch(op, op)} #{value}" : "#{t("infotable.filters.date_ops.#{op}", default: op)} #{value}"
+        elsif from.present? && to.present?
+          "#{from} \u2013 #{to}"
+        elsif from.present?
+          "\u2265 #{from}"
+        elsif to.present?
+          "\u2264 #{to}"
+        end
+      end
+    end
+
+    def infotable_boolean_chip_text(value)
+      key = { "true" => "true", "false" => "false", "is_empty" => "empty", "is_not_empty" => "not_empty" }[value]
+      key ? t("infotable.filters.boolean.#{key}") : value
+    end
+
     def infotable_batch_button_classes(color)
       "inline-flex items-center px-3 py-1.5 border text-sm font-medium rounded-lg transition-colors #{BATCH_BUTTON_COLORS.fetch(color, BATCH_BUTTON_COLORS[:default])}"
     end

@@ -13,6 +13,8 @@ en:
       empty_state:
         title: "No data found"
         description: "Get started by adding some records to see them here."
+        filtered_title: "No rows match your filters"
+        filtered_description: "Remove a filter or search for something else."
 
     drawer:
       label: "Filters and columns"
@@ -39,6 +41,10 @@ en:
         clear_all: "Clear All"
         apply_filters: "Apply Filters"
       clear_filter: "Clear this filter"
+      active:
+        search: "Search: \u201c%{query}\u201d"
+        remove: "Remove filter %{filter}"
+        clear_all: "Clear all filters"
       from: "From"
       to: "To"
       min: "Min"

@@ -310,29 +310,34 @@ export default class extends Controller {
   // Clear all filters
   clearFilters(event) {
     event.preventDefault()
-    const form = this.contentTarget.querySelector("form")
-    if (form) {
-      // Clear debounce timer
-      if (this.debounceTimer) {
-        clearTimeout(this.debounceTimer)
-        this.debounceTimer = null
-      }
-
-      // Reset all inputs except hidden ones (sort, per_page)
-      const inputs = form.querySelectorAll('input:not([type="hidden"]), select, textarea')
-      inputs.forEach(input => {
-        if (input.type === 'checkbox' || input.type === 'radio') {
-          input.checked = false
-        } else {
-          input.value = ''
-        }
-      })
-
-      this.syncFilterOps()
-
+    if (this.resetFilterInputs()) {
       // Submit immediately (no debounce for clear)
       this.submitFilters(null)
     }
+  }
+
+  // Empties every filter input in the drawer without reloading the table. False when there is no form.
+  resetFilterInputs() {
+    const form = this.contentTarget.querySelector("form")
+    if (!form) return false
+
+    // Clear debounce timer
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer)
+      this.debounceTimer = null
+    }
+
+    // Reset all inputs except hidden ones (sort, per_page)
+    form.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(input => {
+      if (input.type === 'checkbox' || input.type === 'radio') {
+        input.checked = false
+      } else {
+        input.value = ''
+      }
+    })
+
+    this.syncFilterOps()
+    return true
   }
 
   // Clear a single filter

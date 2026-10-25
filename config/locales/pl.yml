@@ -13,6 +13,8 @@ pl:
       empty_state:
         title: "Nie znaleziono danych"
         description: "Rozpocznij od dodania rekordów, aby zobaczyć je tutaj."
+        filtered_title: "Żaden wiersz nie pasuje do filtrów"
+        filtered_description: "Usuń filtr lub wyszukaj coś innego."
 
     drawer:
       label: "Filtry i kolumny"
@@ -39,6 +41,10 @@ pl:
         clear_all: "Wyczyść wszystkie"
         apply_filters: "Zastosuj filtry"
       clear_filter: "Wyczyść ten filtr"
+      active:
+        search: "Szukaj: \u201e%{query}\u201d"
+        remove: "Usuń filtr %{filter}"
+        clear_all: "Wyczyść wszystkie filtry"
       from: "Od"
       to: "Do"
       min: "Min"
