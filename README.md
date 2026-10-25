@@ -350,6 +350,8 @@ Click a header to sort; **Shift+click** adds up to three sort columns (`?sort=na
 
 Mark columns `searchable: true` to get a search box. Every word (up to 5) must match at least one searchable column, case-insensitively.
 
+The box sits in the header bar. With `toolbar :rail` there is no header, so it moves to the top of the drawer: open it with the rail's filters or columns button. It works the same there (debounced, kept across sorting, filters and CSV export, restored from the URL) and is shown only when at least one column is `searchable`.
+
 #### Filters
 
 Filter types are inferred from the column type or set with `filter_type:`.
