@@ -146,7 +146,16 @@ end
 
 ## Table Definition
 
-Create table classes in `app/infotable/`:
+Generate a starting point from a model's columns:
+
+```bash
+rails generate infotable:table User
+rails generate infotable:table Admin::Order --only=id number status   # or --skip=notes
+```
+
+It writes `app/infotable/users_table.rb` with a column per attribute (types and filters inferred, enums become select filters, passwords/tokens and foreign keys are left out, `belongs_to` associations come as commented hints).
+
+Or create table classes in `app/infotable/` by hand:
 
 ```ruby
 class UsersTable < Infotable::Base

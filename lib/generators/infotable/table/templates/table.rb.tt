@@ -1,0 +1,26 @@
+class <%= table_class_name %> < Infotable::Base
+  query { <%= model_class ? class_name : "# TODO: #{class_name}" %>.all }
+<% if column_specs.empty? %>
+
+  # column :name, label: "Name", type: :string, sortable: true, searchable: true, filterable: true, filter_type: :text
+<% end %>
+<% column_specs.each do |spec| -%>
+
+  column :<%= spec[:name] %>,
+    type: :<%= spec[:type] %>,
+    sortable: true<%= ",\n    searchable: true" if spec[:searchable] %>,
+    filterable: <%= spec[:primary_key] ? "false" : "true" %><%= ",\n    filter_type: :#{spec[:filter]}" unless spec[:primary_key] %><%= ",\n    filter_options: %w[#{spec[:enum_values].join(' ')}]" if spec[:enum_values] %><%= ",\n    visible: false" if spec[:primary_key] %>
+<% end -%>
+<% if association_hints.any? %>
+
+  # Associations: show them with a join, e.g.
+<% association_hints.each do |association| -%>
+  #   column :<%= association %>, sql: "<%= association.to_s.pluralize %>.name", includes: :<%= association %>, value: ->(record) { record.<%= association %>&.name }
+<% end -%>
+<% end -%>
+
+  per_page 25
+<% if default_sort_line %>
+  <%= default_sort_line %>
+<% end -%>
+end
