@@ -6,8 +6,8 @@ class RailToolbarTest < ActionDispatch::IntegrationTest
     doc = Nokogiri::HTML(response.body)
 
     assert_nil doc.at_css("h2.text-xl"), "header title should be gone"
-    assert doc.at_css("aside button[data-action*='infotable--drawer#openFilters']")
-    assert doc.at_css("aside button[data-action*='infotable--drawer#openColumns']")
+    assert doc.at_css("aside button[data-action*='infotable--drawer#toggleFilters']")
+    assert doc.at_css("aside button[data-action*='infotable--drawer#toggleColumns']")
     assert doc.at_css("aside a[data-infotable--table-target=exportButton][href*='/export']")
     assert doc.at_css("aside button[data-action*='infotable--table#refresh']")
   end

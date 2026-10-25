@@ -258,7 +258,7 @@ module Infotable
 
       {
         style: "#{side}: 0; width: #{width}; max-width: 90%; transform: translateX(#{hidden});",
-        class: "absolute top-0 bottom-0 bg-white dark:bg-gray-900 #{side == 'left' ? 'border-r rounded-l-xl' : 'border-l rounded-r-xl'} border-indigo-200 dark:border-indigo-800 shadow-2xl transition-all duration-300 ease-in-out z-50",
+        class: "absolute top-0 bottom-0 bg-white dark:bg-gray-900 #{side == 'left' ? 'border-r rounded-r-xl' : 'border-l rounded-l-xl'} border-gray-200 dark:border-gray-700 shadow-xl transition-all duration-300 ease-in-out z-50",
         role: "dialog",
         inert: true, # closed drawer is off-screen: keep it out of the tab order (JS toggles it)
         aria: { label: I18n.t("infotable.drawer.label"), hidden: true },
