@@ -143,6 +143,42 @@ class McpTest < ActiveSupport::TestCase
     assert call(Infotable::Mcp::ValidateTable, name: "nothing_table").error?
   end
 
+  test "describe_dsl says what the generator decides on its own" do
+    rules = payload(call(Infotable::Mcp::DescribeDsl))["generator_rules"]
+
+    assert_match(/belongs_to/, rules["associations"])
+    assert_match(/price/, rules["formatters"]["currency"])
+    assert_match(/mailto/, rules["formatters"]["link"])
+  end
+
+  test "table_options asks for title and subtitle" do
+    questions = payload(call(Infotable::Mcp::TableOptions, model: "Post"))["questions"].map { _1["param"] }
+
+    assert_includes questions, "title"
+    assert_includes questions, "subtitle"
+    assert_includes questions, "associations"
+  end
+
+  test "generate_table works through the server like a client would call it" do
+    server = Infotable::Mcp::Server.build
+    request = { jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "generate_table", arguments: { model: "Comment", subtitle: "Latest first", formatters: false } } }
+    result = JSON.parse(server.handle_json(request.to_json))["result"]
+    code = JSON.parse(result["content"].first["text"])["code"]
+
+    assert_equal false, result["isError"]
+    assert_match(/left_joins\(:post, :author\)/, code)
+    assert_match(/table_subtitle "Latest first"/, code)
+    assert_no_match(/formatter/, code)
+  end
+
+  test "the prompt tells the assistant to report the associations and formatters it chose" do
+    server = Infotable::Mcp::Server.build
+    request = { jsonrpc: "2.0", id: 1, method: "prompts/get", params: { name: "new_table", arguments: { model: "Post" } } }
+    text = JSON.parse(server.handle_json(request.to_json))["result"]["messages"].first["content"]["text"]
+
+    assert_match(/associations: false/, text)
+  end
+
   test "the server exposes tools, the prompt and the readme" do
     server = Infotable::Mcp::Server.build
     handle = ->(method, params = {}) { JSON.parse(server.handle_json({ jsonrpc: "2.0", id: 1, method: method, params: params }.to_json))["result"] }

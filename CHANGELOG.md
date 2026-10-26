@@ -7,7 +7,7 @@
 - `infotable:table` generator options: `--per-page`, `--sort=column:direction`, `--toolbar`, `--row-click`, `--infinite-scroll`, `--countless`, `--checkbox`, `--authorize`, `--title`, `--subtitle`.
 - `infotable:table` generator: `belongs_to` associations become columns (left join, sort/search/filter on the associated record's name, title, label or email) instead of commented hints; `--no-associations` keeps the hints.
 - `infotable:table` generator: formatters picked from column names and types (`:boolean`, `:currency`, `:percent`, `:link` for email and urls); `--no-formatters` turns it off.
-- The MCP `generate_table` tool takes `associations`, `formatters`, `title` and `subtitle`.
+- The MCP `generate_table` tool takes `associations`, `formatters`, `title` and `subtitle`; `table_options` asks for them and `describe_dsl` returns `generator_rules` (which `belongs_to` become columns, which formatters are picked), so the assistant can tell the user what the generator chose; the `new_table` prompt tells it to report that.
 
 ### Removed
 - Tailwind CSS v3 is no longer mentioned or supported: the unused `tailwind.config.js` installer template, the v3 sections of the docs and `Infotable.tailwind_content_paths` (it only served a v3 `content` array) are gone. Use Tailwind v4 with `tailwindcss-rails`; the installer has only ever configured v4. Removed the finished "`infotable:table` generator" and "Tailwind v3 support" items from the roadmap.

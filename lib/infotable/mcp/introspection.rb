@@ -55,7 +55,25 @@ module Infotable
                              toolbar row_click row_link row_class row_data row_size checkbox_column batch_actions authorize export_columns
                              table_title table_subtitle table_height nil_value empty_value],
           batch_action_options: { required: %i[url], optional: %i[label method confirm color], methods: Infotable::BatchActions::METHODS, colors: Infotable::BatchActions::COLORS },
-          generate_table_options: Infotable::Generators::TableGenerator.class_options.keys
+          generate_table_options: Infotable::Generators::TableGenerator.class_options.keys,
+          generator_rules: generator_rules
+        }
+      end
+
+      # What generate_table decides on its own, so the assistant can tell the user and switch it off
+      def generator_rules
+        generator = Infotable::Generators::TableGenerator
+        {
+          associations: "each belongs_to whose model has one of #{generator::DISPLAY_ATTRIBUTES.join(', ')} becomes a column " \
+                        "(left_joins, sort/search/filter on that attribute); the others stay commented hints. associations: false turns it off",
+          formatters: {
+            boolean: "boolean columns",
+            currency: "decimal/float named like #{generator::CURRENCY_NAME.source}",
+            percent: "decimal/float named like #{generator::PERCENT_NAME.source}",
+            link: "string columns named email (mailto:) or like #{generator::URL_NAME.source}",
+            note: "formatters: false turns it off"
+          },
+          left_out: "primary key is hidden and not filterable; foreign keys and password/token/secret columns are not generated"
         }
       end
 
@@ -86,6 +104,7 @@ module Infotable
             { param: "infinite_scroll", ask: "Infinite scroll instead of pages?", default: false },
             { param: "countless", ask: "Skip the total count (tables over ~1M rows)?", default: false },
             { param: "title", ask: "Table title?", default: nil },
+            { param: "subtitle", ask: "Table subtitle?", default: nil },
             { param: "associations", ask: "Show belongs_to associations as columns?", default: true },
             { param: "formatters", ask: "Pick currency, percent, link and boolean formatters from column names?", default: true },
             { param: "authorize", ask: "Who may see the table? A Ruby expression over `controller`", default: "controller.current_user.present?" }
