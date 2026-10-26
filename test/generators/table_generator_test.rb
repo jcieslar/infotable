@@ -113,12 +113,96 @@ class TableGeneratorTest < Rails::Generators::TestCase
     Object.send(:remove_const, :GenSpace) if Object.const_defined?(:GenSpace)
   end
 
-  test "hints at belongs_to associations instead of generating foreign keys" do
-    run_generator %w[Post]
+  test "belongs_to associations become columns through a left join, not foreign keys" do
+    run_generator %w[Comment]
+
+    content = generated("app/infotable/comments_table.rb")
+    assert_no_match(/column :author_id/, content)
+    assert_match(/query \{ Comment\.left_joins\(:post, :author\) \}/, content)
+    assert_match(/column :author,.*sql: "authors\.name",\n\s+includes: :author,\n\s+value: ->\(record\) \{ record\.author&\.name \}/m, content)
+    assert_match(/sql: "posts\.title"/, content)
+  end
+
+  test "the association columns sort and filter on the associated record" do
+    ada = Author.create!(name: "Ada", email: "ada@example.com")
+    zed = Author.create!(name: "Zed", email: "zed@example.com")
+    post = Post.create!(author: ada, title: "P", body: "B", status: "published", category: "tech")
+    Comment.create!(post: post, author: ada, body: "from ada", status: "approved")
+    Comment.create!(post: post, author: zed, body: "from zed", status: "approved")
+    run_generator %w[Comment]
+    table = load_table(generated("app/infotable/comments_table.rb"), "GeneratedCommentsTable")
+
+    assert_equal [ "from zed", "from ada" ], table.base_query.reorder("authors.name DESC").map(&:body)
+    assert_equal [ "from ada" ], filter(table, { "author" => { "op" => "contains", "value" => "ad" } }).map(&:body)
+    assert_equal "Ada", table.cell_value(table.base_query.find_by!(body: "from ada"), table.columns.find { _1[:name] == :author })
+  end
+
+  test "--no-associations leaves hints for the joins" do
+    run_generator %w[Post --no-associations]
 
     content = generated("app/infotable/posts_table.rb")
-    assert_no_match(/column :author_id/, content)
-    assert_match(/column :author, sql: "authors\.name", includes: :author/, content)
+    assert_match(/query \{ Post\.all \}/, content)
+    assert_match(/#   column :author, sql: "authors\.name", includes: :author/, content)
+  end
+
+  test "--only and --skip apply to associations by name" do
+    run_generator %w[Comment --only=id body author]
+
+    content = generated("app/infotable/comments_table.rb")
+    assert_match(/left_joins\(:author\)/, content)
+    assert_no_match(/post/, content)
+  end
+
+  test "an association whose table is already joined stays a hint" do
+    model = Class.new(ApplicationRecord) do
+      self.table_name = "comments"
+      belongs_to :author
+      belongs_to :reviewer, class_name: "Author", optional: true
+      def self.name = "TwoAuthorComment"
+    end
+    Object.const_set(:TwoAuthorComment, model)
+    run_generator %w[TwoAuthorComment]
+
+    content = generated("app/infotable/two_author_comments_table.rb")
+    assert_match(/left_joins\(:author\)/, content)
+    assert_match(/#   column :reviewer,/, content)
+  ensure
+    Object.send(:remove_const, :TwoAuthorComment) if Object.const_defined?(:TwoAuthorComment)
+  end
+
+  test "picks formatters from column names and types" do
+    run_generator %w[Product]
+    table = load_table(generated("app/infotable/products_table.rb"), "GeneratedFormattedProductsTable")
+    by_name = table.columns.index_by { _1[:name] }
+
+    assert_equal :currency, by_name[:price][:formatter]
+    assert_equal :currency, by_name[:cost][:formatter]
+    assert_equal :boolean, by_name[:active][:formatter]
+    assert_nil by_name[:rating][:formatter]
+  end
+
+  test "email and url columns become links" do
+    run_generator %w[Author]
+    table = load_table(generated("app/infotable/authors_table.rb"), "GeneratedAuthorsTable")
+    by_name = table.columns.index_by { _1[:name] }
+
+    assert_equal :link, by_name[:email][:formatter]
+    assert_equal({ external: true }, by_name[:website][:formatter_options])
+    assert_equal :link, by_name[:avatar_url][:formatter]
+  end
+
+  test "--no-formatters leaves the columns plain" do
+    run_generator %w[Product --no-formatters]
+
+    assert_no_match(/formatter/, generated("app/infotable/products_table.rb"))
+  end
+
+  test "--title and --subtitle set the heading" do
+    run_generator [ "Product", "--title=Catalog", "--subtitle=What we sell" ]
+
+    content = generated("app/infotable/products_table.rb")
+    assert_match(/table_title "Catalog"/, content)
+    assert_match(/table_subtitle "What we sell"/, content)
   end
 
   test "unknown models produce an empty table to fill in" do

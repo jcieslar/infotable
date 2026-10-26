@@ -9,7 +9,8 @@ module Infotable
 
       class Error < StandardError; end
 
-      FLAGS = %i[only skip per_page sort toolbar row_click infinite_scroll countless checkbox authorize].freeze
+      FLAGS = %i[only skip per_page sort toolbar row_click infinite_scroll countless checkbox authorize
+                 associations formatters title subtitle].freeze
 
       def initialize(model, settings = {})
         @model = model.to_s

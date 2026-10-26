@@ -30,14 +30,4 @@ module Infotable
   def self.root
     Engine.root
   end
-
-  # Returns paths that should be scanned by Tailwind CSS
-  # For use with Node-based Tailwind (tailwind.config.js)
-  def self.tailwind_content_paths
-    [
-      root.join("app/views/infotable/**/*.{erb,html,rb}").to_s,
-      root.join("lib/infotable/formatters/**/*.rb").to_s,
-      root.join("app/assets/javascripts/infotable/**/*.js").to_s
-    ]
-  end
 end

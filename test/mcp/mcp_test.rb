@@ -62,6 +62,15 @@ class McpTest < ActiveSupport::TestCase
     assert_match(/authorize \{ \|controller\| controller\.current_user\.present\? \}/, result["code"])
   end
 
+  test "generate_table passes the association, formatter and title options" do
+    code = payload(call(Infotable::Mcp::GenerateTable, model: "Comment", title: "Replies"))["code"]
+    plain = payload(call(Infotable::Mcp::GenerateTable, model: "Product", formatters: false, associations: false))["code"]
+
+    assert_match(/left_joins\(:post, :author\)/, code)
+    assert_match(/table_title "Replies"/, code)
+    assert_no_match(/formatter/, plain)
+  end
+
   test "generate_table honors only" do
     code = payload(call(Infotable::Mcp::GenerateTable, model: "Post", only: %w[title status]))["code"]
 
