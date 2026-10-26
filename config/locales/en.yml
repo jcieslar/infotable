@@ -85,6 +85,11 @@ en:
 
     formatters:
       ago: "%{time} ago"
+      date:
+        short: "%b %d, %Y"
+        long: "%B %d, %Y"
+        time: "%I:%M %p"
+        datetime: "%b %d, %Y %I:%M %p"
       action: "Action"
       boolean:
         "true": "Yes"
@@ -114,10 +119,8 @@ en:
       label: "Search table"
 
     pagination:
-      showing: "Showing"
-      to: "to"
-      of: "of"
-      results: "results"
+      summary_html: "Showing %{from} to %{to} of %{total} results"
+      summary_no_total_html: "Showing %{from} to %{to}"
       rows_per_page: "Rows per page:"
       previous: "Previous"
       next: "Next"

@@ -3,12 +3,15 @@
 ## Unreleased
 
 ### Added
+- Translations for German, French, Spanish, Greek and Italian (`de`, `fr`, `es`, `el`, `it`) next to English and Polish. Every key can be overridden in the host app's `config/locales`. Adds a `rails-i18n` dependency (month names, plural rules, number formats).
 - Formatters `:number` (delimiter, precision, `unit`, `compact` 1.5k, `zero`), `:tags` / `:list` (badges from an Array, relation or comma string, `limit` with "+N"), `:truncate` (full text in a tooltip), `:image` (square thumbnail), `:filesize` and `:duration` (translated).
 - README documents the `:link`, `:avatar` and `:percent` formatters (they were added earlier) and the Roadmap no longer lists them.
 - MCP server (`bundle exec infotable-mcp`, needs the `mcp` gem in the host app) that lets an AI assistant create tables: `list_models`, `list_tables`, `describe_dsl`, `table_options`, `generate_table`, `validate_table`, the `new_table` prompt and the `infotable://readme` resource. See "MCP Server" in the README.
 - `infotable:table` generator options: `--per-page`, `--sort=column:direction`, `--toolbar`, `--row-click`, `--infinite-scroll`, `--countless`, `--checkbox`, `--authorize`.
 
 ### Changed
+- Pagination summary is one string, `infotable.pagination.summary_html` (and `summary_no_total_html`), so word order can differ per language. The keys `pagination.showing`, `to`, `of` and `results` are removed; apps that overrode them must override the new keys.
+- Date formats `:short`, `:long`, `:time` and `:datetime` are localized (`infotable.formatters.date.*`, locale month names); English output is unchanged.
 - Built-in formatters live in one registry, `Infotable::Formatters.built_in`; the "Unknown formatter" error lists them all.
 - `:currency` takes the options you leave out from I18n (`number.currency.format`) instead of fixed `$ , .`; `:date` with `format: :relative` adds the exact time as a tooltip.
 - CSV export joins an Array cell value with `", "`.

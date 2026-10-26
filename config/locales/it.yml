@@ -1,0 +1,126 @@
+it:
+  infotable:
+    table:
+      buttons:
+        export_csv: "Esporta CSV"
+        filters: "Filtri"
+        exporting: "Esportazione..."
+        refresh: "Aggiorna"
+        columns: "Colonne"
+      sort_hint: "Clicca per ordinare, Maiusc+clic aggiunge una colonna all'ordinamento"
+      loading:
+        initial: "Caricamento dati..."
+        more_items: "Caricamento di altri elementi..."
+        all_loaded: "Tutti gli elementi sono stati caricati"
+      resize_column: "ridimensiona colonna"
+      empty_state:
+        title: "Nessun dato trovato"
+        description: "Aggiungi dei record per vederli qui."
+        filtered_title: "Nessuna riga corrisponde ai filtri"
+        filtered_description: "Rimuovi un filtro o cerca qualcos'altro."
+
+    drawer:
+      label: "Filtri e colonne"
+      panel_title:
+        customize_columns: "Personalizza colonne"
+        filters: "Filtri"
+        columns: "Colonne"
+      tabs:
+        filters: "Filtri"
+        columns: "Colonne"
+
+    columns:
+      instructions: "Trascina per riordinare, fissa le colonne e mostra/nascondi:"
+      pin:
+        left: "Fissa a sinistra"
+        right: "Fissa a destra"
+      actions:
+        select_all: "Seleziona tutto"
+        deselect_all: "Deseleziona tutto"
+        reset_to_defaults: "🔄 Ripristina predefiniti"
+
+    filters:
+      actions:
+        clear_all: "Cancella tutto"
+        apply_filters: "Applica filtri"
+      clear_filter: "Cancella questo filtro"
+      active:
+        search: "Ricerca: «%{query}»"
+        remove: "Rimuovi il filtro %{filter}"
+        clear_all: "Cancella tutti i filtri"
+      from: "Da"
+      to: "A"
+      min: "Min"
+      max: "Max"
+      enter_value: "Inserisci un valore..."
+      all: "Tutti"
+      multi_select_hint: "Tieni premuto Ctrl/Cmd per selezionarne più di uno"
+      options_truncated: "Mostrate le prime %{shown} opzioni su %{total}"
+      boolean:
+        "true": "Vero"
+        "false": "Falso"
+        empty: "Vuoto"
+        not_empty: "Non vuoto"
+      text_ops:
+        contains: "Contiene"
+        exact: "Corrispondenza esatta"
+        not_contain: "Non contiene"
+        starts_with: "Inizia con"
+        ends_with: "Finisce con"
+        is_empty: "È vuoto"
+        is_not_empty: "Non è vuoto"
+      range_ops:
+        between: "Tra"
+      number_ops:
+        eq: "Uguale a"
+        neq: "Diverso da"
+        gt: "Maggiore di"
+        gte: "Maggiore o uguale a"
+        lt: "Minore di"
+        lte: "Minore o uguale a"
+      date_ops:
+        "on": "Il"
+        before: "Prima del"
+        after: "Dopo il"
+
+    formatters:
+      ago: "%{time} fa"
+      date:
+        short: "%d %b %Y"
+        long: "%d %B %Y"
+        time: "%H:%M"
+        datetime: "%d %b %Y %H:%M"
+      action: "Azione"
+      boolean:
+        "true": "Sì"
+        "false": "No"
+      duration:
+        short:
+          d: "%{count} g"
+          h: "%{count} h"
+          m: "%{count} min"
+          s: "%{count} s"
+        long:
+          d: { one: "%{count} giorno", few: "%{count} giorni", many: "%{count} giorni", other: "%{count} giorni" }
+          h: { one: "%{count} ora", few: "%{count} ore", many: "%{count} ore", other: "%{count} ore" }
+          m: { one: "%{count} minuto", few: "%{count} minuti", many: "%{count} minuti", other: "%{count} minuti" }
+          s: { one: "%{count} secondo", few: "%{count} secondi", many: "%{count} secondi", other: "%{count} secondi" }
+
+    batch:
+      selected: "%{count} selezionati"
+      clear: "Cancella selezione"
+      select_all: "Seleziona tutte le righe"
+      select_row: "Seleziona riga"
+      select_all_matching: "Seleziona tutti i %{count} risultati"
+      truncated: "Sono selezionate solo le prime %{max} righe"
+
+    search:
+      placeholder: "Cerca..."
+      label: "Cerca nella tabella"
+
+    pagination:
+      summary_html: "Visualizzazione da %{from} a %{to} di %{total} risultati"
+      summary_no_total_html: "Visualizzazione da %{from} a %{to}"
+      rows_per_page: "Righe per pagina:"
+      previous: "Precedente"
+      next: "Successivo"

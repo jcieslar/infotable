@@ -1,0 +1,126 @@
+es:
+  infotable:
+    table:
+      buttons:
+        export_csv: "Exportar CSV"
+        filters: "Filtros"
+        exporting: "Exportando..."
+        refresh: "Actualizar"
+        columns: "Columnas"
+      sort_hint: "Haz clic para ordenar, Mayús+clic añade una columna al orden"
+      loading:
+        initial: "Cargando datos..."
+        more_items: "Cargando más elementos..."
+        all_loaded: "Todos los elementos cargados"
+      resize_column: "cambiar el ancho de la columna"
+      empty_state:
+        title: "No se encontraron datos"
+        description: "Añade algunos registros para verlos aquí."
+        filtered_title: "Ninguna fila coincide con tus filtros"
+        filtered_description: "Quita un filtro o busca otra cosa."
+
+    drawer:
+      label: "Filtros y columnas"
+      panel_title:
+        customize_columns: "Personalizar columnas"
+        filters: "Filtros"
+        columns: "Columnas"
+      tabs:
+        filters: "Filtros"
+        columns: "Columnas"
+
+    columns:
+      instructions: "Arrastra para reordenar, fija columnas y muestra/oculta:"
+      pin:
+        left: "Fijar a la izquierda"
+        right: "Fijar a la derecha"
+      actions:
+        select_all: "Seleccionar todo"
+        deselect_all: "Deseleccionar todo"
+        reset_to_defaults: "🔄 Restablecer valores predeterminados"
+
+    filters:
+      actions:
+        clear_all: "Borrar todo"
+        apply_filters: "Aplicar filtros"
+      clear_filter: "Borrar este filtro"
+      active:
+        search: "Búsqueda: «%{query}»"
+        remove: "Quitar el filtro %{filter}"
+        clear_all: "Borrar todos los filtros"
+      from: "Desde"
+      to: "Hasta"
+      min: "Mín"
+      max: "Máx"
+      enter_value: "Introduce un valor..."
+      all: "Todos"
+      multi_select_hint: "Mantén Ctrl/Cmd para seleccionar varios"
+      options_truncated: "Mostrando las primeras %{shown} de %{total} opciones"
+      boolean:
+        "true": "Verdadero"
+        "false": "Falso"
+        empty: "Vacío"
+        not_empty: "No vacío"
+      text_ops:
+        contains: "Contiene"
+        exact: "Coincidencia exacta"
+        not_contain: "No contiene"
+        starts_with: "Empieza por"
+        ends_with: "Termina en"
+        is_empty: "Está vacío"
+        is_not_empty: "No está vacío"
+      range_ops:
+        between: "Entre"
+      number_ops:
+        eq: "Igual a"
+        neq: "Distinto de"
+        gt: "Mayor que"
+        gte: "Mayor o igual que"
+        lt: "Menor que"
+        lte: "Menor o igual que"
+      date_ops:
+        "on": "El"
+        before: "Antes de"
+        after: "Después de"
+
+    formatters:
+      ago: "hace %{time}"
+      date:
+        short: "%d %b %Y"
+        long: "%d de %B de %Y"
+        time: "%H:%M"
+        datetime: "%d %b %Y %H:%M"
+      action: "Acción"
+      boolean:
+        "true": "Sí"
+        "false": "No"
+      duration:
+        short:
+          d: "%{count} d"
+          h: "%{count} h"
+          m: "%{count} min"
+          s: "%{count} s"
+        long:
+          d: { one: "%{count} día", few: "%{count} días", many: "%{count} días", other: "%{count} días" }
+          h: { one: "%{count} hora", few: "%{count} horas", many: "%{count} horas", other: "%{count} horas" }
+          m: { one: "%{count} minuto", few: "%{count} minutos", many: "%{count} minutos", other: "%{count} minutos" }
+          s: { one: "%{count} segundo", few: "%{count} segundos", many: "%{count} segundos", other: "%{count} segundos" }
+
+    batch:
+      selected: "%{count} seleccionados"
+      clear: "Borrar selección"
+      select_all: "Seleccionar todas las filas"
+      select_row: "Seleccionar fila"
+      select_all_matching: "Seleccionar los %{count} resultados"
+      truncated: "Solo se han seleccionado las primeras %{max} filas"
+
+    search:
+      placeholder: "Buscar..."
+      label: "Buscar en la tabla"
+
+    pagination:
+      summary_html: "Mostrando %{from} a %{to} de %{total} resultados"
+      summary_no_total_html: "Mostrando %{from} a %{to}"
+      rows_per_page: "Filas por página:"
+      previous: "Anterior"
+      next: "Siguiente"

@@ -1,3 +1,4 @@
+require "rails-i18n"
 require "infotable/version"
 require "infotable/configuration"
 require "infotable/engine"

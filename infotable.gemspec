@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
 
   # Rails and core dependencies
   spec.add_dependency "rails", ">= 8.0"
+  spec.add_dependency "rails-i18n", ">= 8.0" # month names, plural rules and number formats for every locale we ship
   spec.add_dependency "csv" # CSV export; no longer a default gem in Ruby 3.4+
 
   # Hotwire stack

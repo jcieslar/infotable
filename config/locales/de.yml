@@ -1,0 +1,126 @@
+de:
+  infotable:
+    table:
+      buttons:
+        export_csv: "CSV exportieren"
+        filters: "Filter"
+        exporting: "Exportiere..."
+        refresh: "Aktualisieren"
+        columns: "Spalten"
+      sort_hint: "Klicken zum Sortieren, Shift+Klick fügt eine Spalte zur Sortierung hinzu"
+      loading:
+        initial: "Daten werden geladen..."
+        more_items: "Weitere Einträge werden geladen..."
+        all_loaded: "Alle Einträge geladen"
+      resize_column: "Spaltenbreite ändern"
+      empty_state:
+        title: "Keine Daten gefunden"
+        description: "Fügen Sie Datensätze hinzu, um sie hier zu sehen."
+        filtered_title: "Keine Zeilen entsprechen Ihren Filtern"
+        filtered_description: "Entfernen Sie einen Filter oder suchen Sie nach etwas anderem."
+
+    drawer:
+      label: "Filter und Spalten"
+      panel_title:
+        customize_columns: "Spalten anpassen"
+        filters: "Filter"
+        columns: "Spalten"
+      tabs:
+        filters: "Filter"
+        columns: "Spalten"
+
+    columns:
+      instructions: "Zum Umsortieren ziehen, Spalten anheften und ein-/ausblenden:"
+      pin:
+        left: "Links anheften"
+        right: "Rechts anheften"
+      actions:
+        select_all: "Alle auswählen"
+        deselect_all: "Alle abwählen"
+        reset_to_defaults: "🔄 Standard wiederherstellen"
+
+    filters:
+      actions:
+        clear_all: "Alle löschen"
+        apply_filters: "Filter anwenden"
+      clear_filter: "Diesen Filter löschen"
+      active:
+        search: "Suche: „%{query}“"
+        remove: "Filter %{filter} entfernen"
+        clear_all: "Alle Filter löschen"
+      from: "Von"
+      to: "Bis"
+      min: "Min"
+      max: "Max"
+      enter_value: "Wert eingeben..."
+      all: "Alle"
+      multi_select_hint: "Strg/Cmd gedrückt halten, um mehrere auszuwählen"
+      options_truncated: "Die ersten %{shown} von %{total} Optionen werden angezeigt"
+      boolean:
+        "true": "Wahr"
+        "false": "Falsch"
+        empty: "Leer"
+        not_empty: "Nicht leer"
+      text_ops:
+        contains: "Enthält"
+        exact: "Exakte Übereinstimmung"
+        not_contain: "Enthält nicht"
+        starts_with: "Beginnt mit"
+        ends_with: "Endet mit"
+        is_empty: "Ist leer"
+        is_not_empty: "Ist nicht leer"
+      range_ops:
+        between: "Zwischen"
+      number_ops:
+        eq: "Gleich"
+        neq: "Ungleich"
+        gt: "Größer als"
+        gte: "Größer oder gleich"
+        lt: "Kleiner als"
+        lte: "Kleiner oder gleich"
+      date_ops:
+        "on": "Am"
+        before: "Vor"
+        after: "Nach"
+
+    formatters:
+      ago: "vor %{time}"
+      date:
+        short: "%d. %b %Y"
+        long: "%d. %B %Y"
+        time: "%H:%M"
+        datetime: "%d. %b %Y %H:%M"
+      action: "Aktion"
+      boolean:
+        "true": "Ja"
+        "false": "Nein"
+      duration:
+        short:
+          d: "%{count} T"
+          h: "%{count} Std."
+          m: "%{count} Min."
+          s: "%{count} Sek."
+        long:
+          d: { one: "%{count} Tag", few: "%{count} Tage", many: "%{count} Tage", other: "%{count} Tage" }
+          h: { one: "%{count} Stunde", few: "%{count} Stunden", many: "%{count} Stunden", other: "%{count} Stunden" }
+          m: { one: "%{count} Minute", few: "%{count} Minuten", many: "%{count} Minuten", other: "%{count} Minuten" }
+          s: { one: "%{count} Sekunde", few: "%{count} Sekunden", many: "%{count} Sekunden", other: "%{count} Sekunden" }
+
+    batch:
+      selected: "%{count} ausgewählt"
+      clear: "Auswahl aufheben"
+      select_all: "Alle Zeilen auswählen"
+      select_row: "Zeile auswählen"
+      select_all_matching: "Alle %{count} Treffer auswählen"
+      truncated: "Nur die ersten %{max} Zeilen sind ausgewählt"
+
+    search:
+      placeholder: "Suchen..."
+      label: "Tabelle durchsuchen"
+
+    pagination:
+      summary_html: "Zeige %{from} bis %{to} von %{total} Ergebnissen"
+      summary_no_total_html: "Zeige %{from} bis %{to}"
+      rows_per_page: "Zeilen pro Seite:"
+      previous: "Zurück"
+      next: "Weiter"
