@@ -1,10 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Main table controller that coordinates table interactions
-// Innermost pinned column on each side: a full-height 1px line, drawn by a pseudo-element
-const LEFT_EDGE = ["after:content-['']", "after:absolute", "after:inset-y-0", "after:right-0", "after:w-px", "after:bg-gray-300", "dark:after:bg-gray-600"]
-const RIGHT_EDGE = ["before:content-['']", "before:absolute", "before:inset-y-0", "before:left-0", "before:w-px", "before:bg-gray-300", "dark:before:bg-gray-600"]
+// Innermost pinned column on each side: a real 1px border, so the line is continuous down the column
+const LEFT_EDGE = ["border-r", "border-r-gray-300", "dark:border-r-gray-600"]
+const RIGHT_EDGE = ["border-l", "border-l-gray-300", "dark:border-l-gray-600"]
 
+// Main table controller that coordinates table interactions
 export default class extends Controller {
   static values = {
     name: String,

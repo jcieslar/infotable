@@ -5,7 +5,7 @@
 ### Changed
 - Reordering columns in the drawer keeps the pins: dragging a pinned column among the pinned ones keeps it pinned, dragging it out unpins it, dragging an unpinned column among the pins pins it (it used to unpin everything).
 - Pinned columns move to their edge, keeping their order, so several pinned columns sit side by side with no gap; unpinning restores the order.
-- Pinned columns: only the innermost pinned column on each side gets an edge (a full-height 1px line) instead of every pinned cell carrying a gradient, so they no longer look like a layer under the table.
+- Pinned columns: only the innermost pinned column on each side gets an edge (a 1px border) instead of every pinned cell carrying a gradient, so they no longer look like a layer under the table.
 - `toolbar :rail`: the open drawer sits flush against the rail (no rounded corners, no heavy shadow), so there is no notch between them.
 - Filters form: flat fields separated by hairlines, soft grey inputs with an indigo focus ring, a quiet "Clear all" button.
 

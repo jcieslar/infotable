@@ -245,9 +245,11 @@ module Infotable
       width = config.drawer_width.to_s.match?(DRAWER_WIDTH_FORMAT) ? config.drawer_width.to_s : DEFAULT_DRAWER_WIDTH
       hidden = side == "left" ? "-100%" : "100%"
 
+      # With a rail the drawer must line up with the card's inner edge: inset it by the card's 1px border
+      inset = rail ? "1px" : "0"
       {
-        style: "#{side}: 0; width: #{width}; max-width: 90%; transform: translateX(#{hidden});",
-        class: "absolute top-0 bottom-0 bg-white dark:bg-gray-900 #{side == 'left' ? 'border-r' : 'border-l'}#{rail ? '' : (side == 'left' ? ' rounded-r-xl' : ' rounded-l-xl')} border-gray-200 dark:border-gray-700 #{rail ? 'shadow-none' : 'shadow-xl'} transition-all duration-300 ease-in-out z-50",
+        style: "#{side}: #{inset}; #{"top: 1px; bottom: 1px; " if rail}width: #{width}; max-width: 90%; transform: translateX(#{hidden});",
+        class: "absolute top-0 bottom-0 bg-white dark:bg-gray-900 #{side == 'left' ? 'border-r' : 'border-l'}#{side == 'left' ? (rail ? ' rounded-l-[11px]' : ' rounded-r-xl') : (rail ? ' rounded-r-[11px]' : ' rounded-l-xl')} border-gray-200 dark:border-gray-700 #{rail ? 'shadow-none' : 'shadow-xl'} transition-all duration-300 ease-in-out z-50",
         role: "dialog",
         inert: true, # closed drawer is off-screen: keep it out of the tab order (JS toggles it)
         aria: { label: I18n.t("infotable.drawer.label"), hidden: true },
