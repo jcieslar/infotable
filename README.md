@@ -165,6 +165,8 @@ Generate a starting point from a model's columns:
 ```bash
 rails generate infotable:table User
 rails generate infotable:table Admin::Order --only=id number status   # or --skip=notes
+rails generate infotable:table Order --per-page=50 --sort=placed_at:desc --toolbar=rail --checkbox \
+  --authorize="controller.current_user&.admin?"   # also --row-click --infinite-scroll --countless
 ```
 
 It writes `app/infotable/users_table.rb` with a column per attribute (types and filters inferred, enums become select filters, passwords/tokens and foreign keys are left out, `belongs_to` associations come as commented hints).
@@ -837,6 +839,48 @@ Built-in CSV export with:
 - All pages (not just current)
 
 ---
+
+## MCP Server (AI assistants)
+
+The gem ships an [MCP](https://modelcontextprotocol.io) server, so an AI assistant (Claude Code, Cursor, ...) can create tables in your app: it reads your models, asks you how the table should look, generates `app/infotable/*_table.rb` and checks that it works. It talks to your app over stdio on your machine, no port is opened.
+
+Add the `mcp` gem to the app (it is not a dependency of infotable):
+
+```ruby
+# Gemfile
+gem "mcp", group: :development
+```
+
+Register the server in the client, from the app's root. For Claude Code:
+
+```bash
+claude mcp add infotable -- bundle exec infotable-mcp
+```
+
+or commit a `.mcp.json` (Cursor: `.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "infotable": { "command": "bundle", "args": ["exec", "infotable-mcp"] }
+  }
+}
+```
+
+Then ask: *"create an InfoTable table for Order"*. Or use the `new_table` prompt, which makes the assistant ask for the settings first.
+
+| Tool | What it does |
+|------|--------------|
+| `list_models` | Models with column types, enums and associations |
+| `list_tables` | Tables that already exist, with their settings (the house style) |
+| `describe_dsl` | Column options, types, filters, formatters and settings of the installed version |
+| `table_options` | Questions about a new table (columns, sort, per page, toolbar, selection, authorization...) with defaults proposed from the model |
+| `generate_table` | Renders the table with the `infotable:table` generator. Only shows the code; `write: true` saves it, an existing file is replaced only with `overwrite: true` |
+| `validate_table` | Loads a table by name or from source and reports missing columns, a bad `default_sort`, a failing query or a missing `authorize`; `preview: 5` returns the first rows |
+
+The full README is available to the assistant as the `infotable://readme` resource.
+
+Notes: the server boots your app (development environment unless `RAILS_ENV` is set) and reads the development database; it writes only to `app/infotable/`. Tables are generated without `authorize` unless you give one, and `validate_table` warns about that (see [Security](#security)).
 
 ## Examples
 

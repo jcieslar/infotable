@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# MCP server (stdio) that lets an AI assistant create InfoTable tables in the host app:
+#   bundle exec infotable-mcp
+# Run it from the Rails app's root, see "MCP server" in the README.
+require "bundler/setup"
+
+environment = File.expand_path("config/environment", Dir.pwd)
+abort "infotable-mcp: run it from the root of a Rails app (no config/environment.rb in #{Dir.pwd})" unless File.exist?("#{environment}.rb")
+
+require environment
+require "infotable/mcp"
+
+Infotable::Mcp::Server.run
