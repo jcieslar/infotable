@@ -3,10 +3,15 @@
 ## Unreleased
 
 ### Added
+- Formatters `:number` (delimiter, precision, `unit`, `compact` 1.5k, `zero`), `:tags` / `:list` (badges from an Array, relation or comma string, `limit` with "+N"), `:truncate` (full text in a tooltip), `:image` (square thumbnail), `:filesize` and `:duration` (translated).
+- README documents the `:link`, `:avatar` and `:percent` formatters (they were added earlier) and the Roadmap no longer lists them.
 - MCP server (`bundle exec infotable-mcp`, needs the `mcp` gem in the host app) that lets an AI assistant create tables: `list_models`, `list_tables`, `describe_dsl`, `table_options`, `generate_table`, `validate_table`, the `new_table` prompt and the `infotable://readme` resource. See "MCP Server" in the README.
 - `infotable:table` generator options: `--per-page`, `--sort=column:direction`, `--toolbar`, `--row-click`, `--infinite-scroll`, `--countless`, `--checkbox`, `--authorize`.
 
 ### Changed
+- Built-in formatters live in one registry, `Infotable::Formatters.built_in`; the "Unknown formatter" error lists them all.
+- `:currency` takes the options you leave out from I18n (`number.currency.format`) instead of fixed `$ , .`; `:date` with `format: :relative` adds the exact time as a tooltip.
+- CSV export joins an Array cell value with `", "`.
 - Reordering columns in the drawer keeps the pins: dragging a pinned column among the pinned ones keeps it pinned, dragging it out unpins it, dragging an unpinned column among the pins pins it (it used to unpin everything).
 - Pinned columns move to their edge, keeping their order, so several pinned columns sit side by side with no gap; unpinning restores the order.
 - Pinned columns: only the innermost pinned column on each side gets an edge (an inset 1px line that sticks with the column) instead of every pinned cell carrying a gradient, so they no longer look like a layer under the table.

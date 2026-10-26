@@ -1,21 +1,13 @@
 module Infotable
   module Formatters
+    # formatter: :currency
+    #   formatter_options: { unit: "$", precision: 2, delimiter: ",", separator: "." }
+    # Options you leave out come from I18n (`number.currency.format`) for the current locale.
     class CurrencyFormatter < BaseFormatter
       def format(value, record, options = {})
         return "" if value.blank?
 
-        unit = options[:unit] || "$"
-        precision = options[:precision] || 2
-        delimiter = options[:delimiter] || ","
-        separator = options[:separator] || "."
-
-        number_to_currency(
-          value,
-          unit: unit,
-          precision: precision,
-          delimiter: delimiter,
-          separator: separator
-        )
+        number_to_currency(value, options.slice(:unit, :precision, :delimiter, :separator))
       end
     end
   end

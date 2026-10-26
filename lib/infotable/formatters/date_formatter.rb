@@ -19,7 +19,7 @@ module Infotable
         when :datetime
           value.strftime("%b %d, %Y %I:%M %p")
         when :relative
-          time_ago_in_words(value)
+          view_context.content_tag(:span, time_ago_in_words(value), title: value.strftime("%Y-%m-%d %H:%M"))
         when :dot_date
           value.strftime("%d.%m.%Y")
         when :default
