@@ -94,6 +94,17 @@ el:
       boolean:
         "true": "Ναι"
         "false": "Όχι"
+      duration:
+        short:
+          d: "%{count} ημ."
+          h: "%{count} ώ."
+          m: "%{count} λ."
+          s: "%{count} δ."
+        long:
+          d: { one: "%{count} ημέρα", few: "%{count} ημέρες", many: "%{count} ημέρες", other: "%{count} ημέρες" }
+          h: { one: "%{count} ώρα", few: "%{count} ώρες", many: "%{count} ώρες", other: "%{count} ώρες" }
+          m: { one: "%{count} λεπτό", few: "%{count} λεπτά", many: "%{count} λεπτά", other: "%{count} λεπτά" }
+          s: { one: "%{count} δευτερόλεπτο", few: "%{count} δευτερόλεπτα", many: "%{count} δευτερόλεπτα", other: "%{count} δευτερόλεπτα" }
 
     batch:
       selected: "%{count} επιλεγμένα"

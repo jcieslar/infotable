@@ -94,6 +94,17 @@ es:
       boolean:
         "true": "Sí"
         "false": "No"
+      duration:
+        short:
+          d: "%{count} d"
+          h: "%{count} h"
+          m: "%{count} min"
+          s: "%{count} s"
+        long:
+          d: { one: "%{count} día", few: "%{count} días", many: "%{count} días", other: "%{count} días" }
+          h: { one: "%{count} hora", few: "%{count} horas", many: "%{count} horas", other: "%{count} horas" }
+          m: { one: "%{count} minuto", few: "%{count} minutos", many: "%{count} minutos", other: "%{count} minutos" }
+          s: { one: "%{count} segundo", few: "%{count} segundos", many: "%{count} segundos", other: "%{count} segundos" }
 
     batch:
       selected: "%{count} seleccionados"

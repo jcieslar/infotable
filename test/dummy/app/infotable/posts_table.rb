@@ -123,17 +123,8 @@ class PostsTable < Infotable::Base
     width: "100px",
     sortable: true,
     visible: true,
-    formatter: ->(value, record) {
-      if value.nil?
-        "0"
-      elsif value >= 1000000
-        "#{(value / 1000000.0).round(1)}M"
-      elsif value >= 1000
-        "#{(value / 1000.0).round(1)}K"
-      else
-        value.to_s
-      end
-    }
+    formatter: :number,
+    formatter_options: { compact: true, zero: "0" }
 
   column :likes_count,
     label: "Likes",
@@ -163,9 +154,18 @@ class PostsTable < Infotable::Base
     width: "100px",
     sortable: true,
     visible: true,
-    formatter: ->(value, record) {
-      value ? "#{value} min" : "-"
-    }
+    formatter: :number,
+    formatter_options: { unit: "min", zero: "-" }
+
+  # Several values in one cell: :tags takes an Array (here from a `value:` Proc)
+  column :labels,
+    label: "Labels",
+    type: :string,
+    width: "230px",
+    visible: true,
+    value: ->(post) { [ post.status, (post.featured ? "featured" : nil) ].compact },
+    formatter: :tags,
+    formatter_options: { limit: 2, colors: { "featured" => "yellow", "published" => "green", "draft" => "gray" } }
 
   column :published_at,
     label: "Published",

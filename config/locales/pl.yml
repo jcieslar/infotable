@@ -94,6 +94,17 @@ pl:
       boolean:
         "true": "Tak"
         "false": "Nie"
+      duration:
+        short:
+          d: "%{count} d"
+          h: "%{count} godz."
+          m: "%{count} min"
+          s: "%{count} s"
+        long:
+          d: { one: "%{count} dzień", few: "%{count} dni", many: "%{count} dni", other: "%{count} dni" }
+          h: { one: "%{count} godzina", few: "%{count} godziny", many: "%{count} godzin", other: "%{count} godzin" }
+          m: { one: "%{count} minuta", few: "%{count} minuty", many: "%{count} minut", other: "%{count} minut" }
+          s: { one: "%{count} sekunda", few: "%{count} sekundy", many: "%{count} sekund", other: "%{count} sekund" }
 
     batch:
       selected: "Zaznaczono: %{count}"

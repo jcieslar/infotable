@@ -18,7 +18,7 @@ class FormattersTest < ActiveSupport::TestCase
   end
 
   test "date relative" do
-    assert_match(/ago\z/, fmt(Infotable::Formatters::DateFormatter).format(3.days.ago, nil, format: :relative))
+    assert_match(%r{ago</span>\z}, fmt(Infotable::Formatters::DateFormatter).format(3.days.ago, nil, format: :relative))
   end
 
   test "date accepts a date-like string" do

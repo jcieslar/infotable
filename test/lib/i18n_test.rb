@@ -39,7 +39,7 @@ class I18nTest < ActionDispatch::IntegrationTest
     view = ActionView::Base.empty
     I18n.with_locale(:pl) do
       assert_equal "Tak", Infotable::Formatters::BooleanFormatter.new(view).format(true, nil, style: :text)
-      assert_match(/temu\z/, Infotable::Formatters::DateFormatter.new(view).format(3.days.ago, nil, format: :relative))
+      assert_match(%r{temu</span>\z}, Infotable::Formatters::DateFormatter.new(view).format(3.days.ago, nil, format: :relative))
     end
     I18n.with_locale(:en) do
       assert_equal "No", Infotable::Formatters::BooleanFormatter.new(view).format(false, nil, style: :text)
