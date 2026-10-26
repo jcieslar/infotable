@@ -1,0 +1,115 @@
+fr:
+  infotable:
+    table:
+      buttons:
+        export_csv: "Exporter en CSV"
+        filters: "Filtres"
+        exporting: "Exportation..."
+        refresh: "Actualiser"
+        columns: "Colonnes"
+      sort_hint: "Cliquez pour trier, Maj+clic ajoute une colonne au tri"
+      loading:
+        initial: "Chargement des données..."
+        more_items: "Chargement d'autres éléments..."
+        all_loaded: "Tous les éléments sont chargés"
+      resize_column: "redimensionner la colonne"
+      empty_state:
+        title: "Aucune donnée trouvée"
+        description: "Ajoutez des enregistrements pour les voir ici."
+        filtered_title: "Aucune ligne ne correspond à vos filtres"
+        filtered_description: "Retirez un filtre ou cherchez autre chose."
+
+    drawer:
+      label: "Filtres et colonnes"
+      panel_title:
+        customize_columns: "Personnaliser les colonnes"
+        filters: "Filtres"
+        columns: "Colonnes"
+      tabs:
+        filters: "Filtres"
+        columns: "Colonnes"
+
+    columns:
+      instructions: "Glissez pour réorganiser, épinglez des colonnes et affichez/masquez :"
+      pin:
+        left: "Épingler à gauche"
+        right: "Épingler à droite"
+      actions:
+        select_all: "Tout sélectionner"
+        deselect_all: "Tout désélectionner"
+        reset_to_defaults: "🔄 Rétablir les valeurs par défaut"
+
+    filters:
+      actions:
+        clear_all: "Tout effacer"
+        apply_filters: "Appliquer les filtres"
+      clear_filter: "Effacer ce filtre"
+      active:
+        search: "Recherche : « %{query} »"
+        remove: "Retirer le filtre %{filter}"
+        clear_all: "Effacer tous les filtres"
+      from: "De"
+      to: "À"
+      min: "Min"
+      max: "Max"
+      enter_value: "Saisissez une valeur..."
+      all: "Tous"
+      multi_select_hint: "Maintenez Ctrl/Cmd pour en sélectionner plusieurs"
+      options_truncated: "Affichage des %{shown} premières options sur %{total}"
+      boolean:
+        "true": "Vrai"
+        "false": "Faux"
+        empty: "Vide"
+        not_empty: "Non vide"
+      text_ops:
+        contains: "Contient"
+        exact: "Correspondance exacte"
+        not_contain: "Ne contient pas"
+        starts_with: "Commence par"
+        ends_with: "Se termine par"
+        is_empty: "Est vide"
+        is_not_empty: "N'est pas vide"
+      range_ops:
+        between: "Entre"
+      number_ops:
+        eq: "Égal à"
+        neq: "Différent de"
+        gt: "Supérieur à"
+        gte: "Supérieur ou égal à"
+        lt: "Inférieur à"
+        lte: "Inférieur ou égal à"
+      date_ops:
+        "on": "Le"
+        before: "Avant"
+        after: "Après"
+
+    formatters:
+      ago: "il y a %{time}"
+      date:
+        short: "%d %b %Y"
+        long: "%d %B %Y"
+        time: "%H:%M"
+        datetime: "%d %b %Y %H:%M"
+      action: "Action"
+      boolean:
+        "true": "Oui"
+        "false": "Non"
+
+    batch:
+      selected: "%{count} sélectionné(s)"
+      clear: "Effacer la sélection"
+      select_all: "Sélectionner toutes les lignes"
+      select_row: "Sélectionner la ligne"
+      select_all_matching: "Sélectionner les %{count} résultats"
+      truncated: "Seules les %{max} premières lignes sont sélectionnées"
+
+    search:
+      placeholder: "Rechercher..."
+      label: "Rechercher dans le tableau"
+
+    pagination:
+      summary_html: "Affichage de %{from} à %{to} sur %{total} résultats"
+      summary_no_total_html: "Affichage de %{from} à %{to}"
+      rows_per_page: "Lignes par page :"
+      previous: "Précédent"
+      next: "Suivant"

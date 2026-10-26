@@ -3,14 +3,11 @@
   <%# Results info and per-page selector %>
   <div class="flex-1 flex items-center gap-4">
     <p class="text-sm text-gray-700 dark:text-gray-300">
-      <%= t('infotable.pagination.showing') %>
-      <span class="font-semibold text-gray-900 dark:text-gray-100"><%= pagy.from %></span>
-      <%= t('infotable.pagination.to') %>
-      <span class="font-semibold text-gray-900 dark:text-gray-100"><%= pagy.to %></span>
+      <% bold = ->(value) { tag.span(value, class: "font-semibold text-gray-900 dark:text-gray-100") } %>
       <% if pagy.count %>
-        <%= t('infotable.pagination.of') %>
-        <span class="font-semibold text-gray-900 dark:text-gray-100"><%= pagy.count %></span>
-        <%= t('infotable.pagination.results') %>
+        <%= t('infotable.pagination.summary_html', from: bold.(pagy.from), to: bold.(pagy.to), total: bold.(pagy.count)) %>
+      <% else %>
+        <%= t('infotable.pagination.summary_no_total_html', from: bold.(pagy.from), to: bold.(pagy.to)) %>
       <% end %>
     </p>
 

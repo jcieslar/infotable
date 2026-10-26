@@ -12,7 +12,7 @@ Modern, flexible datatable engine for Rails 8+ with Hotwire. Build beautiful, in
 - 🔧 **Highly customizable** - Easy to override defaults and add custom formatters
 - 📦 **Works with any bundler** - Importmap, esbuild, webpack, vite—we support them all
 - 🚀 **Rails 8+ ready** - Built for modern Rails applications
-- 🌍 **i18n Support** - English and Polish translations included
+- 🌍 **i18n Support** - English, Polish, German, French, Spanish, Greek and Italian translations included
 - 🎯 **Advanced Features** - Infinite scroll, column pinning, drag-to-reorder, row links, and more
 
 ## Quick Start
@@ -749,7 +749,7 @@ config.autofilter = false # Require "Apply Filters" button click
 
 ## Internationalization (i18n)
 
-InfoTable includes English and Polish translations.
+InfoTable includes English, Polish, German, French, Spanish, Greek and Italian translations. Any key can be overridden in your app.
 
 ### Set Locale
 
@@ -771,7 +771,7 @@ end
 ### Available Languages
 
 - English (`:en`) - Default
-- Polish (`:pl`)
+- Polish (`:pl`), German (`:de`), French (`:fr`), Spanish (`:es`), Greek (`:el`), Italian (`:it`)
 
 ### Customize Translations
 
@@ -786,11 +786,11 @@ en:
         export_csv: "Download CSV"
 ```
 
-### Add New Language
+### Add Another Language
 
 ```yaml
-# config/locales/infotable.es.yml
-es:
+# config/locales/infotable.pt.yml
+pt:
   infotable:
     table:
       buttons:
@@ -1124,9 +1124,6 @@ end
 ## Roadmap
 
 - [ ] Server-side persistence of column settings
-- [ ] Table state in the URL
-- [ ] More formatters (link, avatar, percent)
-- [ ] `infotable:table` generator
 - [ ] Tailwind v3 support
 
 ---

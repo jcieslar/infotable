@@ -1,0 +1,115 @@
+el:
+  infotable:
+    table:
+      buttons:
+        export_csv: "Εξαγωγή CSV"
+        filters: "Φίλτρα"
+        exporting: "Εξαγωγή..."
+        refresh: "Ανανέωση"
+        columns: "Στήλες"
+      sort_hint: "Κάντε κλικ για ταξινόμηση, Shift+κλικ για προσθήκη στήλης στην ταξινόμηση"
+      loading:
+        initial: "Φόρτωση δεδομένων..."
+        more_items: "Φόρτωση περισσότερων στοιχείων..."
+        all_loaded: "Όλα τα στοιχεία φορτώθηκαν"
+      resize_column: "αλλαγή πλάτους στήλης"
+      empty_state:
+        title: "Δεν βρέθηκαν δεδομένα"
+        description: "Προσθέστε εγγραφές για να τις δείτε εδώ."
+        filtered_title: "Καμία γραμμή δεν ταιριάζει με τα φίλτρα σας"
+        filtered_description: "Αφαιρέστε ένα φίλτρο ή αναζητήστε κάτι άλλο."
+
+    drawer:
+      label: "Φίλτρα και στήλες"
+      panel_title:
+        customize_columns: "Προσαρμογή στηλών"
+        filters: "Φίλτρα"
+        columns: "Στήλες"
+      tabs:
+        filters: "Φίλτρα"
+        columns: "Στήλες"
+
+    columns:
+      instructions: "Σύρετε για αναδιάταξη, καρφιτσώστε στήλες και εμφανίστε/αποκρύψτε:"
+      pin:
+        left: "Καρφίτσωμα αριστερά"
+        right: "Καρφίτσωμα δεξιά"
+      actions:
+        select_all: "Επιλογή όλων"
+        deselect_all: "Αποεπιλογή όλων"
+        reset_to_defaults: "🔄 Επαναφορά προεπιλογών"
+
+    filters:
+      actions:
+        clear_all: "Εκκαθάριση όλων"
+        apply_filters: "Εφαρμογή φίλτρων"
+      clear_filter: "Εκκαθάριση αυτού του φίλτρου"
+      active:
+        search: "Αναζήτηση: «%{query}»"
+        remove: "Αφαίρεση φίλτρου %{filter}"
+        clear_all: "Εκκαθάριση όλων των φίλτρων"
+      from: "Από"
+      to: "Έως"
+      min: "Ελάχ."
+      max: "Μέγ."
+      enter_value: "Εισαγάγετε τιμή..."
+      all: "Όλα"
+      multi_select_hint: "Κρατήστε πατημένο το Ctrl/Cmd για πολλαπλή επιλογή"
+      options_truncated: "Εμφανίζονται οι πρώτες %{shown} από %{total} επιλογές"
+      boolean:
+        "true": "Αληθές"
+        "false": "Ψευδές"
+        empty: "Κενό"
+        not_empty: "Μη κενό"
+      text_ops:
+        contains: "Περιέχει"
+        exact: "Ακριβής αντιστοιχία"
+        not_contain: "Δεν περιέχει"
+        starts_with: "Ξεκινά με"
+        ends_with: "Τελειώνει σε"
+        is_empty: "Είναι κενό"
+        is_not_empty: "Δεν είναι κενό"
+      range_ops:
+        between: "Μεταξύ"
+      number_ops:
+        eq: "Ίσο με"
+        neq: "Διάφορο του"
+        gt: "Μεγαλύτερο από"
+        gte: "Μεγαλύτερο ή ίσο με"
+        lt: "Μικρότερο από"
+        lte: "Μικρότερο ή ίσο με"
+      date_ops:
+        "on": "Στις"
+        before: "Πριν από"
+        after: "Μετά από"
+
+    formatters:
+      ago: "πριν από %{time}"
+      date:
+        short: "%d %b %Y"
+        long: "%d %B %Y"
+        time: "%H:%M"
+        datetime: "%d %b %Y %H:%M"
+      action: "Ενέργεια"
+      boolean:
+        "true": "Ναι"
+        "false": "Όχι"
+
+    batch:
+      selected: "%{count} επιλεγμένα"
+      clear: "Εκκαθάριση επιλογής"
+      select_all: "Επιλογή όλων των γραμμών"
+      select_row: "Επιλογή γραμμής"
+      select_all_matching: "Επιλογή και των %{count} αποτελεσμάτων"
+      truncated: "Επιλέχθηκαν μόνο οι πρώτες %{max} γραμμές"
+
+    search:
+      placeholder: "Αναζήτηση..."
+      label: "Αναζήτηση στον πίνακα"
+
+    pagination:
+      summary_html: "Εμφάνιση %{from} έως %{to} από %{total} αποτελέσματα"
+      summary_no_total_html: "Εμφάνιση %{from} έως %{to}"
+      rows_per_page: "Γραμμές ανά σελίδα:"
+      previous: "Προηγούμενη"
+      next: "Επόμενη"

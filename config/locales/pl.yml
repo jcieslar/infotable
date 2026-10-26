@@ -85,6 +85,11 @@ pl:
 
     formatters:
       ago: "%{time} temu"
+      date:
+        short: "%d %b %Y"
+        long: "%d %B %Y"
+        time: "%H:%M"
+        datetime: "%d %b %Y %H:%M"
       action: "Akcja"
       boolean:
         "true": "Tak"
@@ -103,10 +108,8 @@ pl:
       label: "Szukaj w tabeli"
 
     pagination:
-      showing: "Wyświetlanie"
-      to: "do"
-      of: "z"
-      results: "wyników"
+      summary_html: "Wyświetlanie %{from} do %{to} z %{total} wyników"
+      summary_no_total_html: "Wyświetlanie %{from} do %{to}"
       rows_per_page: "Wierszy na stronę:"
       previous: "Poprzednia"
       next: "Następna"

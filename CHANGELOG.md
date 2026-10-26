@@ -3,10 +3,13 @@
 ## Unreleased
 
 ### Added
+- Translations for German, French, Spanish, Greek and Italian (`de`, `fr`, `es`, `el`, `it`) next to English and Polish. Every key can be overridden in the host app's `config/locales`. Adds a `rails-i18n` dependency (month names, plural rules, number formats).
 - MCP server (`bundle exec infotable-mcp`, needs the `mcp` gem in the host app) that lets an AI assistant create tables: `list_models`, `list_tables`, `describe_dsl`, `table_options`, `generate_table`, `validate_table`, the `new_table` prompt and the `infotable://readme` resource. See "MCP Server" in the README.
 - `infotable:table` generator options: `--per-page`, `--sort=column:direction`, `--toolbar`, `--row-click`, `--infinite-scroll`, `--countless`, `--checkbox`, `--authorize`.
 
 ### Changed
+- Pagination summary is one string, `infotable.pagination.summary_html` (and `summary_no_total_html`), so word order can differ per language. The keys `pagination.showing`, `to`, `of` and `results` are removed; apps that overrode them must override the new keys.
+- Date formats `:short`, `:long`, `:time` and `:datetime` are localized (`infotable.formatters.date.*`, locale month names); English output is unchanged.
 - Reordering columns in the drawer keeps the pins: dragging a pinned column among the pinned ones keeps it pinned, dragging it out unpins it, dragging an unpinned column among the pins pins it (it used to unpin everything).
 - Pinned columns move to their edge, keeping their order, so several pinned columns sit side by side with no gap; unpinning restores the order.
 - Pinned columns: only the innermost pinned column on each side gets an edge (an inset 1px line that sticks with the column) instead of every pinned cell carrying a gradient, so they no longer look like a layer under the table.

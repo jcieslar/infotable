@@ -10,14 +10,8 @@ module Infotable
         format = options[:format] || :default
 
         case format
-        when :short
-          value.strftime("%b %d, %Y")
-        when :long
-          value.strftime("%B %d, %Y")
-        when :time
-          value.strftime("%I:%M %p")
-        when :datetime
-          value.strftime("%b %d, %Y %I:%M %p")
+        when :short, :long, :time, :datetime
+          view_context.l(value, format: view_context.t("infotable.formatters.date.#{format}"))
         when :relative
           time_ago_in_words(value)
         when :dot_date
