@@ -183,7 +183,8 @@ class McpTest < ActiveSupport::TestCase
     server = Infotable::Mcp::Server.build
     handle = ->(method, params = {}) { JSON.parse(server.handle_json({ jsonrpc: "2.0", id: 1, method: method, params: params }.to_json))["result"] }
 
-    assert_equal %w[describe_dsl generate_table list_models list_tables table_options validate_table], handle.("tools/list")["tools"].map { _1["name"] }.sort
+    assert_equal %w[add_batch_action add_column describe_dsl generate_table list_models list_tables remove_column set_option table_options update_column validate_table],
+                 handle.("tools/list")["tools"].map { _1["name"] }.sort
     assert_equal [ "new_table" ], handle.("prompts/list")["prompts"].map { _1["name"] }
     assert_match(/Post/, handle.("prompts/get", { name: "new_table", arguments: { model: "Post" } })["messages"].first["content"]["text"])
     assert_match(/InfoTable/, handle.("resources/read", { uri: "infotable://readme" })["contents"].first["text"])

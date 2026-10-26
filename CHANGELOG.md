@@ -7,6 +7,7 @@
 - `infotable:table` generator options: `--per-page`, `--sort=column:direction`, `--toolbar`, `--row-click`, `--infinite-scroll`, `--countless`, `--checkbox`, `--authorize`, `--title`, `--subtitle`.
 - `infotable:table` generator: `belongs_to` associations become columns (left join, sort/search/filter on the associated record's name, title, label or email) instead of commented hints; `--no-associations` keeps the hints.
 - `infotable:table` generator: formatters picked from column names and types (`:boolean`, `:currency`, `:percent`, `:link` for email and urls); `--no-formatters` turns it off.
+- MCP tools to edit an existing table: `add_column`, `update_column`, `remove_column`, `add_batch_action` and `set_option`. They parse the file with Prism and change only the statement concerned, return a diff (`write: true` saves it) and refuse edits that leave the file unparsable or break the table.
 - The MCP `generate_table` tool takes `associations`, `formatters`, `title` and `subtitle`; `table_options` asks for them and `describe_dsl` returns `generator_rules` (which `belongs_to` become columns, which formatters are picked), so the assistant can tell the user what the generator chose; the `new_table` prompt tells it to report that.
 
 ### Removed
