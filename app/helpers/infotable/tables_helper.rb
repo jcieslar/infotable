@@ -239,14 +239,15 @@ module Infotable
     DEFAULT_DRAWER_WIDTH = "26rem".freeze
 
     # HTML attributes for the slide-in drawer (side and width from config)
-    def infotable_drawer_attributes(config)
+    # `rail`: the drawer sits flush against the rail, so no rounded corners or heavy shadow
+    def infotable_drawer_attributes(config, rail: false)
       side = config.drawer_position.to_s == "left" ? "left" : "right"
       width = config.drawer_width.to_s.match?(DRAWER_WIDTH_FORMAT) ? config.drawer_width.to_s : DEFAULT_DRAWER_WIDTH
       hidden = side == "left" ? "-100%" : "100%"
 
       {
         style: "#{side}: 0; width: #{width}; max-width: 90%; transform: translateX(#{hidden});",
-        class: "absolute top-0 bottom-0 bg-white dark:bg-gray-900 #{side == 'left' ? 'border-r rounded-r-xl' : 'border-l rounded-l-xl'} border-gray-200 dark:border-gray-700 shadow-xl transition-all duration-300 ease-in-out z-50",
+        class: "absolute top-0 bottom-0 bg-white dark:bg-gray-900 #{side == 'left' ? 'border-r' : 'border-l'}#{rail ? '' : (side == 'left' ? ' rounded-r-xl' : ' rounded-l-xl')} border-gray-200 dark:border-gray-700 #{rail ? 'shadow-none' : 'shadow-xl'} transition-all duration-300 ease-in-out z-50",
         role: "dialog",
         inert: true, # closed drawer is off-screen: keep it out of the tab order (JS toggles it)
         aria: { label: I18n.t("infotable.drawer.label"), hidden: true },

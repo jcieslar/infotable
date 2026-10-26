@@ -143,7 +143,7 @@
 
     <%# Side panel drawer - always available for column visibility, filters if available %>
       <%# Drawer - positioned within table bounds, starts completely hidden off-screen %>
-      <div <%= tag.attributes(infotable_drawer_attributes(config)) %>>
+      <div <%= tag.attributes(infotable_drawer_attributes(config, rail: rail)) %>>
         <div data-infotable--drawer-target="content" class="h-full flex flex-col overflow-hidden">
           <%= render "infotable/tables/side_panel", table_name: table_name, table_class: table_class, config: config %>
         </div>

@@ -1023,7 +1023,7 @@ export default class extends Controller {
         header.style.backgroundClip = ''
         header.style.boxShadow = ''
         header.querySelectorAll('[data-pin-icon]').forEach(icon => icon.remove())
-        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
+        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
       })
 
       rows.forEach(row => {
@@ -1043,9 +1043,13 @@ export default class extends Controller {
           cell.style.removeProperty('opacity')
           cell.style.backgroundClip = ''
           cell.style.boxShadow = ''
-          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
+          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
         })
       })
+
+      // Only the innermost pinned column on each side gets a hairline plus a soft shadow
+      const LEFT_EDGE = '1px 0 0 0 rgba(128, 128, 128, 0.35), 8px 0 12px -6px rgba(0, 0, 0, 0.22)'
+      const RIGHT_EDGE = '-1px 0 0 0 rgba(128, 128, 128, 0.35), -8px 0 12px -6px rgba(0, 0, 0, 0.22)'
 
       // Find last left-pinned and first right-pinned columns
       let lastLeftPinned = null
@@ -1079,7 +1083,7 @@ export default class extends Controller {
             z-index: 30 !important;
             opacity: 1 !important;
             background-clip: padding-box !important;
-            box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: ${columnName === lastLeftPinned ? LEFT_EDGE : 'none'} !important;
             ${existingStyles}
           `.replace(/\s+/g, ' ').trim()
 
@@ -1088,10 +1092,6 @@ export default class extends Controller {
           header.classList.add('infotable-pinned-left', '!bg-gray-50', 'dark:!bg-gray-800')
           this.addPinIcon(header, 'left')
 
-          // Mark last left-pinned column
-          if (columnName === lastLeftPinned) {
-            header.classList.add("after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]")
-          }
 
           // Apply to cells in all rows
           rows.forEach(row => {
@@ -1107,16 +1107,13 @@ export default class extends Controller {
                 z-index: 15 !important;
                 opacity: 1 !important;
                 background-clip: padding-box !important;
-                box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
+                box-shadow: ${columnName === lastLeftPinned ? LEFT_EDGE : 'none'} !important;
                 ${existingStyles}
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
               cell.classList.add('infotable-pinned-left', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
 
-              if (columnName === lastLeftPinned) {
-                cell.classList.add("after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]")
-              }
             }
           })
 
@@ -1133,7 +1130,7 @@ export default class extends Controller {
             z-index: 30 !important;
             opacity: 1 !important;
             background-clip: padding-box !important;
-            box-shadow: -2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: ${columnName === firstRightPinned ? RIGHT_EDGE : 'none'} !important;
             ${existingStyles}
           `.replace(/\s+/g, ' ').trim()
 
@@ -1141,10 +1138,6 @@ export default class extends Controller {
           header.classList.add('infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
           this.addPinIcon(header, 'right')
 
-          // Mark first right-pinned column
-          if (columnName === firstRightPinned) {
-            header.classList.add("before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
-          }
 
           // Apply to cells in all rows
           rows.forEach(row => {
@@ -1160,16 +1153,13 @@ export default class extends Controller {
                 z-index: 15 !important;
                 opacity: 1 !important;
                 background-clip: padding-box !important;
-                box-shadow: -2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
+                box-shadow: ${columnName === firstRightPinned ? RIGHT_EDGE : 'none'} !important;
                 ${existingStyles}
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
               cell.classList.add('infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
 
-              if (columnName === firstRightPinned) {
-                cell.classList.add("before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
-              }
             }
           })
 
