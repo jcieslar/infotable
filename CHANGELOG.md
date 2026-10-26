@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Changed
-- Pinned columns: only the innermost pinned column on each side gets an edge (hairline + soft shadow) instead of every pinned cell carrying a gradient, so they no longer look like a layer under the table.
+- Pinned columns: only the innermost pinned column on each side gets an edge (a full-height 1px line) instead of every pinned cell carrying a gradient, so they no longer look like a layer under the table.
 - `toolbar :rail`: the open drawer sits flush against the rail (no rounded corners, no heavy shadow), so there is no notch between them.
 - Filters form: flat fields separated by hairlines, soft grey inputs with an indigo focus ring, a quiet "Clear all" button.
 
