@@ -1232,6 +1232,28 @@ end
 
 ---
 
+## Running the demo (dummy) app
+
+The repo has a Rails app in `test/dummy` that uses the gem from the working tree, with sample tables for users, products, authors, posts and comments (`test/dummy/app/infotable/`). Use it to try a change by hand:
+
+```bash
+git clone https://github.com/jcieslar/infotable.git && cd infotable
+bundle install
+bin/rails app:db:create app:db:schema:load app:db:seed   # PostgreSQL; add DB=sqlite3 to every command for SQLite
+bin/rails app:tailwindcss:build                          # CSS of the dummy app
+cd test/dummy && bin/rails server                        # http://localhost:3000
+```
+
+The seeds do not create products: run `bin/rails app:db:seed_products` (100k+ rows, good for trying big tables) before opening `/products`.
+
+Open `/` for the list of demo tables (`/users`, `/products`, `/authors`, `/posts`, `/comments`). Another port: `bin/rails server -p 3001`.
+
+While you work on views or JavaScript, `cd test/dummy && bin/dev` runs the server together with `tailwindcss:watch` (it needs the `foreman` gem, `bin/dev` installs it). Restart the server after changing Ruby code of the gem.
+
+If the page is blank or unstyled, rebuild the CSS (`bin/rails app:tailwindcss:build`); if it errors on the database, run `bin/rails app:db:prepare` (SQLite: `DB=sqlite3`).
+
+To try the MCP server on the demo tables: `cd test/dummy && bundle exec infotable-mcp` (see [MCP Server](#mcp-server-ai-assistants)).
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/jcieslar/infotable. See [CONTRIBUTING.md](CONTRIBUTING.md) for the setup and the checks a change has to pass, and [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
