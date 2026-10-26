@@ -1218,7 +1218,6 @@ end
 ## Roadmap
 
 - [ ] Server-side persistence of column settings
-- [ ] Tailwind v3 support
 
 ---
 
