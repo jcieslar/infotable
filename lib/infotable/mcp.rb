@@ -14,6 +14,7 @@ module Infotable
     autoload :Introspection, "infotable/mcp/introspection"
     autoload :Server, "infotable/mcp/server"
     autoload :TableWriter, "infotable/mcp/table_writer"
+    autoload :TableEditor, "infotable/mcp/table_editor"
     autoload :TableChecker, "infotable/mcp/table_checker"
 
     def self.text(payload)

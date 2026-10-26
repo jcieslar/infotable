@@ -104,6 +104,107 @@ module Infotable
       end
     end
 
+    # Shared by the tools that edit an existing table file
+    module EditsTable
+      TABLE = { type: "string", description: "Table name, e.g. orders_table (see list_tables)" }.freeze
+      WRITE = { type: "boolean", description: "Save the change (default: only return the diff)" }.freeze
+
+      def edit_table(name, write)
+        result = yield TableEditor.new(name, write: write)
+        Mcp.text(path: result.path, written: result.written, diff: result.diff, problems: result.problems)
+      rescue TableEditor::Error, Infotable::TableResolver::NotFound, ArgumentError => e
+        Mcp.error(e.message)
+      end
+    end
+
+    COLUMN_OPTIONS_HELP = "Column options as {name: value}: type, label, sortable, searchable, filterable, filter_type, visible, pinned (left/right), " \
+                          "width, sql, sort_sql, includes, formatter (currency, percent, link, badge, boolean... or a lambda as Ruby source), " \
+                          "formatter_options, value and filter_options (Ruby source), see describe_dsl. Booleans and integers stay JSON."
+
+    class AddColumn < ::MCP::Tool
+      extend EditsTable
+      tool_name "add_column"
+      description "Adds a column to an existing table (after the last column, or after `after`). Returns the diff; write: true saves it. " \
+                  "Refuses edits that leave the file unparsable or break the table."
+      input_schema(
+        properties: {
+          table: EditsTable::TABLE, name: { type: "string" }, after: { type: "string", description: "Place it after this column" },
+          options: { type: "object", description: COLUMN_OPTIONS_HELP }, write: EditsTable::WRITE
+        },
+        required: %w[table name]
+      )
+
+      def self.call(table:, name:, options: {}, after: nil, write: false, server_context: nil)
+        edit_table(table, write) { _1.add_column(name, options, after: after) }
+      end
+    end
+
+    class UpdateColumn < ::MCP::Tool
+      extend EditsTable
+      tool_name "update_column"
+      description "Changes options of an existing column (or adds the ones it lacks), e.g. make it filterable with a select filter or pinned. " \
+                  "Other options, comments and layout are left alone."
+      input_schema(
+        properties: { table: EditsTable::TABLE, name: { type: "string" }, options: { type: "object", description: COLUMN_OPTIONS_HELP }, write: EditsTable::WRITE },
+        required: %w[table name options]
+      )
+
+      def self.call(table:, name:, options:, write: false, server_context: nil)
+        edit_table(table, write) { _1.update_column(name, options) }
+      end
+    end
+
+    class RemoveColumn < ::MCP::Tool
+      extend EditsTable
+      tool_name "remove_column"
+      description "Removes a column from an existing table"
+      input_schema(properties: { table: EditsTable::TABLE, name: { type: "string" }, write: EditsTable::WRITE }, required: %w[table name])
+
+      def self.call(table:, name:, write: false, server_context: nil)
+        edit_table(table, write) { _1.remove_column(name) }
+      end
+    end
+
+    class AddBatchAction < ::MCP::Tool
+      extend EditsTable
+      tool_name "add_batch_action"
+      description "Adds a bulk action to the table's batch_actions block (creating the block, which also turns the checkbox column on). " \
+                  "The app has to implement the endpoint at url; it receives ids[]."
+      input_schema(
+        properties: {
+          table: EditsTable::TABLE, name: { type: "string" }, url: { type: "string" }, label: { type: "string" },
+          method: { type: "string", enum: Infotable::BatchActions::METHODS.map(&:to_s) },
+          confirm: { type: "string", description: "Confirmation text; %{count} is the number of rows" },
+          color: { type: "string", enum: Infotable::BatchActions::COLORS.map(&:to_s) }, write: EditsTable::WRITE
+        },
+        required: %w[table name url]
+      )
+
+      def self.call(table:, name:, url:, label: nil, method: nil, confirm: nil, color: nil, write: false, server_context: nil)
+        edit_table(table, write) do |editor|
+          editor.add_batch_action(name, **{ url: url, label: label, method: method, confirm: confirm, color: color }.compact)
+        end
+      end
+    end
+
+    class SetOption < ::MCP::Tool
+      extend EditsTable
+      tool_name "set_option"
+      description "Sets or replaces a table setting: #{TableEditor::SETTINGS.keys.join(', ')}. args is the Ruby source of its arguments " \
+                  "(per_page: 50, default_sort: :created_at, :desc, authorize: a boolean expression over `controller`)."
+      input_schema(
+        properties: {
+          table: EditsTable::TABLE, setting: { type: "string", enum: TableEditor::SETTINGS.keys },
+          args: { type: "string", description: "Examples: " + TableEditor::SETTINGS.map { |k, v| "#{k} #{v}".strip }.first(6).join("; ") }, write: EditsTable::WRITE
+        },
+        required: %w[table setting]
+      )
+
+      def self.call(table:, setting:, args: nil, write: false, server_context: nil)
+        edit_table(table, write) { _1.set_option(setting, args) }
+      end
+    end
+
     class NewTablePrompt < ::MCP::Prompt
       prompt_name "new_table"
       description "Create an InfoTable table for a model, asking the user about its settings first"

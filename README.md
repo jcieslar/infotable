@@ -881,7 +881,12 @@ Then ask: *"create an InfoTable table for Order"*. Or use the `new_table` prompt
 | `describe_dsl` | Column options, types, filters, formatters and settings of the installed version, plus what the generator decides on its own (`generator_rules`: association columns, formatters) |
 | `table_options` | Questions about a new table (columns, sort, per page, title, toolbar, selection, associations, formatters, authorization...) with defaults proposed from the model |
 | `generate_table` | Renders the table with the `infotable:table` generator. Only shows the code; `write: true` saves it, an existing file is replaced only with `overwrite: true` |
+| `add_column` / `update_column` / `remove_column` | Edit one column of an existing table. The file is parsed, so only that statement changes (comments, layout and lambdas around it stay). Options are JSON; `value`, `formatter` lambdas and `filter_options` are Ruby source |
+| `add_batch_action` | Adds a bulk action, creating the `batch_actions` block when the table has none; checked with the DSL's own rules |
+| `set_option` | Sets or replaces a table setting: `per_page`, `default_sort`, `toolbar`, `infinite_scroll`, `countless`, `table_title`, `authorize`... |
 | `validate_table` | Loads a table by name or from source and reports missing columns, a bad `default_sort`, a failing query or a missing `authorize`; `preview: 5` returns the first rows |
+
+The editing tools only return a diff unless called with `write: true`. They refuse an edit that leaves the file unparsable or makes the table fail `validate_table`, and they only touch files in `app/infotable/`.
 
 The full README is available to the assistant as the `infotable://readme` resource.
 
