@@ -35,7 +35,16 @@ module Infotable
       end
 
       def long(parts)
-        parts.map { |unit, count| view_context.t("infotable.formatters.duration.long.#{unit}", count: count) }.join(" ")
+        parts.map { |unit, count| view_context.t("infotable.formatters.duration.long.#{unit}.#{plural_key(count)}", count: count) }.join(" ")
+      end
+
+      # The key is picked here, so Polish (1 / 2-4 / 5+) is right without rails-i18n's pluralization rules
+      def plural_key(count)
+        return count == 1 ? :one : :other unless I18n.locale.to_s == "pl"
+        return :one if count == 1
+        return :few if (2..4).cover?(count % 10) && !(12..14).cover?(count % 100)
+
+        :many
       end
     end
   end

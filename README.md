@@ -692,7 +692,7 @@ column :duration_seconds, formatter: :duration                                  
 column :duration_seconds, formatter: :duration, formatter_options: { format: :long }  # "1 hour 5 minutes"
 ```
 
-The value is in seconds. `parts` limits how many units are shown (default 2). Translated through `infotable.formatters.duration` (Polish plurals need `rails-i18n` for the 2-4 form).
+The value is in seconds. `parts` limits how many units are shown (default 2). Translated through `infotable.formatters.duration` (Polish plural forms work out of the box).
 
 The Date formatter's `format: :relative` keeps the exact time in a tooltip, and the Currency formatter takes `unit`, `precision`, `delimiter` and `separator` from your locale (`number.currency.format`) for whatever you do not pass.
 

@@ -114,6 +114,11 @@ class MoreFormattersTest < ActiveSupport::TestCase
     I18n.with_locale(:pl) do
       assert_equal "1 godzina 5 minut", fmt(:duration).format(3900, nil, format: :long)
       assert_equal "1 godz. 05 min", fmt(:duration).format(3900, nil)
+      assert_equal "2 godziny 3 minuty", fmt(:duration).format(2 * 3600 + 3 * 60, nil, format: :long)
+      assert_equal "12 godzin 22 minuty", fmt(:duration).format(12 * 3600 + 22 * 60, nil, format: :long)
+      assert_equal "5 godzin", fmt(:duration).format(5 * 3600, nil, format: :long)
+      assert_equal "1 dzień 2 godziny", fmt(:duration).format(86_400 + 2 * 3600, nil, format: :long)
+      assert_equal "3 dni 1 godzina", fmt(:duration).format(3 * 86_400 + 3600, nil, format: :long)
     end
   end
 
