@@ -1,5 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 
+// Innermost pinned column on each side: an inset 1px line. A border would stay behind when the
+// cell sticks (collapsed borders belong to the table), a box-shadow moves with the cell
+const LEFT_EDGE = 'inset -1px 0 0 0 rgba(128, 128, 128, 0.45)'
+const RIGHT_EDGE = 'inset 1px 0 0 0 rgba(128, 128, 128, 0.45)'
+
 // Main table controller that coordinates table interactions
 export default class extends Controller {
   static values = {
@@ -989,7 +994,7 @@ export default class extends Controller {
         return
       }
 
-      const headers = Array.from(table.querySelectorAll("thead th[data-column-name]"))
+      let headers = Array.from(table.querySelectorAll("thead th[data-column-name]"))
 
       // Columns the user never pinned/unpinned fall back to the table's `pinned:` default
       headers.forEach(header => {
@@ -999,6 +1004,32 @@ export default class extends Controller {
         }
       })
       const rows = table.querySelectorAll("tbody tr")
+
+      // Pinned columns jump to their edge, keeping their relative order, so they sit side by side
+      // with no gap; unpinning restores the base order (stored order, else the server's)
+      const names = headers.map(h => h.dataset.columnName)
+      headers.forEach((h, i) => { if (h.dataset.pinBase === undefined) h.dataset.pinBase = String(i) })
+      const storedOrder = this.loadColumnOrder(tableName)
+      const base = storedOrder && this.isSchemaValid(storedOrder, names)
+        ? storedOrder
+        : [...headers].sort((a, b) => a.dataset.pinBase - b.dataset.pinBase).map(h => h.dataset.columnName)
+      const leftNames = base.filter(n => pinnedData[n] === 'left')
+      const rightNames = base.filter(n => pinnedData[n] === 'right')
+      const pinOrder = [...leftNames, ...base.filter(n => !leftNames.includes(n) && !rightNames.includes(n)), ...rightNames]
+      // Re-appending a node drops its focus, so only touch rows that are out of order
+      const inOrder = els => els.every((el, i) => el.dataset.columnName === pinOrder[i])
+      const headerRow = headers[0]?.parentElement
+      if (headerRow && !inOrder(headers)) {
+        const byName = new Map(headers.map(h => [h.dataset.columnName, h]))
+        pinOrder.forEach(n => byName.has(n) && headerRow.appendChild(byName.get(n)))
+        headers = Array.from(table.querySelectorAll("thead th[data-column-name]"))
+      }
+      rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll("td[data-column-name]"))
+        if (inOrder(cells)) return
+        const cellByName = new Map(cells.map(c => [c.dataset.columnName, c]))
+        pinOrder.forEach(n => cellByName.has(n) && row.appendChild(cellByName.get(n)))
+      })
 
 
       // Calculate positions for pinned columns
@@ -1023,7 +1054,7 @@ export default class extends Controller {
         header.style.backgroundClip = ''
         header.style.boxShadow = ''
         header.querySelectorAll('[data-pin-icon]').forEach(icon => icon.remove())
-        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
+        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
       })
 
       rows.forEach(row => {
@@ -1043,7 +1074,7 @@ export default class extends Controller {
           cell.style.removeProperty('opacity')
           cell.style.backgroundClip = ''
           cell.style.boxShadow = ''
-          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800', "after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]", "before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
+          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
         })
       })
 
@@ -1062,8 +1093,10 @@ export default class extends Controller {
         }
       })
 
-      // Apply sticky positioning for pinned columns
-      headers.forEach(header => {
+      // Apply sticky positioning for pinned columns (right ones from the outer edge inwards)
+      const rightPinnedHeaders = headers.filter(h => pinnedData[h.dataset.columnName] === 'right')
+      const applyOrder = [...headers.filter(h => pinnedData[h.dataset.columnName] === 'left'), ...rightPinnedHeaders.reverse()]
+      applyOrder.forEach(header => {
         const columnName = header.dataset.columnName
         const pinned = pinnedData[columnName]
 
@@ -1079,7 +1112,7 @@ export default class extends Controller {
             z-index: 30 !important;
             opacity: 1 !important;
             background-clip: padding-box !important;
-            box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: ${columnName === lastLeftPinned ? LEFT_EDGE : 'none'} !important;
             ${existingStyles}
           `.replace(/\s+/g, ' ').trim()
 
@@ -1088,10 +1121,6 @@ export default class extends Controller {
           header.classList.add('infotable-pinned-left', '!bg-gray-50', 'dark:!bg-gray-800')
           this.addPinIcon(header, 'left')
 
-          // Mark last left-pinned column
-          if (columnName === lastLeftPinned) {
-            header.classList.add("after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]")
-          }
 
           // Apply to cells in all rows
           rows.forEach(row => {
@@ -1107,16 +1136,13 @@ export default class extends Controller {
                 z-index: 15 !important;
                 opacity: 1 !important;
                 background-clip: padding-box !important;
-                box-shadow: 2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
+                box-shadow: ${columnName === lastLeftPinned ? LEFT_EDGE : 'none'} !important;
                 ${existingStyles}
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
               cell.classList.add('infotable-pinned-left', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
 
-              if (columnName === lastLeftPinned) {
-                cell.classList.add("after:content-['']", "after:absolute", "after:top-0", "after:right-0", "after:bottom-0", "after:w-5", "after:pointer-events-none", "after:bg-gradient-to-r", "after:from-transparent", "after:to-black/[0.04]", "after:z-[1]")
-              }
             }
           })
 
@@ -1133,7 +1159,7 @@ export default class extends Controller {
             z-index: 30 !important;
             opacity: 1 !important;
             background-clip: padding-box !important;
-            box-shadow: -2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: ${columnName === firstRightPinned ? RIGHT_EDGE : 'none'} !important;
             ${existingStyles}
           `.replace(/\s+/g, ' ').trim()
 
@@ -1141,10 +1167,6 @@ export default class extends Controller {
           header.classList.add('infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
           this.addPinIcon(header, 'right')
 
-          // Mark first right-pinned column
-          if (columnName === firstRightPinned) {
-            header.classList.add("before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
-          }
 
           // Apply to cells in all rows
           rows.forEach(row => {
@@ -1160,16 +1182,13 @@ export default class extends Controller {
                 z-index: 15 !important;
                 opacity: 1 !important;
                 background-clip: padding-box !important;
-                box-shadow: -2px 0 4px -2px rgba(0, 0, 0, 0.1) !important;
+                box-shadow: ${columnName === firstRightPinned ? RIGHT_EDGE : 'none'} !important;
                 ${existingStyles}
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
               cell.classList.add('infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
 
-              if (columnName === firstRightPinned) {
-                cell.classList.add("before:content-['']", "before:absolute", "before:top-0", "before:left-0", "before:bottom-0", "before:w-5", "before:pointer-events-none", "before:bg-gradient-to-l", "before:from-transparent", "before:to-black/[0.04]", "before:z-[1]")
-              }
             }
           })
 

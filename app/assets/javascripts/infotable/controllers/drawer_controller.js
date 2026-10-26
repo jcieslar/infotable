@@ -976,7 +976,7 @@ export default class extends Controller {
         ghostClass: 'opacity-50',
         dragClass: 'shadow-lg',
         onEnd: (evt) => {
-          this.handleColumnReorder(tableName, list)
+          this.handleColumnReorder(tableName, list, evt.item)
         }
       })
 
@@ -988,27 +988,28 @@ export default class extends Controller {
     })
   }
 
-  // Handle column reorder after drag and drop
-  handleColumnReorder(tableName, list) {
-    // Get new order from DOM
-    const columnItems = list.querySelectorAll('.column-item')
-    const newOrder = Array.from(columnItems).map(item => item.dataset.columnName)
+  // Handle column reorder after drag and drop.
+  // Pins survive a reorder; only the dragged column can change: dropped among the left pins it pins
+  // left, among the right pins it pins right, anywhere else it is unpinned.
+  handleColumnReorder(tableName, list, dragged) {
+    const items = Array.from(list.querySelectorAll('.column-item'))
+    const pinnedData = this.getAllColumnsPinned(tableName)
 
-    // Unpin all columns when manually reordering
-    const pinnedKey = `infotable_column_pinned_${tableName}`
-    const unpinned = {}
-    columnItems.forEach(item => { unpinned[item.dataset.columnName] = null })
-    this.storeSet(pinnedKey, JSON.stringify(unpinned))
+    if (dragged) {
+      const at = items.indexOf(dragged)
+      const nextPin = pinnedData[items[at + 1]?.dataset.columnName]
+      const prevPin = pinnedData[items[at - 1]?.dataset.columnName]
+      const pinned = nextPin === 'left' ? 'left' : (prevPin === 'right' ? 'right' : null)
 
-    // Update pin button styling for all items
-    columnItems.forEach(item => {
-      this.updatePinButtons(item, null)
-    })
+      this.saveColumnPinned(tableName, dragged.dataset.columnName, pinned)
+      this.updatePinButtons(dragged, pinned)
+    }
 
-    // Save to localStorage
-    this.saveColumnOrder(tableName, newOrder)
+    // Keep the list as left pins, the rest, right pins (this also saves the order)
+    this.reorderColumnsWithPinning(tableName)
+    const newOrder = Array.from(list.querySelectorAll('.column-item')).map(item => item.dataset.columnName)
 
-    // Apply order to the table; nothing is pinned any more
+    // Apply order and pins to the table
     this.applyToTable(tableName, newOrder)
 
     // Dispatch event for export link update
