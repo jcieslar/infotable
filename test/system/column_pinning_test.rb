@@ -57,4 +57,55 @@ class ColumnPinningTest < ApplicationSystemTestCase
     category_right = page.evaluate_script("document.querySelector('thead th[data-column-name=\"category\"]').getBoundingClientRect().right")
     assert_in_delta category_right, left_of("actions"), 1
   end
+
+  # Moves `name` before `before` in the columns drawer list, like a drag would, and fires the reorder
+  def drag_column(name, before:)
+    page.execute_script(<<~JS)
+      const el = document.querySelector('[data-controller~="infotable--drawer"]')
+      const c = (window.Stimulus || window.application).getControllerForElementAndIdentifier(el, "infotable--drawer")
+      const list = document.querySelector('[data-infotable--drawer-target="columnList"]')
+      const item = list.querySelector('.column-item[data-column-name="#{name}"]')
+      list.insertBefore(item, list.querySelector('.column-item[data-column-name="#{before}"]'))
+      c.handleColumnReorder("posts_table", list, item)
+    JS
+  end
+
+  def pinned
+    JSON.parse(page.evaluate_script("localStorage.getItem('infotable_column_pinned_posts_table')"))
+  end
+
+  def pin_columns_left(*names)
+    visit "/posts"
+    wait_for_table("posts_table")
+    page.execute_script(%(localStorage.setItem("infotable_column_pinned_posts_table", JSON.stringify(#{names.index_with { "left" }.to_json}))))
+    visit "/posts"
+    wait_for_table("posts_table")
+    assert_selector "thead th.infotable-pinned-left", minimum: names.size
+  end
+
+  test "reordering pinned columns among themselves keeps them pinned" do
+    pin_columns_left "id", "category"
+    drag_column "category", before: "id"
+
+    assert_equal %w[category id], header_names.first(2)
+    assert_equal "left", pinned["category"]
+    assert_equal "left", pinned["id"]
+  end
+
+  test "dragging a pinned column out of the pinned zone unpins it" do
+    pin_columns_left "id", "category"
+    drag_column "id", before: "status"
+
+    assert_nil pinned["id"]
+    assert_equal "left", pinned["category"]
+    assert_selector "thead th.infotable-pinned-left", count: 1
+  end
+
+  test "dragging an unpinned column into the pinned zone pins it" do
+    pin_columns_left "id", "category"
+    drag_column "status", before: "category"
+
+    assert_equal "left", pinned["status"]
+    assert_equal %w[id status category], header_names.first(3)
+  end
 end
