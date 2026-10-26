@@ -120,29 +120,11 @@ module Infotable
       formatter_name = column[:formatter]
       formatter_options = column[:formatter_options] || {}
 
-      formatter_class = case formatter_name
-      when :date, :datetime
-        Infotable::Formatters::DateFormatter
-      when :currency
-        Infotable::Formatters::CurrencyFormatter
-      when :boolean
-        Infotable::Formatters::BooleanFormatter
-      when :badge, :status
-        Infotable::Formatters::BadgeFormatter
-      when :action, :actions
-        Infotable::Formatters::ActionFormatter
-      when :link
-        Infotable::Formatters::LinkFormatter
-      when :avatar
-        Infotable::Formatters::AvatarFormatter
-      when :percent
-        Infotable::Formatters::PercentFormatter
-      else
-        # Custom formatter: :avatar => AvatarFormatter (or Namespaced::AvatarFormatter)
+      formatter_class = Infotable::Formatters.built_in[formatter_name.to_sym] ||
+        # Custom formatter: :stars => StarsFormatter (or Namespaced::StarsFormatter)
         "#{formatter_name.to_s.camelize}Formatter".safe_constantize ||
-          raise(Infotable::Error, "Unknown formatter :#{formatter_name} for column :#{column[:name]}. " \
-                                  "Built-ins: date, currency, boolean, badge, action, link, avatar, percent; custom: define #{formatter_name.to_s.camelize}Formatter.")
-      end
+        raise(Infotable::Error, "Unknown formatter :#{formatter_name} for column :#{column[:name]}. " \
+                                "Built-ins: #{Infotable::Formatters.built_in.keys.join(', ')}; custom: define #{formatter_name.to_s.camelize}Formatter.")
 
       formatter_class.new(self).format(value, record, formatter_options)
     end

@@ -24,6 +24,27 @@ module Infotable
     autoload :LinkFormatter, "infotable/formatters/link_formatter"
     autoload :AvatarFormatter, "infotable/formatters/avatar_formatter"
     autoload :PercentFormatter, "infotable/formatters/percent_formatter"
+    autoload :NumberFormatter, "infotable/formatters/number_formatter"
+    autoload :TagsFormatter, "infotable/formatters/tags_formatter"
+    autoload :TruncateFormatter, "infotable/formatters/truncate_formatter"
+    autoload :ImageFormatter, "infotable/formatters/image_formatter"
+    autoload :FilesizeFormatter, "infotable/formatters/filesize_formatter"
+    autoload :DurationFormatter, "infotable/formatters/duration_formatter"
+
+    # `formatter: :name` => class. Anything else is looked up as a custom "<Name>Formatter" constant.
+    def self.built_in
+      @built_in ||= {
+        date: DateFormatter, datetime: DateFormatter,
+        currency: CurrencyFormatter,
+        boolean: BooleanFormatter,
+        badge: BadgeFormatter, status: BadgeFormatter,
+        action: ActionFormatter, actions: ActionFormatter,
+        link: LinkFormatter, avatar: AvatarFormatter, percent: PercentFormatter,
+        number: NumberFormatter, tags: TagsFormatter, list: TagsFormatter,
+        truncate: TruncateFormatter, image: ImageFormatter,
+        filesize: FilesizeFormatter, duration: DurationFormatter
+      }.freeze
+    end
   end
 
   # Returns the root path of the InfoTable gem

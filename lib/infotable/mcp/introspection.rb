@@ -49,7 +49,7 @@ module Infotable
           column_options: Infotable::Base::COLUMN_OPTIONS,
           column_types: Infotable::Generators::TableGenerator::TYPE_MAP.values.map { _1[:type] }.uniq + %i[badge currency percent link avatar action],
           filter_types: %i[text boolean number date select],
-          formatters: Infotable::Formatters.constants.map { _1.to_s.delete_suffix("Formatter").underscore }.reject { _1 == "base" },
+          formatters: Infotable::Formatters.built_in.keys,
           toolbar_modes: %i[header rail],
           table_settings: %i[query query_sql per_page per_page_options default_sort infinite_scroll countless url_state resizable_columns
                              toolbar row_click row_link row_class row_data row_size checkbox_column batch_actions authorize export_columns

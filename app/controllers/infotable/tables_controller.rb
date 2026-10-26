@@ -313,7 +313,7 @@ module Infotable
       when :boolean
         value ? "true" : "false"
       else
-        value.to_s
+        value.is_a?(Array) ? value.join(", ") : value.to_s
       end
     end
   end

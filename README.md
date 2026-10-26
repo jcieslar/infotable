@@ -602,6 +602,100 @@ column :actions,
 
 `method:` and `confirm:` use Turbo (`data-turbo-method`, `data-turbo-confirm`). Labels are HTML-escaped.
 
+#### 6. Link Formatter (`:link`)
+
+```ruby
+column :website, formatter: :link, formatter_options: { external: true }   # the value is the URL
+
+column :email,
+  formatter: :link,
+  formatter_options: { url: ->(record) { "mailto:#{record.email}" } }       # email / phone: mailto: and tel:
+
+column :name,
+  formatter: :link,
+  formatter_options: { url: ->(record) { user_path(record) } }              # Proc (run in the view), Symbol or String
+```
+
+Only relative URLs, `http(s)`, `mailto` and `tel` are linked (`javascript:` and friends render as plain text). Options: `url`, `label`, `external` (`target="_blank"` + `rel="noopener noreferrer"`), `class`.
+
+#### 7. Avatar Formatter (`:avatar`)
+
+```ruby
+column :avatar_url,
+  formatter: :avatar,
+  formatter_options: { name: ->(record) { record.name }, size: :md }   # :sm, :md, :lg
+```
+
+The value is the image URL; without one, the initials of `name` are shown on a coloured disc. `label: false` hides the name next to the picture.
+
+#### 8. Percent Formatter (`:percent`)
+
+```ruby
+column :completion, formatter: :percent, formatter_options: { precision: 1, bar: true }
+```
+
+Options: `precision` (default 0), `scale: :percent` (0-100, default) or `:ratio` (0-1), `bar` (small progress bar).
+
+#### 9. Number Formatter (`:number`)
+
+```ruby
+column :views_count, formatter: :number, formatter_options: { compact: true }          # 1.5k, 3.4M
+column :latency,     formatter: :number, formatter_options: { unit: "ms", precision: 1 }
+column :stock,       formatter: :number, formatter_options: { zero: "-" }
+```
+
+Options: `precision`, `delimiter` (`","`), `separator` (`"."`), `unit` (appended), `compact`, `zero` (shown instead of 0).
+
+#### 10. Tags Formatter (`:tags`, alias `:list`)
+
+```ruby
+column :roles,
+  formatter: :tags,
+  formatter_options: { limit: 3, colors: { "admin" => "red" } }
+
+# several values in a cell that is not an attribute: use `value:`
+column :labels, value: ->(post) { post.tags.map(&:name) }, formatter: :tags, formatter_options: { limit: 2 }
+```
+
+The value is an Array, a relation or a comma separated string; each item is a small badge. `limit` shows N items and "+M" (the rest is in its tooltip), `label: ->(item) { item.name }` picks the text, `colors` maps item to badge colour (as in `:badge`), `separator: ", "` renders plain text instead of badges. The CSV export joins the items with `", "`.
+
+#### 11. Truncate Formatter (`:truncate`)
+
+```ruby
+column :description, formatter: :truncate, formatter_options: { length: 80 }
+```
+
+Long text is cut to `length` (default 60, `omission` default `"…"`); the full text is in the cell's tooltip.
+
+#### 12. Image Formatter (`:image`)
+
+```ruby
+column :photo_url,
+  formatter: :image,
+  formatter_options: { size: :md, alt: ->(record) { record.name }, link: true }   # :sm (32px), :md (48px), :lg (64px)
+```
+
+A square thumbnail (use `:avatar` for round pictures). Only http(s) and relative URLs are rendered. `link: true` opens the full image in a new tab.
+
+#### 13. Filesize Formatter (`:filesize`)
+
+```ruby
+column :byte_size, formatter: :filesize        # 1536 => "1.5 KB"
+```
+
+`precision` is the number of significant digits (default 2).
+
+#### 14. Duration Formatter (`:duration`)
+
+```ruby
+column :duration_seconds, formatter: :duration                                        # 3900 => "1h 05m"
+column :duration_seconds, formatter: :duration, formatter_options: { format: :long }  # "1 hour 5 minutes"
+```
+
+The value is in seconds. `parts` limits how many units are shown (default 2). Translated through `infotable.formatters.duration` (Polish plural forms work out of the box).
+
+The Date formatter's `format: :relative` keeps the exact time in a tooltip, and the Currency formatter takes `unit`, `precision`, `delimiter` and `separator` from your locale (`number.currency.format`) for whatever you do not pass.
+
 ### Custom Formatters
 
 #### Lambda/Proc Formatter
@@ -1124,9 +1218,6 @@ end
 ## Roadmap
 
 - [ ] Server-side persistence of column settings
-- [ ] Table state in the URL
-- [ ] More formatters (link, avatar, percent)
-- [ ] `infotable:table` generator
 - [ ] Tailwind v3 support
 
 ---

@@ -34,10 +34,8 @@ class ProductsTable < Infotable::Base
     label: "Description",
     type: :text,
     visible: true,
-    formatter: ->(value, record) {
-      truncated = value.to_s.truncate(80)
-      "<span class='text-gray-600 text-sm' title='#{h(value)}'>#{h(truncated)}</span>".html_safe
-    }
+    formatter: :truncate,
+    formatter_options: { length: 80 }
 
   # Select/Category columns
   column :category,
