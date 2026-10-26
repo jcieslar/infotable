@@ -103,19 +103,6 @@ InfoTable views use Tailwind classes. The generator automatically configures Tai
 1. Your table definitions: `app/infotable/**/*.rb`
 2. Engine views: `vendor/bundle/.../infotable-.../app/views/**/*.erb`
 
-### Tailwind v3 (JS Config)
-
-```javascript
-// config/tailwind.config.js
-module.exports = {
-  content: [
-    './app/views/**/*.html.erb',
-    './app/infotable/**/*.rb',  // Added by generator
-    './vendor/bundle/ruby/[VERSION]/gems/infotable-[VERSION]/app/views/infotable/**/*.erb',
-  ]
-}
-```
-
 ### Tailwind v4 (CSS Config)
 
 ```css

@@ -161,34 +161,6 @@ rails tailwindcss:build
 <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
 ```
 
-### Tailwind v3 (JavaScript config)
-
-**What the installer does automatically:**
-
-For Tailwind v3, the installer adds gem paths to your Tailwind config (`config/tailwind.config.js` or `tailwind.config.js`):
-
-```javascript
-module.exports = {
-  content: [
-    './app/views/**/*.html.erb',
-    './app/helpers/**/*.rb',
-    './app/javascript/**/*.js',
-    './app/infotable/**/*.rb',  // Your table definitions
-    '/path/to/gem/app/views/infotable/**/*.{erb,rb}',  // Gem views
-    '/path/to/gem/app/assets/javascripts/infotable/**/*.js',  // Gem JavaScript (for dynamic classes)
-    '/path/to/gem/lib/infotable/formatters/**/*.rb',  // Gem formatters
-  ],
-  // ... rest of config
-}
-```
-
-**After installation:**
-
-Rebuild Tailwind:
-```bash
-rails tailwindcss:build
-```
-
 ## Routes Configuration
 
 The installer adds this to `config/routes.rb`:
@@ -326,14 +298,6 @@ or
   @source "/path/to/gem/app/assets/javascripts/infotable";
   @source "/path/to/gem/lib/infotable/formatters";
   ```
-
-**For Tailwind v3** (JavaScript config):
-- Open `config/tailwind.config.js` or `tailwind.config.js`
-- Verify the `content` array includes:
-  - `'./app/infotable/**/*.rb'` (your table definitions)
-  - `'/path/to/gems/infotable-x.x.x/app/views/infotable/**/*.{erb,rb}'` (gem views)
-  - `'/path/to/gems/infotable-x.x.x/app/assets/javascripts/infotable/**/*.js'` (gem JavaScript - **important for dynamic classes**)
-  - `'/path/to/gems/infotable-x.x.x/lib/infotable/formatters/**/*.rb'` (gem formatters)
 
 4. **Restart your Rails server**
 

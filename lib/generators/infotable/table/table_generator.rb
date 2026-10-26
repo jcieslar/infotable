@@ -16,7 +16,18 @@ module Infotable
       class_option :infinite_scroll, type: :boolean, default: false, desc: "Infinite scroll instead of pages"
       class_option :countless, type: :boolean, default: false, desc: "Skip the total count (big tables)"
       class_option :checkbox, type: :boolean, default: false, desc: "Row selection column"
+      class_option :associations, type: :boolean, default: true, desc: "Show belongs_to associations as columns (left_joins) instead of commented hints"
+      class_option :formatters, type: :boolean, default: true, desc: "Pick currency/percent/link/boolean formatters from column names and types"
+      class_option :title, type: :string, desc: "Table title"
+      class_option :subtitle, type: :string, desc: "Table subtitle"
       class_option :authorize, type: :string, desc: "Ruby expression over `controller` that decides who sees the table"
+
+      # Attribute of an associated record that names it, first match wins
+      DISPLAY_ATTRIBUTES = %w[name title label email].freeze
+
+      CURRENCY_NAME = /(price|amount|total|cost|salary|fee|revenue|balance)\z/
+      PERCENT_NAME = /(percent|percentage|rate)\z/
+      URL_NAME = /(_url|website)\z/
 
       # Attributes that must never end up in a table by accident
       SENSITIVE = /password|digest|token|secret|otp|encrypted/
@@ -78,21 +89,90 @@ module Infotable
             filter: enum_values ? :select : spec[:filter],
             enum_values: enum_values,
             searchable: %i[string text].include?(column.type) && enum_values.nil?,
-            primary_key: name == @model.primary_key.to_s
+            primary_key: name == @model.primary_key.to_s,
+            formatter_lines: enum_values ? [] : formatter_lines(column)
           }
         end
       end
 
-      # belongs_to associations become commented hints: they need a join the app has to choose
+      # Formatter for a column, picked from its type and name (--no-formatters turns this off)
+      def formatter_lines(column)
+        return [] unless options[:formatters]
+
+        name = column.name
+        case column.type
+        when :boolean
+          [ "formatter: :boolean" ]
+        when :decimal, :float
+          if name.match?(CURRENCY_NAME)
+            [ "formatter: :currency", "formatter_options: { precision: 2 }" ]
+          elsif name.match?(PERCENT_NAME)
+            [ "formatter: :percent", "formatter_options: { precision: 1 }" ]
+          else
+            []
+          end
+        when :string
+          if name == "email"
+            [ "formatter: :link", %(formatter_options: { url: ->(record) { "mailto:\#{record.email}" } }) ]
+          elsif name.match?(URL_NAME)
+            [ "formatter: :link", "formatter_options: { external: true }" ]
+          else
+            []
+          end
+        else
+          []
+        end
+      end
+
+      # belongs_to associations shown as columns: they sort, search and filter on the associated record's
+      # display attribute through a left join. One association per table and only when the associated
+      # model has an attribute to show; the rest become commented hints.
+      def association_specs
+        @association_specs ||= @model.respond_to?(:table_name) ? build_association_specs : []
+      end
+
+      def build_association_specs
+        taken = [ @model.table_name ]
+        candidate_associations.filter_map do |reflection|
+          klass = reflection.klass rescue nil
+          display = klass && DISPLAY_ATTRIBUTES.find { klass.column_names.include?(_1) }
+          next unless display && taken.exclude?(klass.table_name)
+
+          taken << klass.table_name
+          { name: reflection.name, table: klass.table_name, display: display }
+        end
+      end
+
+      # The rest: unfit for a join column, so a hint the app has to finish
       def association_hints
+        belongs_to_reflections.map(&:name) - association_specs.map { _1[:name] }
+      end
+
+      def candidate_associations
+        options[:associations] ? belongs_to_reflections : []
+      end
+
+      # The belongs_to associations --only / --skip leave in; polymorphic ones have no single table to join
+      def belongs_to_reflections
         return [] unless @model.respond_to?(:reflect_on_all_associations)
 
-        @model.reflect_on_all_associations(:belongs_to).map(&:name)
+        @model.reflect_on_all_associations(:belongs_to).reject do |reflection|
+          reflection.polymorphic? ||
+            (options[:only].any? && options[:only].exclude?(reflection.name.to_s)) || options[:skip].include?(reflection.name.to_s)
+        end
+      end
+
+      def query_expression
+        return "#{class_name}.all" if association_specs.empty?
+
+        "#{class_name}.left_joins(#{association_specs.map { ":#{_1[:name]}" }.join(', ')})"
       end
 
       # Table-level settings chosen with the options above, one DSL line each
       def setting_lines
         lines = []
+        lines << "table_title #{options[:title].inspect}" if options[:title].present?
+        lines << "table_subtitle #{options[:subtitle].inspect}" if options[:subtitle].present?
         lines << "toolbar :#{options[:toolbar]}" if options[:toolbar].present?
         lines << "infinite_scroll true" if options[:infinite_scroll]
         lines << "countless" if options[:countless]

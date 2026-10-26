@@ -1,5 +1,5 @@
 class <%= table_class_name %> < Infotable::Base
-  query { <%= class_name %>.all }<%= " # TODO: #{class_name} was not found, point this at your model" unless model_class %>
+  query { <%= query_expression %> }<%= " # TODO: #{class_name} was not found, point this at your model" unless model_class %>
 <% if column_specs.empty? %>
 
   # column :name, label: "Name", type: :string, sortable: true, searchable: true, filterable: true, filter_type: :text
@@ -9,11 +9,23 @@ class <%= table_class_name %> < Infotable::Base
   column :<%= spec[:name] %>,
     type: :<%= spec[:type] %>,
     sortable: true<%= ",\n    searchable: true" if spec[:searchable] %>,
-    filterable: <%= spec[:primary_key] ? "false" : "true" %><%= ",\n    filter_type: :#{spec[:filter]}" unless spec[:primary_key] %><%= ",\n    filter_options: %w[#{spec[:enum_values].join(' ')}]" if spec[:enum_values] %><%= ",\n    visible: false" if spec[:primary_key] %>
+    filterable: <%= spec[:primary_key] ? "false" : "true" %><%= ",\n    filter_type: :#{spec[:filter]}" unless spec[:primary_key] %><%= ",\n    filter_options: %w[#{spec[:enum_values].join(' ')}]" if spec[:enum_values] %><%= ",\n    visible: false" if spec[:primary_key] %><% spec[:formatter_lines].each do |line| %><%= ",\n    #{line}" %><% end %>
+<% end -%>
+<% association_specs.each do |association| -%>
+
+  column :<%= association[:name] %>,
+    type: :string,
+    sortable: true,
+    searchable: true,
+    filterable: true,
+    filter_type: :text,
+    sql: "<%= association[:table] %>.<%= association[:display] %>",
+    includes: :<%= association[:name] %>,
+    value: ->(record) { record.<%= association[:name] %>&.<%= association[:display] %> }
 <% end -%>
 <% if association_hints.any? %>
 
-  # Associations: show them with a join, e.g.
+  # Associations that need a join you choose, e.g.
 <% association_hints.each do |association| -%>
   #   column :<%= association %>, sql: "<%= association.to_s.pluralize %>.name", includes: :<%= association %>, value: ->(record) { record.<%= association %>&.name }
 <% end -%>

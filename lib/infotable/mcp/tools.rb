@@ -62,6 +62,10 @@ module Infotable
           infinite_scroll: { type: "boolean" },
           countless: { type: "boolean" },
           checkbox: { type: "boolean" },
+          associations: { type: "boolean", description: "belongs_to associations as columns through left_joins (default true)" },
+          formatters: { type: "boolean", description: "Currency/percent/link/boolean formatters picked from column names (default true)" },
+          title: { type: "string" },
+          subtitle: { type: "string" },
           authorize: { type: "string", description: "Ruby expression over `controller`, e.g. controller.current_user&.admin?" },
           write: { type: "boolean", description: "Save the file (default: only show the code)" },
           overwrite: { type: "boolean" }

@@ -4,7 +4,13 @@
 
 ### Added
 - MCP server (`bundle exec infotable-mcp`, needs the `mcp` gem in the host app) that lets an AI assistant create tables: `list_models`, `list_tables`, `describe_dsl`, `table_options`, `generate_table`, `validate_table`, the `new_table` prompt and the `infotable://readme` resource. See "MCP Server" in the README.
-- `infotable:table` generator options: `--per-page`, `--sort=column:direction`, `--toolbar`, `--row-click`, `--infinite-scroll`, `--countless`, `--checkbox`, `--authorize`.
+- `infotable:table` generator options: `--per-page`, `--sort=column:direction`, `--toolbar`, `--row-click`, `--infinite-scroll`, `--countless`, `--checkbox`, `--authorize`, `--title`, `--subtitle`.
+- `infotable:table` generator: `belongs_to` associations become columns (left join, sort/search/filter on the associated record's name, title, label or email) instead of commented hints; `--no-associations` keeps the hints.
+- `infotable:table` generator: formatters picked from column names and types (`:boolean`, `:currency`, `:percent`, `:link` for email and urls); `--no-formatters` turns it off.
+- The MCP `generate_table` tool takes `associations`, `formatters`, `title` and `subtitle`.
+
+### Removed
+- Tailwind CSS v3 is no longer mentioned or supported: the unused `tailwind.config.js` installer template, the v3 sections of the docs and `Infotable.tailwind_content_paths` (it only served a v3 `content` array) are gone. Use Tailwind v4 with `tailwindcss-rails`; the installer has only ever configured v4. Removed the finished "`infotable:table` generator" and "Tailwind v3 support" items from the roadmap.
 
 ### Changed
 - Reordering columns in the drawer keeps the pins: dragging a pinned column among the pinned ones keeps it pinned, dragging it out unpins it, dragging an unpinned column among the pins pins it (it used to unpin everything).

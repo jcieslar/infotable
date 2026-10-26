@@ -64,7 +64,7 @@ rails generate infotable:install
 
 The installer will:
 - Auto-detect your JavaScript bundler (importmap, esbuild, webpack, vite)
-- Configure Tailwind CSS (v4 or v3) to scan InfoTable views
+- Configure Tailwind CSS v4 to scan InfoTable views
 - Mount engine routes
 - Create `app/infotable/` directory
 - Generate configuration file
@@ -167,9 +167,14 @@ rails generate infotable:table User
 rails generate infotable:table Admin::Order --only=id number status   # or --skip=notes
 rails generate infotable:table Order --per-page=50 --sort=placed_at:desc --toolbar=rail --checkbox \
   --authorize="controller.current_user&.admin?"   # also --row-click --infinite-scroll --countless
+rails generate infotable:table Comment --title=Replies --no-associations --no-formatters
 ```
 
-It writes `app/infotable/users_table.rb` with a column per attribute (types and filters inferred, enums become select filters, passwords/tokens and foreign keys are left out, `belongs_to` associations come as commented hints).
+It writes `app/infotable/users_table.rb` with a column per attribute (types and filters inferred, enums become select filters, passwords/tokens and foreign keys are left out).
+
+- **Associations:** every `belongs_to` whose model has a `name`, `title`, `label` or `email` becomes a column that sorts, searches and filters on that attribute (`query { Comment.left_joins(:post, :author) }`, `sql: "authors.name"`). A second association to a table that is already joined, or one without such an attribute, stays a commented hint. `--no-associations` turns this off.
+- **Formatters:** picked from the column: booleans get `:boolean`, decimals named `price`/`amount`/`total`/`cost`/`salary`/`fee`/`revenue`/`balance` get `:currency`, `*_percent`/`*_rate` get `:percent`, `email` and `*_url`/`website` get `:link`. `--no-formatters` turns this off.
+- `--title` and `--subtitle` set the heading.
 
 Or create table classes in `app/infotable/` by hand:
 
@@ -1126,8 +1131,6 @@ end
 - [ ] Server-side persistence of column settings
 - [ ] Table state in the URL
 - [ ] More formatters (link, avatar, percent)
-- [ ] `infotable:table` generator
-- [ ] Tailwind v3 support
 
 ---
 

@@ -73,7 +73,7 @@ module Infotable
           model: model.name,
           notes: [
             ("enum columns (#{enums.join(', ')}) become badges with a select filter" if enums.any?),
-            ("belongs_to #{belongs_to.join(', ')}: generated as a commented hint, a column needs a join" if belongs_to.any?),
+            ("belongs_to #{belongs_to.join(', ')}: shown as columns through left_joins when the associated model has a name, title, label or email" if belongs_to.any?),
             "foreign keys and sensitive columns (password, token...) are left out"
           ].compact,
           questions: [
@@ -85,6 +85,9 @@ module Infotable
             { param: "row_click", ask: "Clicking a row opens it (needs row_link)?", default: false },
             { param: "infinite_scroll", ask: "Infinite scroll instead of pages?", default: false },
             { param: "countless", ask: "Skip the total count (tables over ~1M rows)?", default: false },
+            { param: "title", ask: "Table title?", default: nil },
+            { param: "associations", ask: "Show belongs_to associations as columns?", default: true },
+            { param: "formatters", ask: "Pick currency, percent, link and boolean formatters from column names?", default: true },
             { param: "authorize", ask: "Who may see the table? A Ruby expression over `controller`", default: "controller.current_user.present?" }
           ]
         }
