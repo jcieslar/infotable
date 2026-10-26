@@ -878,8 +878,8 @@ Then ask: *"create an InfoTable table for Order"*. Or use the `new_table` prompt
 |------|--------------|
 | `list_models` | Models with column types, enums and associations |
 | `list_tables` | Tables that already exist, with their settings (the house style) |
-| `describe_dsl` | Column options, types, filters, formatters and settings of the installed version |
-| `table_options` | Questions about a new table (columns, sort, per page, toolbar, selection, authorization...) with defaults proposed from the model |
+| `describe_dsl` | Column options, types, filters, formatters and settings of the installed version, plus what the generator decides on its own (`generator_rules`: association columns, formatters) |
+| `table_options` | Questions about a new table (columns, sort, per page, title, toolbar, selection, associations, formatters, authorization...) with defaults proposed from the model |
 | `generate_table` | Renders the table with the `infotable:table` generator. Only shows the code; `write: true` saves it, an existing file is replaced only with `overwrite: true` |
 | `validate_table` | Loads a table by name or from source and reports missing columns, a bad `default_sort`, a failing query or a missing `authorize`; `preview: 5` returns the first rows |
 

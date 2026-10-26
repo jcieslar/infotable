@@ -117,7 +117,9 @@ module Infotable
           2. Ask the user the questions of table_options in ONE message, with the proposed defaults filled in, and wait for the answers.
           3. Call generate_table with the answers (without write) and show the code.
           4. After the user agrees, call generate_table with write: true, then validate_table with preview: 5 and report the result.
-          Add a batch action, formatter or association column only when the user asks; describe_dsl lists what exists.
+          generate_table adds belongs_to association columns and picks formatters (currency, percent, link, boolean) by itself:
+          tell the user which ones it chose from the code and offer associations: false / formatters: false if they do not want that.
+          Add a batch action or a custom formatter only when the user asks; describe_dsl lists what exists.
         TEXT
         ::MCP::Prompt::Result.new(messages: [ ::MCP::Prompt::Message.new(role: "user", content: ::MCP::Content::Text.new(text)) ])
       end
