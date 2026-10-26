@@ -1,8 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Innermost pinned column on each side: a real 1px border, so the line is continuous down the column
-const LEFT_EDGE = ["border-r", "border-r-gray-300", "dark:border-r-gray-600"]
-const RIGHT_EDGE = ["border-l", "border-l-gray-300", "dark:border-l-gray-600"]
+// Innermost pinned column on each side: an inset 1px line. A border would stay behind when the
+// cell sticks (collapsed borders belong to the table), a box-shadow moves with the cell
+const LEFT_EDGE = 'inset -1px 0 0 0 rgba(128, 128, 128, 0.45)'
+const RIGHT_EDGE = 'inset 1px 0 0 0 rgba(128, 128, 128, 0.45)'
 
 // Main table controller that coordinates table interactions
 export default class extends Controller {
@@ -1053,7 +1054,7 @@ export default class extends Controller {
         header.style.backgroundClip = ''
         header.style.boxShadow = ''
         header.querySelectorAll('[data-pin-icon]').forEach(icon => icon.remove())
-        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800', ...LEFT_EDGE, ...RIGHT_EDGE)
+        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
       })
 
       rows.forEach(row => {
@@ -1073,7 +1074,7 @@ export default class extends Controller {
           cell.style.removeProperty('opacity')
           cell.style.backgroundClip = ''
           cell.style.boxShadow = ''
-          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800', ...LEFT_EDGE, ...RIGHT_EDGE)
+          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
         })
       })
 
@@ -1111,13 +1112,13 @@ export default class extends Controller {
             z-index: 30 !important;
             opacity: 1 !important;
             background-clip: padding-box !important;
+            box-shadow: ${columnName === lastLeftPinned ? LEFT_EDGE : 'none'} !important;
             ${existingStyles}
           `.replace(/\s+/g, ' ').trim()
 
           // Set all styles at once via setAttribute (most aggressive method)
           header.setAttribute('style', newStyles)
           header.classList.add('infotable-pinned-left', '!bg-gray-50', 'dark:!bg-gray-800')
-          if (columnName === lastLeftPinned) header.classList.add(...LEFT_EDGE)
           this.addPinIcon(header, 'left')
 
 
@@ -1135,12 +1136,12 @@ export default class extends Controller {
                 z-index: 15 !important;
                 opacity: 1 !important;
                 background-clip: padding-box !important;
+                box-shadow: ${columnName === lastLeftPinned ? LEFT_EDGE : 'none'} !important;
                 ${existingStyles}
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
               cell.classList.add('infotable-pinned-left', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
-              if (columnName === lastLeftPinned) cell.classList.add(...LEFT_EDGE)
 
             }
           })
@@ -1158,12 +1159,12 @@ export default class extends Controller {
             z-index: 30 !important;
             opacity: 1 !important;
             background-clip: padding-box !important;
+            box-shadow: ${columnName === firstRightPinned ? RIGHT_EDGE : 'none'} !important;
             ${existingStyles}
           `.replace(/\s+/g, ' ').trim()
 
           header.setAttribute('style', newStyles)
           header.classList.add('infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
-          if (columnName === firstRightPinned) header.classList.add(...RIGHT_EDGE)
           this.addPinIcon(header, 'right')
 
 
@@ -1181,12 +1182,12 @@ export default class extends Controller {
                 z-index: 15 !important;
                 opacity: 1 !important;
                 background-clip: padding-box !important;
+                box-shadow: ${columnName === firstRightPinned ? RIGHT_EDGE : 'none'} !important;
                 ${existingStyles}
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
               cell.classList.add('infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
-              if (columnName === firstRightPinned) cell.classList.add(...RIGHT_EDGE)
 
             }
           })
