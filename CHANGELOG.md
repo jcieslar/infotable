@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.6.0
 
 ### Added
 - Translations for German, French, Spanish, Greek and Italian (`de`, `fr`, `es`, `el`, `it`) next to English and Polish. Every key can be overridden in the host app's `config/locales`. Adds a `rails-i18n` dependency (month names, plural rules, number formats).
