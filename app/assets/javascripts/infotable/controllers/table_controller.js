@@ -993,7 +993,7 @@ export default class extends Controller {
         return
       }
 
-      const headers = Array.from(table.querySelectorAll("thead th[data-column-name]"))
+      let headers = Array.from(table.querySelectorAll("thead th[data-column-name]"))
 
       // Columns the user never pinned/unpinned fall back to the table's `pinned:` default
       headers.forEach(header => {
@@ -1003,6 +1003,32 @@ export default class extends Controller {
         }
       })
       const rows = table.querySelectorAll("tbody tr")
+
+      // Pinned columns jump to their edge, keeping their relative order, so they sit side by side
+      // with no gap; unpinning restores the base order (stored order, else the server's)
+      const names = headers.map(h => h.dataset.columnName)
+      headers.forEach((h, i) => { if (h.dataset.pinBase === undefined) h.dataset.pinBase = String(i) })
+      const storedOrder = this.loadColumnOrder(tableName)
+      const base = storedOrder && this.isSchemaValid(storedOrder, names)
+        ? storedOrder
+        : [...headers].sort((a, b) => a.dataset.pinBase - b.dataset.pinBase).map(h => h.dataset.columnName)
+      const leftNames = base.filter(n => pinnedData[n] === 'left')
+      const rightNames = base.filter(n => pinnedData[n] === 'right')
+      const pinOrder = [...leftNames, ...base.filter(n => !leftNames.includes(n) && !rightNames.includes(n)), ...rightNames]
+      // Re-appending a node drops its focus, so only touch rows that are out of order
+      const inOrder = els => els.every((el, i) => el.dataset.columnName === pinOrder[i])
+      const headerRow = headers[0]?.parentElement
+      if (headerRow && !inOrder(headers)) {
+        const byName = new Map(headers.map(h => [h.dataset.columnName, h]))
+        pinOrder.forEach(n => byName.has(n) && headerRow.appendChild(byName.get(n)))
+        headers = Array.from(table.querySelectorAll("thead th[data-column-name]"))
+      }
+      rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll("td[data-column-name]"))
+        if (inOrder(cells)) return
+        const cellByName = new Map(cells.map(c => [c.dataset.columnName, c]))
+        pinOrder.forEach(n => cellByName.has(n) && row.appendChild(cellByName.get(n)))
+      })
 
 
       // Calculate positions for pinned columns
@@ -1066,8 +1092,10 @@ export default class extends Controller {
         }
       })
 
-      // Apply sticky positioning for pinned columns
-      headers.forEach(header => {
+      // Apply sticky positioning for pinned columns (right ones from the outer edge inwards)
+      const rightPinnedHeaders = headers.filter(h => pinnedData[h.dataset.columnName] === 'right')
+      const applyOrder = [...headers.filter(h => pinnedData[h.dataset.columnName] === 'left'), ...rightPinnedHeaders.reverse()]
+      applyOrder.forEach(header => {
         const columnName = header.dataset.columnName
         const pinned = pinnedData[columnName]
 
