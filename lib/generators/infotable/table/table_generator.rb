@@ -9,6 +9,14 @@ module Infotable
 
       class_option :only, type: :array, default: [], desc: "Only these columns"
       class_option :skip, type: :array, default: [], desc: "Leave these columns out"
+      class_option :per_page, type: :numeric, default: 25, desc: "Rows per page"
+      class_option :sort, type: :string, desc: "Default sort as column:direction, e.g. created_at:desc"
+      class_option :toolbar, type: :string, desc: "Toolbar mode: header or rail"
+      class_option :row_click, type: :boolean, default: false, desc: "Clicking a row opens its row_link"
+      class_option :infinite_scroll, type: :boolean, default: false, desc: "Infinite scroll instead of pages"
+      class_option :countless, type: :boolean, default: false, desc: "Skip the total count (big tables)"
+      class_option :checkbox, type: :boolean, default: false, desc: "Row selection column"
+      class_option :authorize, type: :string, desc: "Ruby expression over `controller` that decides who sees the table"
 
       # Attributes that must never end up in a table by accident
       SENSITIVE = /password|digest|token|secret|otp|encrypted/
@@ -82,9 +90,23 @@ module Infotable
         @model.reflect_on_all_associations(:belongs_to).map(&:name)
       end
 
+      # Table-level settings chosen with the options above, one DSL line each
+      def setting_lines
+        lines = []
+        lines << "toolbar :#{options[:toolbar]}" if options[:toolbar].present?
+        lines << "infinite_scroll true" if options[:infinite_scroll]
+        lines << "countless" if options[:countless]
+        lines << "checkbox_column" if options[:checkbox]
+        lines << "row_click" if options[:row_click]
+        lines
+      end
+
       def default_sort_line
         names = column_specs.map { _1[:name] }
-        if names.include?("created_at")
+        if options[:sort].present?
+          column, direction = options[:sort].split(":")
+          "default_sort :#{column}, :#{direction == 'desc' ? 'desc' : 'asc'}"
+        elsif names.include?("created_at")
           "default_sort :created_at, :desc"
         elsif names.any?
           "default_sort :#{names.first}, :asc"

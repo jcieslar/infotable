@@ -16,8 +16,11 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "https://github.com/jcieslar/infotable/blob/main/CHANGELOG.md"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+    Dir["{app,config,db,lib,exe}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
   end
+
+  spec.bindir = "exe"
+  spec.executables = [ "infotable-mcp" ]
 
   # Rails and core dependencies
   spec.add_dependency "rails", ">= 8.0"
@@ -34,4 +37,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pg"
   spec.add_development_dependency "puma"
   spec.add_development_dependency "propshaft"
+  spec.add_development_dependency "mcp" # exe/infotable-mcp (optional in host apps)
 end

@@ -1,5 +1,10 @@
 module Infotable
   class Base
+    # Options column accepts; anything else is logged as a probable typo
+    COLUMN_OPTIONS = %i[label type sortable searchable filterable visible exportable pinned virtual virtual_sql
+                        sql sort_sql value includes formatter formatter_options actions filter_type filter_options
+                        filter_options_cache filter_options_limit filter_multi_select width].freeze
+
     class << self
       attr_accessor :table_columns, :table_query, :table_query_sql, :pagination_settings, :sort_settings, :height_settings, :infinite_scroll_settings, :row_link_settings, :row_attr_settings, :slim_rows_settings, :row_size_settings, :filters_button_settings, :display_settings, :nil_value_settings, :empty_value_settings, :table_authorize, :checkbox_settings, :batch_action_list, :countless_setting, :url_state_setting, :resizable_columns_setting
 
@@ -171,10 +176,6 @@ module Infotable
       end
 
       # Define a column
-      COLUMN_OPTIONS = %i[label type sortable searchable filterable visible exportable pinned virtual virtual_sql
-                          sql sort_sql value includes formatter formatter_options actions filter_type filter_options
-                          filter_options_cache filter_options_limit filter_multi_select width].freeze
-
       def column(name, **options)
         @table_columns ||= []
         unknown = options.keys - COLUMN_OPTIONS

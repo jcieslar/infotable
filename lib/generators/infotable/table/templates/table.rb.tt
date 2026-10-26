@@ -19,8 +19,15 @@ class <%= table_class_name %> < Infotable::Base
 <% end -%>
 <% end -%>
 
-  per_page 25
+  per_page <%= options[:per_page] %>
 <% if default_sort_line %>
   <%= default_sort_line %>
+<% end -%>
+<% setting_lines.each do |line| -%>
+  <%= line %>
+<% end -%>
+<% if options[:authorize].present? %>
+
+  authorize { |controller| <%= options[:authorize] %> }
 <% end -%>
 end

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- MCP server (`bundle exec infotable-mcp`, needs the `mcp` gem in the host app) that lets an AI assistant create tables: `list_models`, `list_tables`, `describe_dsl`, `table_options`, `generate_table`, `validate_table`, the `new_table` prompt and the `infotable://readme` resource. See "MCP Server" in the README.
+- `infotable:table` generator options: `--per-page`, `--sort=column:direction`, `--toolbar`, `--row-click`, `--infinite-scroll`, `--countless`, `--checkbox`, `--authorize`.
+
 ### Changed
 - Reordering columns in the drawer keeps the pins: dragging a pinned column among the pinned ones keeps it pinned, dragging it out unpins it, dragging an unpinned column among the pins pins it (it used to unpin everything).
 - Pinned columns move to their edge, keeping their order, so several pinned columns sit side by side with no gap; unpinning restores the order.
