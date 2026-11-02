@@ -74,6 +74,32 @@ class FormattersTest < ActiveSupport::TestCase
     assert_includes out, "sure?"
   end
 
+  test "actions navigate the whole page, not the table's turbo frame, in every style" do
+    actions = [ { label: "View", url: "/u/1" }, { label: "Del", url: "/u/1", method: :delete } ]
+    %i[buttons links dropdown].each do |style|
+      links = Nokogiri::HTML.fragment(fmt(Infotable::Formatters::ActionFormatter).format(nil, User.new(id: 1), style: style, actions: actions)).css("a")
+      assert_equal 2, links.size, style
+      links.each { |a| assert_equal "_top", a["data-turbo-frame"], "#{style}: #{a.text}" }
+    end
+  end
+
+  test "an action's own turbo_frame is kept" do
+    %i[turbo_frame turbo-frame].each do |key|
+      [ key, key.to_s ].each do |spelling|
+        out = fmt(Infotable::Formatters::ActionFormatter).format(nil, User.new(id: 1), actions: [ { label: "Edit", url: "/u/1/edit", data: { spelling => "modal" } } ])
+        assert_equal "modal", Nokogiri::HTML.fragment(out).at_css("a")["data-turbo-frame"], spelling.inspect
+      end
+    end
+  end
+
+  test "action data hash is not mutated" do
+    data = { controller: "x" }.freeze
+    out = fmt(Infotable::Formatters::ActionFormatter).format(nil, User.new(id: 1), actions: [ { label: "V", url: "/u", data: data } ])
+    a = Nokogiri::HTML.fragment(out).at_css("a")
+    assert_equal "x", a["data-controller"]
+    assert_equal "_top", a["data-turbo-frame"]
+  end
+
   test "action dropdown is a details menu with escaped labels and turbo delete" do
     out = fmt(Infotable::Formatters::ActionFormatter).format(nil, User.new(id: 4), style: :dropdown, actions: [
       { label: "<b>View</b>", url: ->(r) { "/u/#{r.id}" } },

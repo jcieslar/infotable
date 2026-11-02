@@ -602,6 +602,8 @@ column :actions,
 
 `method:` and `confirm:` use Turbo (`data-turbo-method`, `data-turbo-confirm`). Labels are HTML-escaped.
 
+Rows render inside the table's own `<turbo-frame>`, so every action link gets `data-turbo-frame="_top"` and navigates the whole page (a plain link would end in Turbo's "Content missing"). To load an action into another frame (a modal, a side panel), pass it: `{ label: "Edit", url: ..., data: { turbo_frame: "modal" } }`.
+
 #### 6. Link Formatter (`:link`)
 
 ```ruby
@@ -616,7 +618,7 @@ column :name,
   formatter_options: { url: ->(record) { user_path(record) } }              # Proc (run in the view), Symbol or String
 ```
 
-Only relative URLs, `http(s)`, `mailto` and `tel` are linked (`javascript:` and friends render as plain text). Options: `url`, `label`, `external` (`target="_blank"` + `rel="noopener noreferrer"`), `class`.
+Only relative URLs, `http(s)`, `mailto` and `tel` are linked (`javascript:` and friends render as plain text). Options: `url`, `label`, `external` (`target="_blank"` + `rel="noopener noreferrer"`), `class`, `data` (data-* attributes). Like action links, the link navigates the whole page (`data-turbo-frame="_top"`) unless `data: { turbo_frame: "..." }` names another frame.
 
 #### 7. Avatar Formatter (`:avatar`)
 
