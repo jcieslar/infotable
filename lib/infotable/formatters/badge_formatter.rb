@@ -54,23 +54,23 @@ module Infotable
 
         color_classes = case color.to_s
         when "green"
-          "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300"
+          "bg-green-100 text-green-800"
         when "red"
-          "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300"
+          "bg-red-100 text-red-800"
         when "yellow"
-          "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300"
+          "bg-yellow-100 text-yellow-800"
         when "blue"
-          "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300"
+          "bg-blue-100 text-blue-800"
         when "indigo"
-          "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-800 dark:text-indigo-300"
+          "bg-indigo-100 text-indigo-800"
         when "purple"
-          "bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-300"
+          "bg-purple-100 text-purple-800"
         when "pink"
-          "bg-pink-100 dark:bg-pink-900/40 text-pink-800 dark:text-pink-300"
+          "bg-pink-100 text-pink-800"
         when "cyan"
-          "bg-cyan-100 dark:bg-cyan-900/40 text-cyan-800 dark:text-cyan-300"
+          "bg-cyan-100 text-cyan-800"
         else # gray
-          "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+          "bg-gray-100 text-gray-800"
         end
 
         "#{base} #{size_classes} #{color_classes}"

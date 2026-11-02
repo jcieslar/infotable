@@ -965,7 +965,7 @@ export default class extends Controller {
   // Small pushpin before a pinned column's label, tilted toward the side it is pinned to
   addPinIcon(header, side) {
     const tilt = side === "left" ? "-rotate-45" : "rotate-45"
-    header.insertAdjacentHTML("afterbegin", `<svg data-pin-icon aria-hidden="true" class="inline-block w-3 h-3 mr-1 -mt-0.5 text-indigo-500 dark:text-indigo-400 ${tilt}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>`)
+    header.insertAdjacentHTML("afterbegin", `<svg data-pin-icon aria-hidden="true" class="inline-block w-3 h-3 mr-1 -mt-0.5 text-indigo-500 ${tilt}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>`)
   }
 
   applyColumnPinning() {
@@ -1054,7 +1054,7 @@ export default class extends Controller {
         header.style.backgroundClip = ''
         header.style.boxShadow = ''
         header.querySelectorAll('[data-pin-icon]').forEach(icon => icon.remove())
-        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
+        header.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-gray-50')
       })
 
       rows.forEach(row => {
@@ -1074,7 +1074,7 @@ export default class extends Controller {
           cell.style.removeProperty('opacity')
           cell.style.backgroundClip = ''
           cell.style.boxShadow = ''
-          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
+          cell.classList.remove('infotable-pinned-left', 'infotable-pinned-right', '!bg-white', 'group-hover:!bg-gray-50')
         })
       })
 
@@ -1118,7 +1118,7 @@ export default class extends Controller {
 
           // Set all styles at once via setAttribute (most aggressive method)
           header.setAttribute('style', newStyles)
-          header.classList.add('infotable-pinned-left', '!bg-gray-50', 'dark:!bg-gray-800')
+          header.classList.add('infotable-pinned-left', '!bg-gray-50')
           this.addPinIcon(header, 'left')
 
 
@@ -1141,7 +1141,7 @@ export default class extends Controller {
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
-              cell.classList.add('infotable-pinned-left', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
+              cell.classList.add('infotable-pinned-left', '!bg-white', 'group-hover:!bg-gray-50')
 
             }
           })
@@ -1164,7 +1164,7 @@ export default class extends Controller {
           `.replace(/\s+/g, ' ').trim()
 
           header.setAttribute('style', newStyles)
-          header.classList.add('infotable-pinned-right', '!bg-gray-50', 'dark:!bg-gray-800')
+          header.classList.add('infotable-pinned-right', '!bg-gray-50')
           this.addPinIcon(header, 'right')
 
 
@@ -1187,7 +1187,7 @@ export default class extends Controller {
               `.replace(/\s+/g, ' ').trim()
 
               cell.setAttribute('style', newStyles)
-              cell.classList.add('infotable-pinned-right', '!bg-white', 'dark:!bg-gray-900', 'group-hover:!bg-gray-50', 'dark:group-hover:!bg-gray-800')
+              cell.classList.add('infotable-pinned-right', '!bg-white', 'group-hover:!bg-gray-50')
 
             }
           })

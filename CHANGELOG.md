@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.0
+
+### Changed
+- The table is always light: dark mode is removed (no `dark:` classes in the views, formatters or JavaScript), so neither the system color scheme nor a host app's `.dark` class changes it. The table root sets `color-scheme: light` (`scheme-light`), keeping native controls (date pickers, selects, checkboxes, scrollbars) light as well.
+
 ## 1.6.0
 
 ### Added

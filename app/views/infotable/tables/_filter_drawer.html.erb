@@ -6,14 +6,14 @@
     end %>
 <div class="flex flex-col h-full">
   <%# Drawer Content - Scrollable %>
-  <div class="flex-1 overflow-y-auto px-5 py-1 bg-white dark:bg-gray-900">
+  <div class="flex-1 overflow-y-auto px-5 py-1 bg-white">
     <form id="filter-form-<%= table_name %>"
           action="<%= infotable_table_data_path(table_name: table_name) %>"
           method="get"
           data-table-frame="<%= table_name %>_content"
           data-action="submit->infotable--drawer#submitFilters"
           data-autofilter="<%= autofilter.to_s %>"
-          class="divide-y divide-gray-100 dark:divide-gray-800">
+          class="divide-y divide-gray-100">
 
       <%# Preserve sort and per_page params %>
       <% if params[:sort].is_a?(String) && params[:sort].present? %>
@@ -30,7 +30,7 @@
       <%# Render filter for each filterable column %>
       <% table_class.filterable_columns.each do |column| %>
         <div class="py-4">
-          <label class="block text-[13px] font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label class="block text-[13px] font-medium text-gray-700 mb-2">
             <%= column[:label] %>
           </label>
 
@@ -45,12 +45,12 @@
   </div>
 
   <%# Drawer Footer with actions %>
-  <div class="px-5 py-3 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+  <div class="px-5 py-3 border-t border-gray-100 bg-white">
     <div class="flex gap-2">
       <button type="button"
               data-action="click->infotable--drawer#clearFilters"
               data-table-name="<%= table_name %>"
-              class="<%= autofilter ? 'w-full' : 'flex-1' %> px-4 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transition-all">
+              class="<%= autofilter ? 'w-full' : 'flex-1' %> px-4 py-2 rounded-lg text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 transition-all">
         <%= t('infotable.filters.actions.clear_all') %>
       </button>
       <% unless autofilter %>

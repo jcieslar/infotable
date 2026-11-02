@@ -18,7 +18,7 @@ module Infotable
         limit = options[:limit]
         shown, rest = limit ? [ labels.first(limit), labels.drop(limit) ] : [ labels, [] ]
         badges = shown.map { badge(_1, options) }
-        badges << content_tag(:span, "+#{rest.size}", title: rest.join(", "), class: "text-xs text-gray-500 dark:text-gray-400") if rest.any?
+        badges << content_tag(:span, "+#{rest.size}", title: rest.join(", "), class: "text-xs text-gray-500") if rest.any?
         content_tag(:div, safe_join(badges), class: "flex flex-wrap items-center gap-1")
       end
 

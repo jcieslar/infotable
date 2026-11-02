@@ -1,7 +1,11 @@
 require "application_system_test_case"
 
+# The table is always light: a dark system color scheme must not change it.
 class DarkModeTest < ApplicationSystemTestCase
-  setup { create_users }
+  setup do
+    create_users
+    emulate("dark")
+  end
 
   def emulate(scheme)
     page.driver.browser.page.command("Emulation.setEmulatedMedia", features: [ { name: "prefers-color-scheme", value: scheme } ])
@@ -36,41 +40,36 @@ class DarkModeTest < ApplicationSystemTestCase
     wait_for_table("users_table")
   end
 
-  test "light scheme keeps a white table with dark text" do
-    emulate("light")
+  test "dark system scheme keeps a white table with dark text" do
     open_users
 
     assert_brightness("[data-controller~='infotable--table'] > div", "backgroundColor", :>, 240)
     assert_brightness("turbo-frame#users_table_content tbody td", "color", :<, 100)
+    assert_brightness("turbo-frame#users_table_content thead th", "backgroundColor", :>, 230)
   end
 
-  test "dark scheme gives a dark table with light text" do
-    emulate("dark")
-    open_users
-
-    assert_brightness("[data-controller~='infotable--table'] > div", "backgroundColor", :<, 60)
-    assert_brightness("turbo-frame#users_table_content tbody td", "color", :>, 150)
-    assert_brightness("turbo-frame#users_table_content thead th", "backgroundColor", :<, 80)
-  end
-
-  test "dark scheme darkens the drawer and its inputs" do
-    emulate("dark")
+  test "dark system scheme keeps the drawer and its inputs light" do
     open_users
     find("button[data-action*='infotable--drawer#open']").click
 
     assert_selector "[role=dialog]:not([aria-hidden='true'])"
-    assert_brightness("[role=dialog]", "backgroundColor", :<, 60)
-    assert_brightness("[role=dialog] input[name='filters[name][value]']", "backgroundColor", :<, 60)
-    assert_brightness("[role=dialog] input[name='filters[name][value]']", "color", :>, 150)
+    assert_brightness("[role=dialog]", "backgroundColor", :>, 230)
+    assert_brightness("[role=dialog] input[name='filters[name][value]']", "backgroundColor", :>, 230)
+    assert_brightness("[role=dialog] input[name='filters[name][value]']", "color", :<, 100)
   end
 
-  test "dark scheme keeps status badges readable" do
-    emulate("dark")
+  test "native controls use the light color scheme" do
+    open_users
+
+    assert_equal "light", page.evaluate_script("getComputedStyle(document.querySelector(\"[data-controller~='infotable--table']\")).colorScheme")
+  end
+
+  test "dark system scheme keeps light status badges" do
     open_users
 
     badge = "turbo-frame#users_table_content tbody span.rounded-full"
     assert_selector badge, minimum: 1
-    assert_brightness(badge, "color", :>, 120)
-    assert_brightness(badge, "backgroundColor", :<, 80)
+    assert_brightness(badge, "backgroundColor", :>, 200)
+    assert_brightness(badge, "color", :<, 120)
   end
 end

@@ -384,10 +384,10 @@ Filters, search and sort survive pagination, per-page changes and CSV export.
 
 Search, filters, sort, page and page size are mirrored in the page's address bar, one namespace per table (`/users?users_table[search]=ann&users_table[page]=2`). Links can be shared and bookmarked, a reload keeps the table as it was, and the Back button steps through the states. Turn it off globally with `config.url_state = false` or per table with `url_state false` (e.g. tables inside modals or tabs).
 
-#### Column widths, dark mode, small screens
+#### Column widths, colors, small screens
 
 - Every header has a drag handle on its right edge (keyboard: focus it, Left/Right, Shift for bigger steps; double-click resets). Widths are remembered in the browser. `resizable_columns false` removes the handles.
-- Dark mode follows `prefers-color-scheme`. If your app switches with a `.dark` class instead, add `@custom-variant dark (&:where(.dark, .dark *));` to your Tailwind CSS.
+- The table is always light: it ignores the system color scheme (`prefers-color-scheme`) and your app's `dark:` variant, and sets `color-scheme: light` so date pickers, selects and scrollbars stay light too.
 - On narrow screens the toolbar stacks and the table scrolls sideways inside its own box.
 
 #### CSV export columns
