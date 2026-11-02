@@ -59,9 +59,10 @@ module Infotable
         )
       end
 
-      # Turbo-compatible: non-GET verbs use data-turbo-method, confirm uses data-turbo-confirm
+      # Turbo-compatible: non-GET verbs use data-turbo-method, confirm uses data-turbo-confirm.
+      # Actions navigate the whole page (data-turbo-frame="_top") unless data: { turbo_frame: } says otherwise.
       def link_data(data, method, confirm)
-        data = data.dup
+        data = top_frame_data(data)
         data[:turbo_method] = method unless method.to_sym == :get
         data[:turbo_confirm] = confirm if confirm
         data

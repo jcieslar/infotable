@@ -21,6 +21,17 @@ class LinkAvatarPercentFormattersTest < ActiveSupport::TestCase
     assert_includes html, ">a@b.c</a>"
   end
 
+  test "link navigates the whole page, not the table's turbo frame" do
+    a = Nokogiri::HTML.fragment(link.format("x", nil, url: "/users/7")).at_css("a")
+    assert_equal "_top", a["data-turbo-frame"]
+  end
+
+  test "link keeps a given turbo_frame and other data attributes" do
+    a = Nokogiri::HTML.fragment(link.format("x", nil, url: "/users/7", data: { turbo_frame: "modal", action: "a#b" })).at_css("a")
+    assert_equal "modal", a["data-turbo-frame"]
+    assert_equal "a#b", a["data-action"]
+  end
+
   test "link external opens in a new tab safely" do
     html = link.format("https://example.com", nil, external: true)
     assert_includes html, 'target="_blank"'

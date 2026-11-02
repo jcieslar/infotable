@@ -42,6 +42,15 @@ module Infotable
       def html_safe(str)
         str.to_s.html_safe
       end
+
+      # Cells render inside the table's own <turbo-frame>, so a plain link would load its target into
+      # that frame ("Content missing"). Default to the whole page; a given turbo_frame (any key
+      # spelling: :turbo_frame, "turbo_frame", "turbo-frame") wins, e.g. a modal frame.
+      def top_frame_data(data)
+        data = (data || {}).to_h.transform_keys { |key| key.to_s.tr("-", "_").to_sym }
+        data[:turbo_frame] = "_top" if data[:turbo_frame].blank?
+        data
+      end
     end
   end
 end

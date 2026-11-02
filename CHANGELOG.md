@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.1
+
+### Fixed
+- Action links (`formatter: :action`, all styles: buttons, links, dropdown) and `formatter: :link` navigate the whole page. They render inside the table's `<turbo-frame>`, so following one ended in Turbo's "Content missing"; they now carry `data-turbo-frame="_top"`. A `data: { turbo_frame: "modal" }` on the action (or in the link's new `data:` option) still wins.
+
 ## 1.7.0
 
 ### Changed

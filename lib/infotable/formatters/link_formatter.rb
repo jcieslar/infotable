@@ -5,7 +5,8 @@ module Infotable
     #     url: ->(record) { user_path(record) },   # Proc (run in the view), Symbol (helper method) or String
     #     label: ->(record) { record.email },      # optional, defaults to the cell value
     #     external: true,                          # target=_blank rel="noopener noreferrer"
-    #     class: "..."                             # replaces the default classes
+    #     class: "...",                            # replaces the default classes
+    #     data: { turbo_frame: "modal" }           # data-* attributes; links target the whole page (_top) by default
     #   }
     # Without url: the value itself is the URL (handy for website columns); mailto:/tel: work too.
     class LinkFormatter < BaseFormatter
@@ -19,7 +20,7 @@ module Infotable
         url = options.key?(:url) ? resolve(options[:url], record) : value
         return label.to_s unless self.class.safe_url?(url)
 
-        attributes = { href: url.to_s, class: options[:class] || DEFAULT_CLASSES }
+        attributes = { href: url.to_s, class: options[:class] || DEFAULT_CLASSES, data: top_frame_data(options[:data]) }
         attributes.merge!(target: "_blank", rel: "noopener noreferrer") if options[:external]
 
         link_to(label.to_s, url.to_s, attributes)
