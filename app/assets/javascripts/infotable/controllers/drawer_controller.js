@@ -503,11 +503,11 @@ export default class extends Controller {
     this.tabButtonTargets.forEach(button => {
       const isActive = button.dataset.tab === tab
       if (isActive) {
-        button.classList.add("text-indigo-600", "dark:text-indigo-400", "border-indigo-600")
-        button.classList.remove("text-gray-500", "dark:text-gray-400", "border-transparent")
+        button.classList.add("text-indigo-600", "border-indigo-600")
+        button.classList.remove("text-gray-500", "border-transparent")
       } else {
-        button.classList.remove("text-indigo-600", "dark:text-indigo-400", "border-indigo-600")
-        button.classList.add("text-gray-500", "dark:text-gray-400", "border-transparent")
+        button.classList.remove("text-indigo-600", "border-indigo-600")
+        button.classList.add("text-gray-500", "border-transparent")
       }
     })
 
@@ -901,21 +901,21 @@ export default class extends Controller {
 
     if (leftBtn) {
       if (pinned === 'left') {
-        leftBtn.classList.add('bg-indigo-100', 'dark:bg-indigo-900/40', 'text-indigo-600')
-        leftBtn.classList.remove('text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'hover:text-gray-600')
+        leftBtn.classList.add('bg-indigo-100', 'text-indigo-600')
+        leftBtn.classList.remove('text-gray-400', 'hover:bg-gray-100', 'hover:text-gray-600')
       } else {
-        leftBtn.classList.remove('bg-indigo-100', 'dark:bg-indigo-900/40', 'text-indigo-600')
-        leftBtn.classList.add('text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'hover:text-gray-600')
+        leftBtn.classList.remove('bg-indigo-100', 'text-indigo-600')
+        leftBtn.classList.add('text-gray-400', 'hover:bg-gray-100', 'hover:text-gray-600')
       }
     }
 
     if (rightBtn) {
       if (pinned === 'right') {
-        rightBtn.classList.add('bg-indigo-100', 'dark:bg-indigo-900/40', 'text-indigo-600')
-        rightBtn.classList.remove('text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'hover:text-gray-600')
+        rightBtn.classList.add('bg-indigo-100', 'text-indigo-600')
+        rightBtn.classList.remove('text-gray-400', 'hover:bg-gray-100', 'hover:text-gray-600')
       } else {
-        rightBtn.classList.remove('bg-indigo-100', 'dark:bg-indigo-900/40', 'text-indigo-600')
-        rightBtn.classList.add('text-gray-400', 'hover:bg-gray-100', 'dark:hover:bg-gray-700', 'hover:text-gray-600')
+        rightBtn.classList.remove('bg-indigo-100', 'text-indigo-600')
+        rightBtn.classList.add('text-gray-400', 'hover:bg-gray-100', 'hover:text-gray-600')
       }
     }
   }

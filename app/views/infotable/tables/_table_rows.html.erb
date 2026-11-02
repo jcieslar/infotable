@@ -22,7 +22,7 @@
     row_data["action"] = "click->infotable--table#handleRowClick" if clickable
   %>
   <tr <%= tag.attributes(id: row_dom_id, data: row_data) %>
-      class="infotable-row group relative border-t border-gray-100 dark:border-gray-800 first:border-t-0 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150 <%= 'cursor-pointer' if clickable %> <%= table_class.row_classes_for(record) %>">
+      class="infotable-row group relative border-t border-gray-100 first:border-t-0 hover:bg-gray-50 transition-colors duration-150 <%= 'cursor-pointer' if clickable %> <%= table_class.row_classes_for(record) %>">
     <% if table_class.checkbox_enabled? %>
       <td class="<%= cell_padding %> w-10">
         <input type="checkbox"
@@ -30,14 +30,14 @@
                aria-label="<%= t('infotable.batch.select_row') %>"
                data-infotable--table-target="rowCheckbox"
                data-action="change->infotable--table#toggleRow"
-               class="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-indigo-400 focus:ring-indigo-500">
+               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
       </td>
     <% end %>
     <% table_class.columns.each do |column| %>
       <td data-column-name="<%= column[:name] %>"
           data-default-visible="<%= column[:visible] %>"
           style="<%= infotable_cell_width_style(column, ellipsis: true) %>"
-          class="<%= cell_padding %> whitespace-nowrap <%= text_size %> text-gray-700 dark:text-gray-300">
+          class="<%= cell_padding %> whitespace-nowrap <%= text_size %> text-gray-700">
         <%= format_cell_value(record, column, table_class) %>
       </td>
     <% end %>
